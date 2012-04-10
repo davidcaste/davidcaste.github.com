@@ -39,7 +39,7 @@ REVERSE_ARCHIVE_ORDER = True
 # =================
 # Theming
 # =================
-THEME = './themes/notmyidea/'
+THEME = 'notmyidea'
 
 DISQUS_SITENAME = 'pataliebredotnet'
 GITHUB_URL = 'http://github.com/davidcaste/davidcaste.github.com'
