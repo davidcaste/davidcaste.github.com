@@ -7,6 +7,7 @@ SITENAME = 'pataliebre.net'
 SITEURL = 'http://www.pataliebre.net'
 STATIC_PATHS = ['images', ]
 TIMEZONE = 'Europe/Madrid'
+DEFAULT_LANG = 'es'
 
 
 # =============
@@ -40,11 +41,12 @@ REVERSE_ARCHIVE_ORDER = True
 # Theming
 # =================
 THEME = 'notmyidea'
+DISPLAY_PAGES_ON_MENU = True
 
 DISQUS_SITENAME = 'pataliebredotnet'
 GITHUB_URL = 'http://github.com/davidcaste/davidcaste.github.com'
 #GOOGLE_ANALYTICS = 'UA-1147761-33'
 MENUITEMS = (
-    ('Archives', '{0}/archives.html'.format(SITEURL)),
+#    ('Archives', '{0}/archives.html'.format(SITEURL)),
 )
 TWITTER_USERNAME = 'davidcaste'
