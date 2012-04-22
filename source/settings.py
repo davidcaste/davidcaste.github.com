@@ -5,7 +5,7 @@ AUTHOR = 'David Castellanos'
 DEFAULT_CATEGORY = 'Blog'
 SITENAME = 'pataliebre.net'
 SITEURL = 'http://www.pataliebre.net'
-STATIC_PATHS = ['images', ]
+STATIC_PATHS = ['images', 'files']
 TIMEZONE = 'Europe/Madrid'
 DEFAULT_LANG = 'es'
 

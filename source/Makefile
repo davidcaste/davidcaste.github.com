@@ -41,6 +41,7 @@ clean:
 			$(OUTPUTDIR)/category \
 			$(OUTPUTDIR)/feeds \
 			$(OUTPUTDIR)/pages \
+			$(OUTPUTDIR)/static \
 			$(OUTPUTDIR)/tag \
 			$(OUTPUTDIR)/theme
 
