@@ -8,7 +8,7 @@ SITEURL = 'http://www.pataliebre.net'
 STATIC_PATHS = ['images', 'files']
 TIMEZONE = 'Europe/Madrid'
 DEFAULT_LANG = 'es'
-
+FILES_TO_COPY = [('CNAME', 'CNAME')]
 
 # =============
 # URL settings

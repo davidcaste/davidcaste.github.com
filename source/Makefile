@@ -37,6 +37,7 @@ $(OUTPUTDIR)/%.html:
 
 clean:
 	rm -fr $(OUTPUTDIR)/*.html \
+			$(OUTPUTDIR)/CNAME \
 			$(OUTPUTDIR)/author \
 			$(OUTPUTDIR)/category \
 			$(OUTPUTDIR)/feeds \
