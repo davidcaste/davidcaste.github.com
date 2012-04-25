@@ -21,9 +21,8 @@ indicar a `intltool` que estos ficheros son de tipo `gettext/glade`. Basta con
 editar el fichero `POTFILES.in` y añadir un prefijo a cada una de las líneas
 donde aparezca un fichero `.ui` de la siguiente manera:
 
-~~~
-[type: gettext/glade]data/preferences.ui
-~~~
+    ::text
+    [type: gettext/glade]data/preferences.ui
 
 [1]: http://mail.gnome.org/archives/devel-announce-list/2009-May/msg00003.html
 [2]: http://live.gnome.org/GnomeGoals/RemoveLibGladeUseGtkBuilder
