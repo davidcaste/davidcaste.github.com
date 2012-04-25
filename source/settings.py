@@ -2,9 +2,9 @@
 # Basic settings
 # ===============
 AUTHOR = 'David Castellanos'
-DEFAULT_CATEGORY = 'Blog'
+DEFAULT_CATEGORY = 'general'
 SITENAME = 'pataliebre.net'
-SITEURL = 'http://www.pataliebre.net'
+SITEURL = 'http://pataliebre.net'
 STATIC_PATHS = ['images', 'files']
 TIMEZONE = 'Europe/Madrid'
 DEFAULT_LANG = 'es'
@@ -48,5 +48,6 @@ GITHUB_URL = 'http://github.com/davidcaste/davidcaste.github.com'
 GOOGLE_ANALYTICS = 'UA-31198203-1'
 MENUITEMS = (
 #    ('Archives', '{0}/archives.html'.format(SITEURL)),
+#    ('Tags', 'tags.html'),
 )
 TWITTER_USERNAME = 'davidcaste'
