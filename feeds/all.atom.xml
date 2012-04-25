@@ -1,5 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom"><title>pataliebre.net</title><link href="http://www.pataliebre.net" rel="alternate"></link><link href="http://www.pataliebre.net/feeds/all.atom.xml" rel="self"></link><id>http://www.pataliebre.net</id><updated>2012-04-23T09:06:47+02:00</updated><entry><title>hello world!</title><link href="http://www.pataliebre.net/hello-world.html" rel="alternate"></link><updated>2012-04-23T09:06:47+02:00</updated><author><name>David Castellanos</name></author><id>http://www.pataliebre.net/hello-world.html</id><summary type="html">&lt;p&gt;Quizá sea por deformación profesional, vaguería, o una falta (puntual) de
+<feed xmlns="http://www.w3.org/2005/Atom"><title>pataliebre.net</title><link href="http://www.pataliebre.net" rel="alternate"></link><link href="http://www.pataliebre.net/feeds/all.atom.xml" rel="self"></link><id>http://www.pataliebre.net</id><updated>2012-04-25T10:41:29+02:00</updated><entry><title>Extraer cadenas de un fichero .ui de gtk-builder con intltool</title><link href="http://www.pataliebre.net/extraer-cadenas-de-un-fichero-ui-de-gtk-builder-con-intltool.html" rel="alternate"></link><updated>2012-04-25T10:41:29+02:00</updated><author><name>David Castellanos</name></author><id>http://www.pataliebre.net/extraer-cadenas-de-un-fichero-ui-de-gtk-builder-con-intltool.html</id><summary type="html">&lt;p&gt;Tenemos entre manos un proyecto en el que utilizamos Glade para la creación de
+la interfaz de usuario; es muy cómodo porque crea una serie de ficheros XML que
+describen la UI del programa, en lugar de crearla programáticamente. Hasta ahora
+usábamos &lt;code&gt;libglade&lt;/code&gt; para cargar estos ficheros, pero como esta librería &lt;a href="http://mail.gnome.org/archives/devel-announce-list/2009-May/msg00003.html"&gt;está
+deprecada desde el año 2009&lt;/a&gt;, estamos trabajando en reemplazarla con
+&lt;code&gt;gtk-builder&lt;/code&gt; del proyecto GTK.&lt;/p&gt;
+&lt;p&gt;Es un proceso aburrido y tedioso más que difícil, pero nos hemos encontrado con
+un pequeño problema. Estamos usando Autotools en el proyecto, e &lt;code&gt;intltool&lt;/code&gt; no
+es capaz de extraer cadenas de los ficheros con extensión &lt;code&gt;.ui&lt;/code&gt; de
+&lt;code&gt;gtk-builder&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;La solución para este problema es sencilla y la encontramos en un documento
+llamado &lt;a href="http://live.gnome.org/GnomeGoals/RemoveLibGladeUseGtkBuilder"&gt;GNOME Goal: Use GtkBuilder instead of libglade&lt;/a&gt;. Consiste en
+indicar a &lt;code&gt;intltool&lt;/code&gt; que estos ficheros son de tipo &lt;code&gt;gettext/glade&lt;/code&gt;. Basta con
+editar el fichero &lt;code&gt;POTFILES.in&lt;/code&gt; y añadir un prefijo a cada una de las líneas
+donde aparezca un fichero &lt;code&gt;.ui&lt;/code&gt; de la siguiente manera:&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;type&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="n"&gt;gettext&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;glade&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;&lt;span class="n"&gt;data&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;preferences&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;ui&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Ahora &lt;code&gt;intltool&lt;/code&gt; debería ser capaz de extraer las cadenas correctamente.&lt;/p&gt;</summary><category term="gtk"></category><category term="autotools"></category><category term="intltool"></category></entry><entry><title>hello world!</title><link href="http://www.pataliebre.net/hello-world.html" rel="alternate"></link><updated>2012-04-23T09:06:47+02:00</updated><author><name>David Castellanos</name></author><id>http://www.pataliebre.net/hello-world.html</id><summary type="html">&lt;p&gt;Quizá sea por deformación profesional, vaguería, o una falta (puntual) de
 imaginación, no se me ocurre una mejor forma de comenzar este lío que con un
 estupendo &lt;em&gt;Hello World!&lt;/em&gt;.&lt;/p&gt;
 &lt;p&gt;El objetivo de este blog es muy humilde: continuamente estoy aprendiendo cosas,

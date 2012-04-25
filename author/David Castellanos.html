@@ -39,6 +39,8 @@
                 
                 
                 
+                    <li ><a href=".././category/desarrollo.html">desarrollo</a></li>
+                
                     <li ><a href=".././category/general.html">general</a></li>
                 
                 </ul></nav>
@@ -51,8 +53,65 @@
         
             <aside id="featured" class="body">
                 <article>
-                    <h1 class="entry-title"><a href=".././hello-world.html">hello world!</a></h1> 
+                    <h1 class="entry-title"><a href=".././extraer-cadenas-de-un-fichero-ui-de-gtk-builder-con-intltool.html">Extraer cadenas de un fichero .ui de gtk-builder con intltool</a></h1> 
                     <footer class="post-info">
+        <abbr class="published" title="2012-04-25T10:41:29.449830">
+                mié 25 abril 2012
+        </abbr>
+
+        
+        <address class="vcard author">
+                By <a class="url fn" href=".././author/David Castellanos.html">David Castellanos</a>
+        </address>
+        
+<p>In <a href=".././category/desarrollo.html">desarrollo</a>. </p>
+<p>tags: <a href=".././tag/gtk.html">gtk</a><a href=".././tag/autotools.html">autotools</a><a href=".././tag/intltool.html">intltool</a></p>
+
+
+</footer><!-- /.post-info --><p>Tenemos entre manos un proyecto en el que utilizamos Glade para la creación de
+la interfaz de usuario; es muy cómodo porque crea una serie de ficheros XML que
+describen la UI del programa, en lugar de crearla programáticamente. Hasta ahora
+usábamos <code>libglade</code> para cargar estos ficheros, pero como esta librería <a href="http://mail.gnome.org/archives/devel-announce-list/2009-May/msg00003.html">está
+deprecada desde el año 2009</a>, estamos trabajando en reemplazarla con
+<code>gtk-builder</code> del proyecto GTK.</p>
+<p>Es un proceso aburrido y tedioso más que difícil, pero nos hemos encontrado con
+un pequeño problema. Estamos usando Autotools en el proyecto, e <code>intltool</code> no
+es capaz de extraer cadenas de los ficheros con extensión <code>.ui</code> de
+<code>gtk-builder</code>.</p>
+<p>La solución para este problema es sencilla y la encontramos en un documento
+llamado <a href="http://live.gnome.org/GnomeGoals/RemoveLibGladeUseGtkBuilder">GNOME Goal: Use GtkBuilder instead of libglade</a>. Consiste en
+indicar a <code>intltool</code> que estos ficheros son de tipo <code>gettext/glade</code>. Basta con
+editar el fichero <code>POTFILES.in</code> y añadir un prefijo a cada una de las líneas
+donde aparezca un fichero <code>.ui</code> de la siguiente manera:</p>
+<div class="codehilite"><pre><span class="p">[</span><span class="n">type</span><span class="p">:</span> <span class="n">gettext</span><span class="o">/</span><span class="n">glade</span><span class="p">]</span><span class="n">data</span><span class="o">/</span><span class="n">preferences</span><span class="p">.</span><span class="n">ui</span>
+</pre></div>
+
+
+<p>Ahora <code>intltool</code> debería ser capaz de extraer las cadenas correctamente.</p><p>There are <a href=".././extraer-cadenas-de-un-fichero-ui-de-gtk-builder-con-intltool.html#disqus_thread">comments</a>.</p>
+                </article>
+                
+            </aside><!-- /#featured -->
+            
+                <section id="content" class="body">
+                    <h1>Other articles</h1>
+                    <hr />
+                        <ol id="posts-list" class="hfeed">
+            
+        
+        
+        
+        
+
+        
+         
+            
+            <li><article class="hentry">    
+                <header>
+                        <h1><a href=".././hello-world.html" rel="bookmark" title="Permalink to hello world!">hello world!</a></h1>
+                </header>
+                
+                <div class="entry-content">
+                <footer class="post-info">
         <abbr class="published" title="2012-04-23T09:06:47.456208">
                 lun 23 abril 2012
         </abbr>
@@ -66,38 +125,31 @@
 <p>tags: <a href=".././tag/me.html">me</a></p>
 
 
-</footer><!-- /.post-info --><p>Quizá sea por deformación profesional, vaguería, o una falta (puntual) de
+</footer><!-- /.post-info -->
+                <p>Quizá sea por deformación profesional, vaguería, o una falta (puntual) de
 imaginación, no se me ocurre una mejor forma de comenzar este lío que con un
 estupendo <em>Hello World!</em>.</p>
 <p>El objetivo de este blog es muy humilde: continuamente estoy aprendiendo cosas,
-y continuamente estoy olvidando cosas. Y como soy vago, me fastidia sobremanera
-tener que volver a aprenderlas. Normalmente cuando me quejo de todo esto me
-suelen regañar con un  "deberías haberlo apuntado en algún sitio".</p>
-<p>Así que ya
-tengo la motivación que necesitaba: voy a escribir sobre cosas de mi trabajo
-que <em>sé</em> que voy a olvidar y que muy posiblemente vaya a necesitar en un
-futuro. Y si de paso resulta que es útil a alguien, perfecto. Imagino que la
-mayoría de las entradas de este blog serán sobre computación y
-programación en general, y sobre Python en particular. Entre mis intereses se
-encuentran temas como el toolkit GTK, Eclipse (tanto el IDE como la
-plataforma), Java, Android, Git, etc.</p><p>There are <a href=".././hello-world.html#disqus_thread">comments</a>.</p>
-                </article>
-                
-                    
+y continuamente estoy olvidando cosas. Y como soy vago ...</p>
+                <a class="readmore" href=".././hello-world.html">read more</a>
+                <p>There are <a href=".././hello-world.html#disqus_thread">comments</a>.</p>
+                </div><!-- /.entry-content -->
+            </article></li>
+        
+        
+            
 <p class="paginator">
     
     Page 1 / 1
     
 </p>
 
-                
-            </aside><!-- /#featured -->
-            
-        
-        
         
 
     
+    </ol><!-- /#posts-list -->
+    </section><!-- /#content -->
+
 
 
         <section id="extras" class="body">
