@@ -45,7 +45,7 @@ DISPLAY_PAGES_ON_MENU = True
 
 DISQUS_SITENAME = 'pataliebredotnet'
 GITHUB_URL = 'http://github.com/davidcaste/davidcaste.github.com'
-#GOOGLE_ANALYTICS = 'UA-1147761-33'
+GOOGLE_ANALYTICS = 'UA-31198203-1'
 MENUITEMS = (
 #    ('Archives', '{0}/archives.html'.format(SITEURL)),
 )
