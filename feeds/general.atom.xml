@@ -1,5 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom"><title>pataliebre.net</title><link href="http://pataliebre.net" rel="alternate"></link><link href="http://pataliebre.net/feeds/general.atom.xml" rel="self"></link><id>http://pataliebre.net</id><updated>2012-04-25T21:46:19+02:00</updated><entry><title>hello world!</title><link href="http://pataliebre.net/hello-world.html" rel="alternate"></link><updated>2012-04-25T21:46:19+02:00</updated><author><name>David Castellanos</name></author><id>http://pataliebre.net/hello-world.html</id><summary type="html">&lt;p&gt;Quizá sea por deformación profesional, vaguería, o una falta (puntual) de
+<feed xmlns="http://www.w3.org/2005/Atom"><title>pataliebre.net</title><link href="http://pataliebre.net" rel="alternate"></link><link href="http://pataliebre.net/feeds/general.atom.xml" rel="self"></link><id>http://pataliebre.net</id><updated>2012-05-01T01:37:26+02:00</updated><entry><title>Oracle JDK y Google Chrome en Ubuntu 12.04 LTS</title><link href="http://pataliebre.net/oracle-jdk-y-google-chrome-en-ubuntu-1204-lts.html" rel="alternate"></link><updated>2012-05-01T01:37:26+02:00</updated><author><name>David Castellanos</name></author><id>http://pataliebre.net/oracle-jdk-y-google-chrome-en-ubuntu-1204-lts.html</id><summary type="html">&lt;p&gt;A menudo utilizo &lt;em&gt;Juniper Network Connect&lt;/em&gt; para conectar a la intranet
+corporativa del trabajo. Es un applet de Java que, al menos en mi caso, no
+funciona bien con &lt;a href="http://openjdk.java.net"&gt;OpenJDK&lt;/a&gt; y sólo funciona con &lt;a href="http://www.java.com"&gt;Oracle JVM&lt;/a&gt; (la
+anteriormente conocida como Sun JVM). En agosto del 2011, &lt;a href="https://lists.ubuntu.com/archives/ubuntu-security-announce/2011-December/001528.html"&gt;Canonical dejó de
+tener permiso para distribuir la JVM de Sun&lt;/a&gt;. Aunque existen algunos PPAs
+mantenidos por miembros de la comunidad de Ubuntu que ofrecen paquetes DEB del
+Oracle JVM, suelen ser versiones demasiado antiguas y con problemas de
+seguridad.&lt;/p&gt;
+&lt;p&gt;Aunque hay disponible un instalador oficial en la &lt;a href="http://www.oracle.com/technetwork/java/javase/downloads/index.html"&gt;sección de descargas de
+Oracle para Java&lt;/a&gt;, suele ser mejor opción utilizar el script &lt;code&gt;make-jpkg&lt;/code&gt;
+para crear un paquete Debian. Este script está empaquetado para Debian en el
+paquete &lt;a href="http://packages.debian.org/java-package"&gt;java-package&lt;/a&gt;, y recientemente ha sido actualizado a la versión
+0.50 que tiene como novedad el soporte para Java 7.&lt;/p&gt;
+&lt;p&gt;Sólo he encontrado un problema con estos paquetes, y es que no instalan el
+plugin de Java en el navegador Google Chrome, sin embargo si lo hace para
+Iceweasel y Chromium. Es problema es muy sencillo de resolver, sólo es
+necesario crear un enlace simbólico al fichero &lt;code&gt;libnpjp2.so&lt;/code&gt; que se encuentra
+en el JRE. Utilizando el &lt;a href="http://www.debian-administration.org/articles/91"&gt;sistema de alternatives de Debian&lt;/a&gt; se haría de la
+siguiente manera:&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;$ sudo update-alternatives --install \
+&amp;gt; /usr/lib/mozilla/plugins/libjavaplugin.so \
+&amp;gt; mozilla-javaplugin.so \
+&amp;gt; /usr/lib/jvm/j2sdk1.6-oracle/jre/lib/i386/libnpjp2.so 100
+&lt;/pre&gt;&lt;/div&gt;</summary><category term="java"></category><category term="ubuntu"></category><category term="alternatives"></category></entry><entry><title>hello world!</title><link href="http://pataliebre.net/hello-world.html" rel="alternate"></link><updated>2012-05-01T01:35:52+02:00</updated><author><name>David Castellanos</name></author><id>http://pataliebre.net/hello-world.html</id><summary type="html">&lt;p&gt;Quizá sea por deformación profesional, vaguería, o una falta (puntual) de
 imaginación, no se me ocurre una mejor forma de comenzar este lío que con un
 estupendo &lt;em&gt;Hello World!&lt;/em&gt;.&lt;/p&gt;
 &lt;p&gt;El objetivo de este blog es muy humilde: continuamente estoy aprendiendo cosas,

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-        <title>pataliebre.net - me</title>
+        <title>pataliebre.net - ubuntu</title>
         <meta charset="utf-8" />
         <link rel="stylesheet" href=".././theme/css/main.css" type="text/css" />
         <link href=".././feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="pataliebre.net ATOM Feed" />
@@ -51,9 +51,9 @@
         
             <aside id="featured" class="body">
                 <article>
-                    <h1 class="entry-title"><a href=".././hello-world.html">hello world!</a></h1> 
+                    <h1 class="entry-title"><a href=".././oracle-jdk-y-google-chrome-en-ubuntu-1204-lts.html">Oracle JDK y Google Chrome en Ubuntu 12.04 LTS</a></h1> 
                     <footer class="post-info">
-        <abbr class="published" title="2012-05-01T01:35:52.602330">
+        <abbr class="published" title="2012-05-01T01:37:26.462332">
                 mar 01 mayo 2012
         </abbr>
 
@@ -63,24 +63,33 @@
         </address>
         
 <p>In <a href=".././category/general.html">general</a>. </p>
-<p>tags: <a href=".././tag/me.html">me</a></p>
+<p>tags: <a href=".././tag/java.html">java</a><a href=".././tag/ubuntu.html">ubuntu</a><a href=".././tag/alternatives.html">alternatives</a></p>
 
 
-</footer><!-- /.post-info --><p>Quizá sea por deformación profesional, vaguería, o una falta (puntual) de
-imaginación, no se me ocurre una mejor forma de comenzar este lío que con un
-estupendo <em>Hello World!</em>.</p>
-<p>El objetivo de este blog es muy humilde: continuamente estoy aprendiendo cosas,
-y continuamente estoy olvidando cosas. Y como soy vago, me fastidia sobremanera
-tener que volver a aprenderlas. Normalmente cuando me quejo de todo esto me
-suelen regañar con un  "deberías haberlo apuntado en algún sitio".</p>
-<p>Así que ya
-tengo la motivación que necesitaba: voy a escribir sobre cosas de mi trabajo
-que <em>sé</em> que voy a olvidar y que muy posiblemente vaya a necesitar en un
-futuro. Y si de paso resulta que es útil a alguien, perfecto. Imagino que la
-mayoría de las entradas de este blog serán sobre computación y
-programación en general, y sobre Python en particular. Entre mis intereses se
-encuentran temas como el toolkit GTK, Eclipse (tanto el IDE como la
-plataforma), Java, Android, Git, etc.</p><p>There are <a href=".././hello-world.html#disqus_thread">comments</a>.</p>
+</footer><!-- /.post-info --><p>A menudo utilizo <em>Juniper Network Connect</em> para conectar a la intranet
+corporativa del trabajo. Es un applet de Java que, al menos en mi caso, no
+funciona bien con <a href="http://openjdk.java.net">OpenJDK</a> y sólo funciona con <a href="http://www.java.com">Oracle JVM</a> (la
+anteriormente conocida como Sun JVM). En agosto del 2011, <a href="https://lists.ubuntu.com/archives/ubuntu-security-announce/2011-December/001528.html">Canonical dejó de
+tener permiso para distribuir la JVM de Sun</a>. Aunque existen algunos PPAs
+mantenidos por miembros de la comunidad de Ubuntu que ofrecen paquetes DEB del
+Oracle JVM, suelen ser versiones demasiado antiguas y con problemas de
+seguridad.</p>
+<p>Aunque hay disponible un instalador oficial en la <a href="http://www.oracle.com/technetwork/java/javase/downloads/index.html">sección de descargas de
+Oracle para Java</a>, suele ser mejor opción utilizar el script <code>make-jpkg</code>
+para crear un paquete Debian. Este script está empaquetado para Debian en el
+paquete <a href="http://packages.debian.org/java-package">java-package</a>, y recientemente ha sido actualizado a la versión
+0.50 que tiene como novedad el soporte para Java 7.</p>
+<p>Sólo he encontrado un problema con estos paquetes, y es que no instalan el
+plugin de Java en el navegador Google Chrome, sin embargo si lo hace para
+Iceweasel y Chromium. Es problema es muy sencillo de resolver, sólo es
+necesario crear un enlace simbólico al fichero <code>libnpjp2.so</code> que se encuentra
+en el JRE. Utilizando el <a href="http://www.debian-administration.org/articles/91">sistema de alternatives de Debian</a> se haría de la
+siguiente manera:</p>
+<div class="codehilite"><pre>$ sudo update-alternatives --install \
+&gt; /usr/lib/mozilla/plugins/libjavaplugin.so \
+&gt; mozilla-javaplugin.so \
+&gt; /usr/lib/jvm/j2sdk1.6-oracle/jre/lib/i386/libnpjp2.so 100
+</pre></div><p>There are <a href=".././oracle-jdk-y-google-chrome-en-ubuntu-1204-lts.html#disqus_thread">comments</a>.</p>
                 </article>
                 
                     
