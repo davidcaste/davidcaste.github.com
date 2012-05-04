@@ -51,10 +51,103 @@
         
             <aside id="featured" class="body">
                 <article>
-                    <h1 class="entry-title"><a href=".././extraer-cadenas-de-un-fichero-ui-de-gtk-builder-con-intltool.html">Extraer cadenas de un fichero .ui de gtk-builder con intltool</a></h1> 
+                    <h1 class="entry-title"><a href=".././control-de-concurrencia-usando-d-bus.html">Control de concurrencia usando D-Bus</a></h1> 
                     <footer class="post-info">
-        <abbr class="published" title="2012-04-29T11:36:34.803716">
-                dom 29 abril 2012
+        <abbr class="published" title="2012-05-04T00:00:00">
+                vie 04 mayo 2012
+        </abbr>
+
+        
+        <address class="vcard author">
+                By <a class="url fn" href=".././author/David Castellanos.html">David Castellanos</a>
+        </address>
+        
+<p>In <a href=".././category/desarrollo.html">desarrollo</a>. </p>
+<p>tags: <a href=".././tag/python.html">python</a><a href=".././tag/dbus.html">dbus</a><a href=".././tag/concurrencia.html">concurrencia</a></p>
+
+
+</footer><!-- /.post-info --><p>Un problema frecuente es cómo impedir que un programa se ejecute dos o más
+veces de forma concurrente. Uno de los mecanismos más utilizados para afrontar
+este problema es el conocido como <a href="http://en.wikipedia.org/wiki/File_locking">file locking</a>. En un proyecto hemos
+utilizado <a href="http://en.wikipedia.org/wiki/DBus">D-Bus</a> para implementar un mecanismo similar.</p>
+<p>D-Bus es un sistema de bus de mensajes, una forma sencilla para que las
+aplicaciones se comuniquen entre sí. De forma muy resumida (más información en
+la web del <a href="http://www.freedesktop.org/wiki/Software/dbus">proyecto D-Bus</a>), cuando un usuario inicia una sesión gráfica en
+el sistema tiene a su disposición un bus del sistema y un bus del usuario
+ligado a su sesión. Un programa en ejecución se puede registrar en uno de estos
+buses para ofrecer uno o más servicios, identificados unívocamente con un
+identificador asignado por D-Bus (p.e. <code>:34-907</code>) y un nombre <em>conocido</em>
+elegido por el programa (p.e. <code>es.foo.Bar</code>).</p>
+<p>Puesto que sólo puede haber un único servicio en un bus con el mismo nombre, es
+sencillo idear un mecanismo de control de concurrencia. Consistiría básicamente
+en consultar si existe un servicio en el bus de sesión con un determinado
+nombre. Un ejemplo sencillo implementado en Python es el siguiente:</p>
+<div class="codehilite"><pre><span class="c">#!/usr/bin/env python</span>
+<span class="c"># dbus-singleton-example.py</span>
+
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">gobject</span>
+<span class="kn">import</span> <span class="nn">dbus</span>
+<span class="kn">import</span> <span class="nn">dbus.mainloop.glib</span>
+<span class="kn">import</span> <span class="nn">dbus.service</span>
+
+<span class="n">BUS_NAME</span> <span class="o">=</span> <span class="s">&#39;es.foo.Bar&#39;</span>
+
+<span class="k">class</span> <span class="nc">DBusSingleton</span><span class="p">(</span><span class="n">dbus</span><span class="o">.</span><span class="n">service</span><span class="o">.</span><span class="n">Object</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">bus</span> <span class="o">=</span> <span class="n">dbus</span><span class="o">.</span><span class="n">SessionBus</span><span class="p">()</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">bus</span><span class="o">.</span><span class="n">name_has_owner</span><span class="p">(</span><span class="n">BUS_NAME</span><span class="p">):</span>
+            <span class="n">bus</span><span class="o">.</span><span class="n">request_name</span><span class="p">(</span><span class="n">BUS_NAME</span><span class="p">)</span>
+            <span class="n">dbus</span><span class="o">.</span><span class="n">service</span><span class="o">.</span><span class="n">Object</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bus</span><span class="p">,</span> <span class="s">&#39;/es/foo/bar&#39;</span><span class="p">)</span>
+            <span class="k">print</span> <span class="s">&#39;Adquired D-Bus name: &quot;</span><span class="si">%s</span><span class="s">&quot;&#39;</span> <span class="o">%</span> <span class="n">BUS_NAME</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">print</span> <span class="s">&#39;Failed to request D-Bus name: &quot;</span><span class="si">%s</span><span class="s">&quot;&#39;</span> <span class="o">%</span> <span class="n">BUS_NAME</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">()</span>
+
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">dbus</span><span class="o">.</span><span class="n">mainloop</span><span class="o">.</span><span class="n">glib</span><span class="o">.</span><span class="n">DBusGMainLoop</span><span class="p">(</span><span class="n">set_as_default</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+    <span class="n">singleton</span> <span class="o">=</span> <span class="n">DBusSingleton</span><span class="p">()</span>
+
+    <span class="n">loop</span> <span class="o">=</span> <span class="n">gobject</span><span class="o">.</span><span class="n">MainLoop</span><span class="p">()</span>
+    <span class="n">loop</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+</pre></div>
+
+
+<p>Al ejecutarlo de forma concurrente <em>n</em> veces se obtiene la salida:</p>
+<div class="codehilite"><pre><span class="nv">$ </span><span class="k">for </span>i in <span class="o">{</span>1..5<span class="o">}</span>; <span class="k">do </span>python dbus-concurrenty-example.py &amp; <span class="k">done</span>
+Adquired D-Bus name: <span class="s2">&quot;es.foo.Bar&quot;</span>
+Failed to request D-Bus name: <span class="s2">&quot;es.foo.Bar&quot;</span>
+Failed to request D-Bus name: <span class="s2">&quot;es.foo.Bar&quot;</span>
+Failed to request D-Bus name: <span class="s2">&quot;es.foo.Bar&quot;</span>
+Failed to request D-Bus name: <span class="s2">&quot;es.foo.Bar&quot;</span>
+</pre></div><p>There are <a href=".././control-de-concurrencia-usando-d-bus.html#disqus_thread">comments</a>.</p>
+                </article>
+                
+            </aside><!-- /#featured -->
+            
+                <section id="content" class="body">
+                    <h1>Other articles</h1>
+                    <hr />
+                        <ol id="posts-list" class="hfeed">
+            
+        
+        
+        
+        
+
+        
+         
+            
+            <li><article class="hentry">    
+                <header>
+                        <h1><a href=".././extraer-cadenas-de-un-fichero-ui-de-gtk-builder-con-intltool.html" rel="bookmark" title="Permalink to Extraer cadenas de un fichero .ui de gtk-builder con intltool">Extraer cadenas de un fichero .ui de gtk-builder con intltool</a></h1>
+                </header>
+                
+                <div class="entry-content">
+                <footer class="post-info">
+        <abbr class="published" title="2012-04-26T00:00:00">
+                jue 26 abril 2012
         </abbr>
 
         
@@ -66,40 +159,30 @@
 <p>tags: <a href=".././tag/gtk.html">gtk</a><a href=".././tag/autotools.html">autotools</a><a href=".././tag/intltool.html">intltool</a></p>
 
 
-</footer><!-- /.post-info --><p>Tenemos entre manos un proyecto en el que utilizamos Glade para la creación de
+</footer><!-- /.post-info -->
+                <p>Tenemos entre manos un proyecto en el que utilizamos Glade para la creación de
 la interfaz de usuario; es muy cómodo porque crea una serie de ficheros XML que
 describen la UI del programa, en lugar de crearla programáticamente. Hasta ahora
-usábamos <code>libglade</code> para cargar estos ficheros, pero como esta librería <a href="http://mail.gnome.org/archives/devel-announce-list/2009-May/msg00003.html">está
-deprecada desde el año 2009</a>, estamos trabajando en reemplazarla con
-<code>gtk-builder</code> del proyecto GTK.</p>
-<p>Es un proceso aburrido y tedioso más que difícil, pero nos hemos encontrado con
-un pequeño problema. Estamos usando Autotools en el proyecto, e <code>intltool</code> no
-es capaz de extraer cadenas de los ficheros con extensión <code>.ui</code> de
-<code>gtk-builder</code>.</p>
-<p>La solución para este problema es sencilla y la encontramos en un documento
-llamado <a href="http://live.gnome.org/GnomeGoals/RemoveLibGladeUseGtkBuilder">GNOME Goal: Use GtkBuilder instead of libglade</a>. Consiste en
-indicar a <code>intltool</code> que estos ficheros son de tipo <code>gettext/glade</code>. Basta con
-editar el fichero <code>POTFILES.in</code> y añadir un prefijo a cada una de las líneas
-donde aparezca un fichero <code>.ui</code> de la siguiente manera:</p>
-<div class="codehilite"><pre>[type: gettext/glade]data/preferences.ui
-</pre></div><p>There are <a href=".././extraer-cadenas-de-un-fichero-ui-de-gtk-builder-con-intltool.html#disqus_thread">comments</a>.</p>
-                </article>
-                
-                    
+usábamos <code>libglade</code> para cargar estos ficheros, pero como esta ...</p>
+                <a class="readmore" href=".././extraer-cadenas-de-un-fichero-ui-de-gtk-builder-con-intltool.html">read more</a>
+                <p>There are <a href=".././extraer-cadenas-de-un-fichero-ui-de-gtk-builder-con-intltool.html#disqus_thread">comments</a>.</p>
+                </div><!-- /.entry-content -->
+            </article></li>
+        
+        
+            
 <p class="paginator">
     
     Page 1 / 1
     
 </p>
 
-                
-            </aside><!-- /#featured -->
-            
-        
-        
         
 
     
+    </ol><!-- /#posts-list -->
+    </section><!-- /#content -->
+
 
 
         <section id="extras" class="body">

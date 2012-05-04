@@ -1,4 +1,5 @@
 Title: Extraer cadenas de un fichero .ui de gtk-builder con intltool
+Date: 2012-04-26
 Category: desarrollo
 Tags: gtk, autotools, intltool
 Lang: es

@@ -1,4 +1,5 @@
 Title: Oracle JDK y Google Chrome en Ubuntu 12.04 LTS 
+Date: 2012-04-30
 Category: general
 Tags: java, ubuntu, alternatives
 Lang: es

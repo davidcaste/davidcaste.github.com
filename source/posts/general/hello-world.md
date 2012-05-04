@@ -1,4 +1,5 @@
 Title: hello world!
+Date: 2012-04-22
 Category: general
 Tags: me
 Lang: es
