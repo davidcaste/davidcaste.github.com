@@ -1,5 +1,83 @@
 <?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom"><title>pataliebre.net</title><link href="http://pataliebre.net" rel="alternate"></link><link href="http://pataliebre.net/feeds/desarrollo.atom.xml" rel="self"></link><id>http://pataliebre.net</id><updated>2012-05-04T00:00:00+02:00</updated><entry><title>Control de concurrencia usando D-Bus</title><link href="http://pataliebre.net/control-de-concurrencia-usando-d-bus.html" rel="alternate"></link><updated>2012-05-04T00:00:00+02:00</updated><author><name>David Castellanos</name></author><id>http://pataliebre.net/control-de-concurrencia-usando-d-bus.html</id><summary type="html">&lt;p&gt;Un problema frecuente es cómo impedir que un programa se ejecute dos o más
+<feed xmlns="http://www.w3.org/2005/Atom"><title>pataliebre.net</title><link href="http://pataliebre.net" rel="alternate"></link><link href="http://pataliebre.net/feeds/desarrollo.atom.xml" rel="self"></link><id>http://pataliebre.net</id><updated>2012-06-18T00:00:00+02:00</updated><entry><title>(Otra) expresión regular para extraer URLs</title><link href="http://pataliebre.net/otra-expresion-regular-para-extraer-urls.html" rel="alternate"></link><updated>2012-06-18T00:00:00+02:00</updated><author><name>David Castellanos</name></author><id>http://pataliebre.net/otra-expresion-regular-para-extraer-urls.html</id><summary type="html">&lt;p&gt;Escribir una expresión regular que extraiga URLs de un texto arbitrario no es
+una tarea sencilla, la prueba es que existen en Internet literalmente cientos
+de aproximaciones que abordan el problema con más o menos éxito.&lt;/p&gt;
+&lt;p&gt;Hay que tener en cuenta que &lt;a href="http://www.codinghorror.com/blog/2008/10/the-problem-with-urls.html"&gt;no es posible detectar &lt;em&gt;cualquier&lt;/em&gt;
+URL en un texto arbitrario&lt;/a&gt;, puesto que el espacio es un carácter admitido en
+las URLs. Después de dedicar bastante tiempo a buscar en Internet, la
+aproximación que más me gustó es la realizada por &lt;a href="http://daringfireball.net/"&gt;John Gruber&lt;/a&gt;, creador de
+&lt;a href="http://daringfireball.net/projects/markdown/"&gt;Markdown&lt;/a&gt;, en el artículo &lt;a href="http://daringfireball.net/2010/07/improved_regex_for_matching_urls"&gt;An Improved Liberal, Accurate Regex Pattern for
+Matching URLs&lt;/a&gt;. Propone  una expresión regular muy interesante porque aborda
+el problema de URLs con parejas de paréntesis, común en ciertos sitios como la
+Wikipedia.  Aunque su expresión regular reconoce correctamente la inmensa
+mayoría de URLs,
+requiere que después del dominio superior (&lt;em&gt;Top Level Domain&lt;/em&gt;, o &lt;abbr title="Top Level Domain"&gt;TLD&lt;/abbr&gt;) de la URL
+tenga una barra invertida después del dominio. Por ejemplo
+&lt;a href="http://t.co/"&gt;t.co/&lt;/a&gt; se reconoce correctamente, pero &lt;a href="http://t.co"&gt;t.co&lt;/a&gt; no.&lt;/p&gt;
+&lt;p&gt;Afortunadamente Jesús González (Chuso), un compañero de Escritorio Movistar
+para la plataforma Windows, había tenido el mismo problema y había escrito una
+expresión regular que no tiene este problema:&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;# Capture entire matched URL
+(
+    # Optional: only allow some network protocols
+    # URL protocol and a colon followed by 2 slashes
+    (?:
+        (?:
+            http|https|ftp
+        ):\\/\\/
+    )?
+
+    # Check if it is the beginning of a word
+    (?&amp;lt;=\\b)
+
+    # The URL must not start with the character &amp;#39;@&amp;#39;
+    (?&amp;lt;!\\@)
+
+    # The domain name must begin with a valid character
+    (?:[\w\d]
+
+        # Other characters allowed in the domain
+        (?:[\w\dñÑ()+,-.:=;$_!*&amp;#39;%?#])*
+    )
+
+    # A recognized domain is required
+    \\.
+    (?:
+        aero|arpa|asia|biz|cat|com|coop|edu|gov|inet|info|int|jobs|mil|
+        mobi|museum|name|net|org|pro|tel|travel|xxx|ac|ad|ae|af|ag|ai|
+        al|am|an|ao|aq|ar|as|at|au|aw|az|ba|bb|bd|be|bf|bg|bh|bi|bj|bm|bn|
+        bo|br|bs|bt|bv|bw|by|bz|ca|cc|cd|cf|cg|ch|ci|ck|cl|cm|cn|co|cr|cu|
+        cv|cx|cy|cz|de|dj|dk|dm|do|dz|ec|ee|eg|er|es|et|eu|fi|fj|fk|fm|fo|
+        fr|ga|gb|gd|ge|gf|gg|gh|gi|gl|gm|gn|gp|gq|gr|gs|gt|gu|gw|gy|hk|hm|
+        hn|hr|ht|hu|id|ie|il|im|in|io|iq|ir|is|it|je|jm|jo|jp|ke|kg|kh|ki|
+        km|kn|kp|kr|kw|ky|kz|la|lb|lc|li|lk|lr|ls|lt|lu|lv|ly|ma|mc|md|me|
+        mg|mh|mk|ml|mm|mn|mo|mp|mq|mr|ms|mt|mu|mv|mw|mx|my|mz|na|nc|ne|nf|
+        ng|ni|nl|no|np|nr|nu|nz|om|pa|pe|pf|pg|ph|pk|pl|pm|pn|pr|ps|pt|pw|
+        py|qa|re|ro|rs|ru|rw|sa|sb|sc|sd|se|sg|sh|si|sj|sk|sl|sm|sn|so|sr|
+        st|su|sv|sy|sz|tc|td|tf|tg|th|tj|tk|tl|tm|tn|to|tp|tr|tt|tv|tw|tz|
+        ua|ug|uk|us|uy|uz|va|vc|ve|vg|vi|vn|vu|wf|ws|ye|yt|za|zm|zw
+    )
+
+    # Optional: Port number
+    (?::[0-9]+)?
+
+    # Characters allowed in a URL according to RF1738
+    (?:
+        \\/[\w\d()+,-.:=@;$_!*&amp;#39;%?#&amp;amp;|\\\\]*
+    )*
+
+    # Check if we have consumed all characters allowed in a URL
+    (?![\w\d()+,-./:=@;$_!*&amp;#39;%?#&amp;amp;|\\\\])
+)
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Esta expresión debe compilarse con los flags &lt;code&gt;re.IGNORECASE&lt;/code&gt; y &lt;code&gt;re.VERBOSE&lt;/code&gt; del
+&lt;a href="http://docs.python.org/library/re.html"&gt;módulo re&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;Además de detectar las URLs cortas del tipo &lt;a href="t.co"&gt;t.co&lt;/a&gt;, sólo hace
+&lt;em&gt;matching&lt;/em&gt; si el &lt;abbr title="Top Level Domain"&gt;TLD&lt;/abbr&gt; de la URL es válido. Sin embargo, tiene la desventaja de
+que si en un futuro cambiara la &lt;a href="http://en.wikipedia.org/wiki/List_of_Internet_top-level_domains"&gt;lista de dominios superiores&lt;/a&gt;, sería
+necesario actualizar la expresión regular.&lt;/p&gt;</summary><category term="regex"></category><category term="web"></category><category term="python"></category></entry><entry><title>Control de concurrencia usando D-Bus</title><link href="http://pataliebre.net/control-de-concurrencia-usando-d-bus.html" rel="alternate"></link><updated>2012-05-04T00:00:00+02:00</updated><author><name>David Castellanos</name></author><id>http://pataliebre.net/control-de-concurrencia-usando-d-bus.html</id><summary type="html">&lt;p&gt;Un problema frecuente es cómo impedir que un programa se ejecute dos o más
 veces de forma concurrente. Uno de los mecanismos más utilizados para afrontar
 este problema es el conocido como &lt;a href="http://en.wikipedia.org/wiki/File_locking"&gt;file locking&lt;/a&gt;. En un proyecto hemos
 utilizado &lt;a href="http://en.wikipedia.org/wiki/DBus"&gt;D-Bus&lt;/a&gt; para implementar un mecanismo similar.&lt;/p&gt;

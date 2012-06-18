@@ -1,21 +1,21 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-        <title>pataliebre.net - python</title>
+        <title>(Otra) expresión regular para extraer URLs</title>
         <meta charset="utf-8" />
-        <link rel="stylesheet" href=".././theme/css/main.css" type="text/css" />
-        <link href=".././feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="pataliebre.net ATOM Feed" />
+        <link rel="stylesheet" href="./theme/css/main.css" type="text/css" />
+        <link href="./feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="pataliebre.net ATOM Feed" />
         
 
         <!--[if IE]>
                 <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
 
         <!--[if lte IE 7]>
-                <link rel="stylesheet" type="text/css" media="all" href=".././css/ie.css"/>
-                <script src=".././js/IE8.js" type="text/javascript"></script><![endif]-->
+                <link rel="stylesheet" type="text/css" media="all" href="./css/ie.css"/>
+                <script src="./js/IE8.js" type="text/javascript"></script><![endif]-->
 
         <!--[if lt IE 7]>
-                <link rel="stylesheet" type="text/css" media="all" href=".././css/ie6.css"/><![endif]-->
+                <link rel="stylesheet" type="text/css" media="all" href="./css/ie6.css"/><![endif]-->
 
 </head>
 
@@ -28,45 +28,45 @@
 </a>
 
         <header id="banner" class="body">
-                <h1><a href="../.">pataliebre.net </a></h1>
+                <h1><a href=".">pataliebre.net </a></h1>
                 <nav><ul>
                 
                 
                 
-                    <li><a href=".././pages/about-me.html">acerca de mí</a></li>
+                    <li><a href="./pages/about-me.html">acerca de mí</a></li>
                 
                 
                 
-                    <li ><a href=".././category/desarrollo.html">desarrollo</a></li>
+                    <li class="active"><a href="./category/desarrollo.html">desarrollo</a></li>
                 
-                    <li ><a href=".././category/general.html">general</a></li>
+                    <li ><a href="./category/general.html">general</a></li>
                 
                 </ul></nav>
         </header><!-- /#banner -->
                 
-
-            
-
-        
-        
-            <aside id="featured" class="body">
-                <article>
-                    <h1 class="entry-title"><a href=".././otra-expresion-regular-para-extraer-urls.html">(Otra) expresión regular para extraer URLs</a></h1> 
-                    <footer class="post-info">
+<section id="content" class="body">    
+<article>
+        <header> <h1 class="entry-title"><a href=""
+        rel="bookmark" title="Permalink to (Otra) expresión regular para extraer URLs">(Otra) expresión regular para extraer URLs</a></h1> 
+<a href="http://twitter.com/share" class="twitter-share-button" data-count="horizontal" data-via="davidcaste">Tweet</a><script type="text/javascript" src="http://platform.twitter.com/widgets.js"></script>
+ </header>
+        <div class="entry-content">
+        <footer class="post-info">
         <abbr class="published" title="2012-06-18T00:00:00">
                 lun 18 junio 2012
         </abbr>
 
         
         <address class="vcard author">
-                By <a class="url fn" href=".././author/David Castellanos.html">David Castellanos</a>
+                By <a class="url fn" href="./author/David Castellanos.html">David Castellanos</a>
         </address>
         
-<p>In <a href=".././category/desarrollo.html">desarrollo</a>. </p>
-<p>tags: <a href=".././tag/regex.html">regex</a><a href=".././tag/web.html">web</a><a href=".././tag/python.html">python</a></p>
+<p>In <a href="./category/desarrollo.html">desarrollo</a>. </p>
+<p>tags: <a href="./tag/regex.html">regex</a><a href="./tag/web.html">web</a><a href="./tag/python.html">python</a></p>
 
 
-</footer><!-- /.post-info --><p>Escribir una expresión regular que extraiga URLs de un texto arbitrario no es
+</footer><!-- /.post-info -->
+        <p>Escribir una expresión regular que extraiga URLs de un texto arbitrario no es
 una tarea sencilla, la prueba es que existen en Internet literalmente cientos
 de aproximaciones que abordan el problema con más o menos éxito.</p>
 <p>Hay que tener en cuenta que <a href="http://www.codinghorror.com/blog/2008/10/the-problem-with-urls.html">no es posible detectar <em>cualquier</em>
@@ -141,73 +141,28 @@ expresión regular que no tiene este problema:</p>
 
 <p>Esta expresión debe compilarse con los flags <code>re.IGNORECASE</code> y <code>re.VERBOSE</code> del
 <a href="http://docs.python.org/library/re.html">módulo re</a>.</p>
-<p>Además de detectar las URLs cortas del tipo <a href="../static/t.co">t.co</a>, sólo hace
+<p>Además de detectar las URLs cortas del tipo <a href="static/t.co">t.co</a>, sólo hace
 <em>matching</em> si el <abbr title="Top Level Domain">TLD</abbr> de la URL es válido. Sin embargo, tiene la desventaja de
 que si en un futuro cambiara la <a href="http://en.wikipedia.org/wiki/List_of_Internet_top-level_domains">lista de dominios superiores</a>, sería
-necesario actualizar la expresión regular.</p><p>There are <a href=".././otra-expresion-regular-para-extraer-urls.html#disqus_thread">comments</a>.</p>
-                </article>
-                
-            </aside><!-- /#featured -->
-            
-                <section id="content" class="body">
-                    <h1>Other articles</h1>
-                    <hr />
-                        <ol id="posts-list" class="hfeed">
-            
+necesario actualizar la expresión regular.</p>
+        </div><!-- /.entry-content -->
         
-        
-        
-        
-
-        
-         
-            
-            <li><article class="hentry">    
-                <header>
-                        <h1><a href=".././control-de-concurrencia-usando-d-bus.html" rel="bookmark" title="Permalink to Control de concurrencia usando D-Bus">Control de concurrencia usando D-Bus</a></h1>
-                </header>
-                
-                <div class="entry-content">
-                <footer class="post-info">
-        <abbr class="published" title="2012-05-04T00:00:00">
-                vie 04 mayo 2012
-        </abbr>
-
-        
-        <address class="vcard author">
-                By <a class="url fn" href=".././author/David Castellanos.html">David Castellanos</a>
-        </address>
-        
-<p>In <a href=".././category/desarrollo.html">desarrollo</a>. </p>
-<p>tags: <a href=".././tag/python.html">python</a><a href=".././tag/dbus.html">dbus</a><a href=".././tag/concurrencia.html">concurrencia</a></p>
-
-
-</footer><!-- /.post-info -->
-                <p>Un problema frecuente es cómo impedir que un programa se ejecute dos o más
-veces de forma concurrente. Uno de los mecanismos más utilizados para afrontar
-este problema es el conocido como <a href="http://en.wikipedia.org/wiki/File_locking">file locking</a>. En un proyecto hemos
-utilizado <a href="http://en.wikipedia.org/wiki/DBus">D-Bus</a> para implementar un mecanismo similar.</p>
-<p>D-Bus es un sistema de ...</p>
-                <a class="readmore" href=".././control-de-concurrencia-usando-d-bus.html">read more</a>
-                <p>There are <a href=".././control-de-concurrencia-usando-d-bus.html#disqus_thread">comments</a>.</p>
-                </div><!-- /.entry-content -->
-            </article></li>
-        
-        
-            
-<p class="paginator">
-    
-    Page 1 / 1
-    
-</p>
-
+        <div class="comments">
+        <h2>Comments !</h2>
+            <div id="disqus_thread"></div>
+            <script type="text/javascript">
+               var disqus_identifier = "otra-expresion-regular-para-extraer-urls.html";
+               (function() {
+               var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+               dsq.src = 'http://pataliebredotnet.disqus.com/embed.js';
+               (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+              })();
+            </script>
+        </div>
         
 
-    
-    </ol><!-- /#posts-list -->
-    </section><!-- /#content -->
-
-
+</article>
+</section>
 
         <section id="extras" class="body">
         
