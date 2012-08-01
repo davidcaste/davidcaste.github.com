@@ -1,5 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom"><title>pataliebre.net</title><link href="http://pataliebre.net" rel="alternate"></link><link href="http://pataliebre.net/feeds/all-es.atom.xml" rel="self"></link><id>http://pataliebre.net</id><updated>2012-06-18T00:00:00+02:00</updated><entry><title>(Otra) expresión regular para extraer URLs</title><link href="http://pataliebre.net/otra-expresion-regular-para-extraer-urls.html" rel="alternate"></link><updated>2012-06-18T00:00:00+02:00</updated><author><name>David Castellanos</name></author><id>http://pataliebre.net/otra-expresion-regular-para-extraer-urls.html</id><summary type="html">&lt;p&gt;Escribir una expresión regular que extraiga URLs de un texto arbitrario no es
+<feed xmlns="http://www.w3.org/2005/Atom"><title>pataliebre.net</title><link href="http://pataliebre.net" rel="alternate"></link><link href="http://pataliebre.net/feeds/all-es.atom.xml" rel="self"></link><id>http://pataliebre.net</id><updated>2012-08-01T00:00:00+02:00</updated><entry><title>Solucionar problemas gráficos en Eclipse bajo GNU/Linux</title><link href="http://pataliebre.net/solucionar-problemas-graficos-en-eclipse-bajo-gnulinux.html" rel="alternate"></link><updated>2012-08-01T00:00:00+02:00</updated><author><name>David Castellanos</name></author><id>http://pataliebre.net/solucionar-problemas-graficos-en-eclipse-bajo-gnulinux.html</id><summary type="html">&lt;p&gt;Aunque &lt;a href="http://www.eclipse.org"&gt;Eclipse&lt;/a&gt; es una plataforma de desarrollo multiplataforma, no es un
+secreto que MS Windows ha sido hasta ahora la plataforma mejor soportada.
+La versión de Eclipse para Mac OS X ha ido mejorando versión a versión, sobre
+todo desde la publicación de &lt;a href="http://www.eclipse.org/juno"&gt;Eclipse 4.2 (Juno)&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;Aunque completamente funcional, el soporte de Eclipse para GNU/Linux no está a
+la altura quei en el resto de plataformas. Un ejemplo es el bug &lt;a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=368543"&gt;#368543&lt;/a&gt;,
+en el que se describen problemas gráficos con &lt;a href="http://www.eclipse.org/windowbuilder/"&gt;WindowBuilder&lt;/a&gt; bajo
+GNU/Linux. Estes mismos problemas los tiene el &lt;a href="https://twitter.com/vogella/"&gt;plugin ADT&lt;/a&gt; de Google (que
+al fin y al cabo utiliza el mismo editor gráfico que WindowBuilder).&lt;/p&gt;
+&lt;p&gt;&lt;a href="https://twitter.com/vogella/"&gt;Lars Vogel&lt;/a&gt; propone un &lt;a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=368543#c17"&gt;workaround&lt;/a&gt; a este problema, que consiste en
+forzar a SWT a no utilizar &lt;a href="http://cairographics.org/"&gt;Cairo&lt;/a&gt;. En mi caso, utilizo un script que
+además desactiva las &lt;a href="https://launchpad.net/ayatana-scrollbar/"&gt;overlay scrollbars&lt;/a&gt; de Ubuntu, que tampoco parecen
+terminar de funcionar bien en Eclipse:&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;&lt;span class="c"&gt;#!/usr/bin/env bash&lt;/span&gt;
+
+&lt;span class="nb"&gt;export &lt;/span&gt;&lt;span class="nv"&gt;GDK_NATIVE_WINDOWS&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;1
+&lt;span class="nb"&gt;export &lt;/span&gt;&lt;span class="nv"&gt;LIBOVERLAY_SCROLLBAR&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;0
+
+&lt;span class="nv"&gt;ECLIPSE_DIR&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;$( cd &amp;quot;&lt;/span&gt;&lt;span class="k"&gt;$(&lt;/span&gt; dirname &lt;span class="s2"&gt;&amp;quot;${BASH_SOURCE[0]}&amp;quot;&lt;/span&gt; &lt;span class="k"&gt;)&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot; &amp;amp;&amp;amp; pwd )&amp;quot;&lt;/span&gt;
+&lt;span class="nv"&gt;$ECLIPSE_DIR&lt;/span&gt;/eclipse -Dorg.eclipse.swt.internal.gtk.cairoGraphics&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="nb"&gt;false&lt;/span&gt; &lt;span class="se"&gt;\&lt;/span&gt;
+    -Dorg.eclipse.swt.internal.gtk.useCairo&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="nb"&gt;false&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;</summary><category term="eclipse"></category><category term="linux"></category><category term="windowbuilder"></category><category term="android"></category></entry><entry><title>(Otra) expresión regular para extraer URLs</title><link href="http://pataliebre.net/otra-expresion-regular-para-extraer-urls.html" rel="alternate"></link><updated>2012-06-18T00:00:00+02:00</updated><author><name>David Castellanos</name></author><id>http://pataliebre.net/otra-expresion-regular-para-extraer-urls.html</id><summary type="html">&lt;p&gt;Escribir una expresión regular que extraiga URLs de un texto arbitrario no es
 una tarea sencilla, la prueba es que existen en Internet literalmente cientos
 de aproximaciones que abordan el problema con más o menos éxito.&lt;/p&gt;
 &lt;p&gt;Hay que tener en cuenta que &lt;a href="http://www.codinghorror.com/blog/2008/10/the-problem-with-urls.html"&gt;no es posible detectar &lt;em&gt;cualquier&lt;/em&gt;

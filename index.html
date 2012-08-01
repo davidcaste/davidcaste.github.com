@@ -51,8 +51,67 @@
         
             <aside id="featured" class="body">
                 <article>
-                    <h1 class="entry-title"><a href="./otra-expresion-regular-para-extraer-urls.html">(Otra) expresión regular para extraer URLs</a></h1> 
+                    <h1 class="entry-title"><a href="./solucionar-problemas-graficos-en-eclipse-bajo-gnulinux.html">Solucionar problemas gráficos en Eclipse bajo GNU/Linux</a></h1> 
                     <footer class="post-info">
+        <abbr class="published" title="2012-08-01T00:00:00">
+                mié 01 agosto 2012
+        </abbr>
+
+        
+        <address class="vcard author">
+                By <a class="url fn" href="./author/David Castellanos.html">David Castellanos</a>
+        </address>
+        
+<p>In <a href="./category/desarrollo.html">desarrollo</a>. </p>
+<p>tags: <a href="./tag/eclipse.html">eclipse</a><a href="./tag/linux.html">linux</a><a href="./tag/windowbuilder.html">windowbuilder</a><a href="./tag/android.html">android</a></p>
+
+
+</footer><!-- /.post-info --><p>Aunque <a href="http://www.eclipse.org">Eclipse</a> es una plataforma de desarrollo multiplataforma, no es un
+secreto que MS Windows ha sido hasta ahora la plataforma mejor soportada.
+La versión de Eclipse para Mac OS X ha ido mejorando versión a versión, sobre
+todo desde la publicación de <a href="http://www.eclipse.org/juno">Eclipse 4.2 (Juno)</a>.</p>
+<p>Aunque completamente funcional, el soporte de Eclipse para GNU/Linux no está a
+la altura quei en el resto de plataformas. Un ejemplo es el bug <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=368543">#368543</a>,
+en el que se describen problemas gráficos con <a href="http://www.eclipse.org/windowbuilder/">WindowBuilder</a> bajo
+GNU/Linux. Estes mismos problemas los tiene el <a href="https://twitter.com/vogella/">plugin ADT</a> de Google (que
+al fin y al cabo utiliza el mismo editor gráfico que WindowBuilder).</p>
+<p><a href="https://twitter.com/vogella/">Lars Vogel</a> propone un <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=368543#c17">workaround</a> a este problema, que consiste en
+forzar a SWT a no utilizar <a href="http://cairographics.org/">Cairo</a>. En mi caso, utilizo un script que
+además desactiva las <a href="https://launchpad.net/ayatana-scrollbar/">overlay scrollbars</a> de Ubuntu, que tampoco parecen
+terminar de funcionar bien en Eclipse:</p>
+<div class="codehilite"><pre><span class="c">#!/usr/bin/env bash</span>
+
+<span class="nb">export </span><span class="nv">GDK_NATIVE_WINDOWS</span><span class="o">=</span>1
+<span class="nb">export </span><span class="nv">LIBOVERLAY_SCROLLBAR</span><span class="o">=</span>0
+
+<span class="nv">ECLIPSE_DIR</span><span class="o">=</span><span class="s2">&quot;$( cd &quot;</span><span class="k">$(</span> dirname <span class="s2">&quot;${BASH_SOURCE[0]}&quot;</span> <span class="k">)</span><span class="s2">&quot; &amp;&amp; pwd )&quot;</span>
+<span class="nv">$ECLIPSE_DIR</span>/eclipse -Dorg.eclipse.swt.internal.gtk.cairoGraphics<span class="o">=</span><span class="nb">false</span> <span class="se">\</span>
+    -Dorg.eclipse.swt.internal.gtk.useCairo<span class="o">=</span><span class="nb">false</span>
+</pre></div><p>There are <a href="./solucionar-problemas-graficos-en-eclipse-bajo-gnulinux.html#disqus_thread">comments</a>.</p>
+                </article>
+                
+            </aside><!-- /#featured -->
+            
+                <section id="content" class="body">
+                    <h1>Other articles</h1>
+                    <hr />
+                        <ol id="posts-list" class="hfeed">
+            
+        
+        
+        
+        
+
+        
+         
+            
+            <li><article class="hentry">    
+                <header>
+                        <h1><a href="./otra-expresion-regular-para-extraer-urls.html" rel="bookmark" title="Permalink to (Otra) expresión regular para extraer URLs">(Otra) expresión regular para extraer URLs</a></h1>
+                </header>
+                
+                <div class="entry-content">
+                <footer class="post-info">
         <abbr class="published" title="2012-06-18T00:00:00">
                 lun 18 junio 2012
         </abbr>
@@ -66,95 +125,16 @@
 <p>tags: <a href="./tag/regex.html">regex</a><a href="./tag/web.html">web</a><a href="./tag/python.html">python</a></p>
 
 
-</footer><!-- /.post-info --><p>Escribir una expresión regular que extraiga URLs de un texto arbitrario no es
+</footer><!-- /.post-info -->
+                <p>Escribir una expresión regular que extraiga URLs de un texto arbitrario no es
 una tarea sencilla, la prueba es que existen en Internet literalmente cientos
 de aproximaciones que abordan el problema con más o menos éxito.</p>
 <p>Hay que tener en cuenta que <a href="http://www.codinghorror.com/blog/2008/10/the-problem-with-urls.html">no es posible detectar <em>cualquier</em>
-URL en un texto arbitrario</a>, puesto que el espacio es un carácter admitido en
-las URLs. Después de dedicar bastante tiempo a buscar en Internet, la
-aproximación que más me gustó es la realizada por <a href="http://daringfireball.net/">John Gruber</a>, creador de
-<a href="http://daringfireball.net/projects/markdown/">Markdown</a>, en el artículo <a href="http://daringfireball.net/2010/07/improved_regex_for_matching_urls">An Improved Liberal, Accurate Regex Pattern for
-Matching URLs</a>. Propone  una expresión regular muy interesante porque aborda
-el problema de URLs con parejas de paréntesis, común en ciertos sitios como la
-Wikipedia.  Aunque su expresión regular reconoce correctamente la inmensa
-mayoría de URLs,
-requiere que después del dominio superior (<em>Top Level Domain</em>, o <abbr title="Top Level Domain">TLD</abbr>) de la URL
-tenga una barra invertida después del dominio. Por ejemplo
-<a href="http://t.co/">t.co/</a> se reconoce correctamente, pero <a href="http://t.co">t.co</a> no.</p>
-<p>Afortunadamente Jesús González (Chuso), un compañero de Escritorio Movistar
-para la plataforma Windows, había tenido el mismo problema y había escrito una
-expresión regular que no tiene este problema:</p>
-<div class="codehilite"><pre># Capture entire matched URL
-(
-    # Optional: only allow some network protocols
-    # URL protocol and a colon followed by 2 slashes
-    (?:
-        (?:
-            http|https|ftp
-        ):\\/\\/
-    )?
-
-    # Check if it is the beginning of a word
-    (?&lt;=\\b)
-
-    # The URL must not start with the character &#39;@&#39;
-    (?&lt;!\\@)
-
-    # The domain name must begin with a valid character
-    (?:[\w\d]
-
-        # Other characters allowed in the domain
-        (?:[\w\dñÑ()+,-.:=;$_!*&#39;%?#])*
-    )
-
-    # A recognized domain is required
-    \\.
-    (?:
-        aero|arpa|asia|biz|cat|com|coop|edu|gov|inet|info|int|jobs|mil|
-        mobi|museum|name|net|org|pro|tel|travel|xxx|ac|ad|ae|af|ag|ai|
-        al|am|an|ao|aq|ar|as|at|au|aw|az|ba|bb|bd|be|bf|bg|bh|bi|bj|bm|bn|
-        bo|br|bs|bt|bv|bw|by|bz|ca|cc|cd|cf|cg|ch|ci|ck|cl|cm|cn|co|cr|cu|
-        cv|cx|cy|cz|de|dj|dk|dm|do|dz|ec|ee|eg|er|es|et|eu|fi|fj|fk|fm|fo|
-        fr|ga|gb|gd|ge|gf|gg|gh|gi|gl|gm|gn|gp|gq|gr|gs|gt|gu|gw|gy|hk|hm|
-        hn|hr|ht|hu|id|ie|il|im|in|io|iq|ir|is|it|je|jm|jo|jp|ke|kg|kh|ki|
-        km|kn|kp|kr|kw|ky|kz|la|lb|lc|li|lk|lr|ls|lt|lu|lv|ly|ma|mc|md|me|
-        mg|mh|mk|ml|mm|mn|mo|mp|mq|mr|ms|mt|mu|mv|mw|mx|my|mz|na|nc|ne|nf|
-        ng|ni|nl|no|np|nr|nu|nz|om|pa|pe|pf|pg|ph|pk|pl|pm|pn|pr|ps|pt|pw|
-        py|qa|re|ro|rs|ru|rw|sa|sb|sc|sd|se|sg|sh|si|sj|sk|sl|sm|sn|so|sr|
-        st|su|sv|sy|sz|tc|td|tf|tg|th|tj|tk|tl|tm|tn|to|tp|tr|tt|tv|tw|tz|
-        ua|ug|uk|us|uy|uz|va|vc|ve|vg|vi|vn|vu|wf|ws|ye|yt|za|zm|zw
-    )
-
-    # Optional: Port number
-    (?::[0-9]+)?
-
-    # Characters allowed in a URL according to RF1738
-    (?:
-        \\/[\w\d()+,-.:=@;$_!*&#39;%?#&amp;|\\\\]*
-    )*
-
-    # Check if we have consumed all characters allowed in a URL
-    (?![\w\d()+,-./:=@;$_!*&#39;%?#&amp;|\\\\])
-)
-</pre></div>
-
-
-<p>Esta expresión debe compilarse con los flags <code>re.IGNORECASE</code> y <code>re.VERBOSE</code> del
-<a href="http://docs.python.org/library/re.html">módulo re</a>.</p>
-<p>Además de detectar las URLs cortas del tipo <a href="static/t.co">t.co</a>, sólo hace
-<em>matching</em> si el <abbr title="Top Level Domain">TLD</abbr> de la URL es válido. Sin embargo, tiene la desventaja de
-que si en un futuro cambiara la <a href="http://en.wikipedia.org/wiki/List_of_Internet_top-level_domains">lista de dominios superiores</a>, sería
-necesario actualizar la expresión regular.</p><p>There are <a href="./otra-expresion-regular-para-extraer-urls.html#disqus_thread">comments</a>.</p>
-                </article>
-                
-            </aside><!-- /#featured -->
-            
-                <section id="content" class="body">
-                    <h1>Other articles</h1>
-                    <hr />
-                        <ol id="posts-list" class="hfeed">
-            
-        
+URL en un ...</a></p>
+                <a class="readmore" href="./otra-expresion-regular-para-extraer-urls.html">read more</a>
+                <p>There are <a href="./otra-expresion-regular-para-extraer-urls.html#disqus_thread">comments</a>.</p>
+                </div><!-- /.entry-content -->
+            </article></li>
         
         
         
