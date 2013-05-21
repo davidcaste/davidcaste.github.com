@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+        <meta charset="utf-8">
+        <title>pataliebre.net - David Castellanos</title>
+        <link rel="stylesheet" href="http://pataliebre.net/theme/css/main.css">
+                <link href="http://pataliebre.net/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="pataliebre.net Atom Feed" />
+                
+        <!--[if IE]>
+            <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+        <![endif]-->
+</head>
+
+<body id="index" class="home">
+<a href="http://github.com/davidcaste/davidcaste.github.com">
+<img style="position: absolute; top: 0; right: 0; border: 0;" src="http://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png" alt="Fork me on GitHub" />
+</a>
+        <header id="banner" class="body">
+                <h1><a href="http://pataliebre.net/">pataliebre.net </a></h1>
+                <nav><ul>
+                                                    <li><a href="http://pataliebre.net/2013/05/pages/about-me.html">acerca de mí</a></li>
+                                                                    <li ><a href="http://pataliebre.net/category/desarrollo.html">desarrollo</a></li>
+                                    <li ><a href="http://pataliebre.net/category/general.html">general</a></li>
+                                                </ul></nav>
+        </header><!-- /#banner -->
+                
+            
+
+                            <aside id="featured" class="body">
+                <article>
+                    <h1 class="entry-title"><a href="http://pataliebre.net/2012/05/control-de-concurrencia-usando-d-bus.html">Control de concurrencia usando D-Bus</a></h1> 
+                    <footer class="post-info">
+        <abbr class="published" title="2012-05-04T00:00:00">
+                vie 04 mayo 2012
+        </abbr>
+
+                <address class="vcard author">
+                By <a class="url fn" href="http://pataliebre.net/author/david-castellanos.html">David Castellanos</a>
+        </address>
+        <p>In <a href="http://pataliebre.net/category/desarrollo.html">desarrollo</a>. </p>
+<p>tags: <a href="http://pataliebre.net/tag/python.html">python</a><a href="http://pataliebre.net/tag/dbus.html">dbus</a><a href="http://pataliebre.net/tag/concurrencia.html">concurrencia</a></p>
+</footer><!-- /.post-info --><p>Un problema frecuente es cómo impedir que un programa se ejecute dos o más
+veces de forma concurrente. Uno de los mecanismos más utilizados para afrontar
+este problema es el conocido como <a href="http://en.wikipedia.org/wiki/File_locking">file locking</a>. En un proyecto hemos
+utilizado <a href="http://en.wikipedia.org/wiki/DBus">D-Bus</a> para implementar un mecanismo similar.</p>
+<p>D-Bus es un sistema de bus de mensajes, una forma sencilla para que las
+aplicaciones se comuniquen entre sí. De forma muy resumida (más información en
+la web del <a href="http://www.freedesktop.org/wiki/Software/dbus">proyecto D-Bus</a>), cuando un usuario inicia una sesión gráfica en
+el sistema tiene a su disposición un bus del sistema y un bus del usuario
+ligado a su sesión. Un programa en ejecución se puede registrar en uno de estos
+buses para ofrecer uno o más servicios, identificados unívocamente con un
+identificador asignado por D-Bus (p.e. <code>:34-907</code>) y un nombre <em>conocido</em>
+elegido por el programa (p.e. <code>es.foo.Bar</code>).</p>
+<p>Puesto que sólo puede haber un único servicio en un bus con el mismo nombre, es
+sencillo idear un mecanismo de control de concurrencia. Consistiría básicamente
+en consultar si existe un servicio en el bus de sesión con un determinado
+nombre. Un ejemplo sencillo implementado en Python es el siguiente:</p>
+<div class="highlight"><pre><span class="c">#!/usr/bin/env python</span>
+<span class="c"># dbus-singleton-example.py</span>
+
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">gobject</span>
+<span class="kn">import</span> <span class="nn">dbus</span>
+<span class="kn">import</span> <span class="nn">dbus.mainloop.glib</span>
+<span class="kn">import</span> <span class="nn">dbus.service</span>
+
+<span class="n">BUS_NAME</span> <span class="o">=</span> <span class="s">&#39;es.foo.Bar&#39;</span>
+
+<span class="k">class</span> <span class="nc">DBusSingleton</span><span class="p">(</span><span class="n">dbus</span><span class="o">.</span><span class="n">service</span><span class="o">.</span><span class="n">Object</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">bus</span> <span class="o">=</span> <span class="n">dbus</span><span class="o">.</span><span class="n">SessionBus</span><span class="p">()</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">bus</span><span class="o">.</span><span class="n">name_has_owner</span><span class="p">(</span><span class="n">BUS_NAME</span><span class="p">):</span>
+            <span class="n">bus</span><span class="o">.</span><span class="n">request_name</span><span class="p">(</span><span class="n">BUS_NAME</span><span class="p">)</span>
+            <span class="n">dbus</span><span class="o">.</span><span class="n">service</span><span class="o">.</span><span class="n">Object</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bus</span><span class="p">,</span> <span class="s">&#39;/es/foo/bar&#39;</span><span class="p">)</span>
+            <span class="k">print</span> <span class="s">&#39;Adquired D-Bus name: &quot;</span><span class="si">%s</span><span class="s">&quot;&#39;</span> <span class="o">%</span> <span class="n">BUS_NAME</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">print</span> <span class="s">&#39;Failed to request D-Bus name: &quot;</span><span class="si">%s</span><span class="s">&quot;&#39;</span> <span class="o">%</span> <span class="n">BUS_NAME</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">()</span>
+
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">dbus</span><span class="o">.</span><span class="n">mainloop</span><span class="o">.</span><span class="n">glib</span><span class="o">.</span><span class="n">DBusGMainLoop</span><span class="p">(</span><span class="n">set_as_default</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+    <span class="n">singleton</span> <span class="o">=</span> <span class="n">DBusSingleton</span><span class="p">()</span>
+
+    <span class="n">loop</span> <span class="o">=</span> <span class="n">gobject</span><span class="o">.</span><span class="n">MainLoop</span><span class="p">()</span>
+    <span class="n">loop</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+</pre></div>
+
+
+<p>Al ejecutarlo de forma concurrente <em>n</em> veces se obtiene la salida:</p>
+<div class="highlight"><pre><span class="nv">$ </span><span class="k">for </span>i in <span class="o">{</span>1..5<span class="o">}</span>; <span class="k">do </span>python dbus-concurrenty-example.py &amp; <span class="k">done</span>
+Adquired D-Bus name: <span class="s2">&quot;es.foo.Bar&quot;</span>
+Failed to request D-Bus name: <span class="s2">&quot;es.foo.Bar&quot;</span>
+Failed to request D-Bus name: <span class="s2">&quot;es.foo.Bar&quot;</span>
+Failed to request D-Bus name: <span class="s2">&quot;es.foo.Bar&quot;</span>
+Failed to request D-Bus name: <span class="s2">&quot;es.foo.Bar&quot;</span>
+</pre></div><p>There are <a href="http://pataliebre.net/2012/05/control-de-concurrencia-usando-d-bus.html#disqus_thread">comments</a>.</p>                </article>
+                            </aside><!-- /#featured -->
+                            <section id="content" class="body">
+                    <h1>Other articles</h1>
+                    <hr />
+                    <ol id="posts-list" class="hfeed">
+                                                
+
+                 
+                        <li><article class="hentry">    
+                <header>
+                    <h1><a href="http://pataliebre.net/2012/04/extraer-cadenas-de-un-fichero-ui-de-gtk-builder-con-intltool.html" rel="bookmark"
+                           title="Permalink to Extraer cadenas de un fichero .ui de gtk-builder con intltool">Extraer cadenas de un fichero .ui de gtk-builder con intltool</a></h1>
+                </header>
+                
+                <div class="entry-content">
+                <footer class="post-info">
+        <abbr class="published" title="2012-04-26T00:00:00">
+                jue 26 abril 2012
+        </abbr>
+
+                <address class="vcard author">
+                By <a class="url fn" href="http://pataliebre.net/author/david-castellanos.html">David Castellanos</a>
+        </address>
+        <p>In <a href="http://pataliebre.net/category/desarrollo.html">desarrollo</a>. </p>
+<p>tags: <a href="http://pataliebre.net/tag/gtk.html">gtk</a><a href="http://pataliebre.net/tag/autotools.html">autotools</a><a href="http://pataliebre.net/tag/intltool.html">intltool</a></p>
+</footer><!-- /.post-info -->                <p>Tenemos entre manos un proyecto en el que utilizamos Glade para la creación de
+la interfaz de usuario; es muy cómodo porque crea una serie de ficheros XML que
+describen la UI del programa, en lugar de crearla programáticamente. Hasta ahora
+usábamos <code>libglade</code> para cargar estos ficheros, pero como esta ...</p>
+                <a class="readmore" href="http://pataliebre.net/2012/04/extraer-cadenas-de-un-fichero-ui-de-gtk-builder-con-intltool.html">read more</a>
+                <p>There are <a href="http://pataliebre.net/2012/04/extraer-cadenas-de-un-fichero-ui-de-gtk-builder-con-intltool.html#disqus_thread">comments</a>.</p>                </div><!-- /.entry-content -->
+            </article></li>
+                            
+
+                 
+                        <li><article class="hentry">    
+                <header>
+                    <h1><a href="http://pataliebre.net/2012/04/hello-world.html" rel="bookmark"
+                           title="Permalink to hello world!">hello world!</a></h1>
+                </header>
+                
+                <div class="entry-content">
+                <footer class="post-info">
+        <abbr class="published" title="2012-04-22T00:00:00">
+                dom 22 abril 2012
+        </abbr>
+
+                <address class="vcard author">
+                By <a class="url fn" href="http://pataliebre.net/author/david-castellanos.html">David Castellanos</a>
+        </address>
+        <p>In <a href="http://pataliebre.net/category/general.html">general</a>. </p>
+<p>tags: <a href="http://pataliebre.net/tag/me.html">me</a></p>
+</footer><!-- /.post-info -->                <p>Quizá sea por deformación profesional, vaguería, o una falta (puntual) de
+imaginación, no se me ocurre una mejor forma de comenzar este lío que con un
+estupendo <em>Hello World!</em>.</p>
+<p>El objetivo de este blog es muy humilde: continuamente estoy aprendiendo cosas,
+y continuamente estoy olvidando cosas. Y como soy vago ...</p>
+                <a class="readmore" href="http://pataliebre.net/2012/04/hello-world.html">read more</a>
+                <p>There are <a href="http://pataliebre.net/2012/04/hello-world.html#disqus_thread">comments</a>.</p>                </div><!-- /.entry-content -->
+            </article></li>
+                            
+
+                 
+                        <li><article class="hentry">    
+                <header>
+                    <h1><a href="http://pataliebre.net/2012/04/oracle-jdk-y-google-chrome-en-ubuntu-1204-lts.html" rel="bookmark"
+                           title="Permalink to Oracle JDK y Google Chrome en Ubuntu 12.04 LTS">Oracle JDK y Google Chrome en Ubuntu 12.04 LTS</a></h1>
+                </header>
+                
+                <div class="entry-content">
+                <footer class="post-info">
+        <abbr class="published" title="2012-04-30T00:00:00">
+                lun 30 abril 2012
+        </abbr>
+
+                <address class="vcard author">
+                By <a class="url fn" href="http://pataliebre.net/author/david-castellanos.html">David Castellanos</a>
+        </address>
+        <p>In <a href="http://pataliebre.net/category/general.html">general</a>. </p>
+<p>tags: <a href="http://pataliebre.net/tag/java.html">java</a><a href="http://pataliebre.net/tag/ubuntu.html">ubuntu</a><a href="http://pataliebre.net/tag/alternatives.html">alternatives</a></p>
+</footer><!-- /.post-info -->                <p>A menudo utilizo <em>Juniper Network Connect</em> para conectar a la intranet
+corporativa del trabajo. Es un applet de Java que, al menos en mi caso, no
+funciona bien con <a href="http://openjdk.java.net">OpenJDK</a> y sólo funciona con <a href="http://www.java.com">Oracle JVM</a> (la
+anteriormente conocida como Sun JVM). En agosto del 2011, <a href="https://lists.ubuntu.com/archives/ubuntu-security-announce/2011-December/001528.html">Canonical dejó de
+tener ...</a></p>
+                <a class="readmore" href="http://pataliebre.net/2012/04/oracle-jdk-y-google-chrome-en-ubuntu-1204-lts.html">read more</a>
+                <p>There are <a href="http://pataliebre.net/2012/04/oracle-jdk-y-google-chrome-en-ubuntu-1204-lts.html#disqus_thread">comments</a>.</p>                </div><!-- /.entry-content -->
+            </article></li>
+                            
+
+                 
+                        <li><article class="hentry">    
+                <header>
+                    <h1><a href="http://pataliebre.net/2012/06/otra-expresion-regular-para-extraer-urls.html" rel="bookmark"
+                           title="Permalink to (Otra) expresión regular para extraer URLs">(Otra) expresión regular para extraer URLs</a></h1>
+                </header>
+                
+                <div class="entry-content">
+                <footer class="post-info">
+        <abbr class="published" title="2012-06-18T00:00:00">
+                lun 18 junio 2012
+        </abbr>
+
+                <address class="vcard author">
+                By <a class="url fn" href="http://pataliebre.net/author/david-castellanos.html">David Castellanos</a>
+        </address>
+        <p>In <a href="http://pataliebre.net/category/desarrollo.html">desarrollo</a>. </p>
+<p>tags: <a href="http://pataliebre.net/tag/regex.html">regex</a><a href="http://pataliebre.net/tag/web.html">web</a><a href="http://pataliebre.net/tag/python.html">python</a></p>
+</footer><!-- /.post-info -->                <p>Escribir una expresión regular que extraiga URLs de un texto arbitrario no es
+una tarea sencilla, la prueba es que existen en Internet literalmente cientos
+de aproximaciones que abordan el problema con más o menos éxito.</p>
+<p>Hay que tener en cuenta que <a href="http://www.codinghorror.com/blog/2008/10/the-problem-with-urls.html">no es posible detectar <em>cualquier</em>
+URL en un ...</a></p>
+                <a class="readmore" href="http://pataliebre.net/2012/06/otra-expresion-regular-para-extraer-urls.html">read more</a>
+                <p>There are <a href="http://pataliebre.net/2012/06/otra-expresion-regular-para-extraer-urls.html#disqus_thread">comments</a>.</p>                </div><!-- /.entry-content -->
+            </article></li>
+                            
+
+                 
+                        <li><article class="hentry">    
+                <header>
+                    <h1><a href="http://pataliebre.net/2013/05/solucionar-cuelgue-de-eclipse-en-ubuntu-1304-al-mostrar-una-sugerencia-de-autocompletado.html" rel="bookmark"
+                           title="Permalink to Solucionar cuelgue de Eclipse en Ubuntu 13.04 al mostrar una sugerencia de autocompletado">Solucionar cuelgue de Eclipse en Ubuntu 13.04 al mostrar una sugerencia de autocompletado</a></h1>
+                </header>
+                
+                <div class="entry-content">
+                <footer class="post-info">
+        <abbr class="published" title="2013-05-21T00:00:00">
+                mar 21 mayo 2013
+        </abbr>
+
+                <address class="vcard author">
+                By <a class="url fn" href="http://pataliebre.net/author/david-castellanos.html">David Castellanos</a>
+        </address>
+        <p>In <a href="http://pataliebre.net/category/desarrollo.html">desarrollo</a>. </p>
+<p>tags: <a href="http://pataliebre.net/tag/eclipse.html">eclipse</a><a href="http://pataliebre.net/tag/linux.html">linux</a><a href="http://pataliebre.net/tag/ubuntu.html">ubuntu</a><a href="http://pataliebre.net/tag/wtf.html">wtf</a></p>
+</footer><!-- /.post-info -->                <p>Para lo bueno y para lo malo Eclipse no deja de sorprenderme, y la última
+sorpresa no ha sido agradable. En Ubuntu 13.04 de 64 bits, Eclipse 4.2 se
+cuelga justo después de mostrar cualquier sugerencia de autocompletado de
+código.</p>
+<p>El error está reportado en Eclipse (<a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=406736">#406763</a>) y ...</p>
+                <a class="readmore" href="http://pataliebre.net/2013/05/solucionar-cuelgue-de-eclipse-en-ubuntu-1304-al-mostrar-una-sugerencia-de-autocompletado.html">read more</a>
+                <p>There are <a href="http://pataliebre.net/2013/05/solucionar-cuelgue-de-eclipse-en-ubuntu-1304-al-mostrar-una-sugerencia-de-autocompletado.html#disqus_thread">comments</a>.</p>                </div><!-- /.entry-content -->
+            </article></li>
+                            
+
+                 
+                        <li><article class="hentry">    
+                <header>
+                    <h1><a href="http://pataliebre.net/2012/08/solucionar-problemas-graficos-en-eclipse-bajo-gnulinux.html" rel="bookmark"
+                           title="Permalink to Solucionar problemas gráficos en Eclipse bajo GNU/Linux">Solucionar problemas gráficos en Eclipse bajo GNU/Linux</a></h1>
+                </header>
+                
+                <div class="entry-content">
+                <footer class="post-info">
+        <abbr class="published" title="2012-08-01T00:00:00">
+                mié 01 agosto 2012
+        </abbr>
+
+                <address class="vcard author">
+                By <a class="url fn" href="http://pataliebre.net/author/david-castellanos.html">David Castellanos</a>
+        </address>
+        <p>In <a href="http://pataliebre.net/category/desarrollo.html">desarrollo</a>. </p>
+<p>tags: <a href="http://pataliebre.net/tag/eclipse.html">eclipse</a><a href="http://pataliebre.net/tag/linux.html">linux</a><a href="http://pataliebre.net/tag/windowbuilder.html">windowbuilder</a><a href="http://pataliebre.net/tag/android.html">android</a></p>
+</footer><!-- /.post-info -->                <p>Aunque <a href="http://www.eclipse.org">Eclipse</a> es una plataforma de desarrollo multiplataforma, no es un
+secreto que MS Windows ha sido hasta ahora la plataforma mejor soportada.
+La versión de Eclipse para Mac OS X ha ido mejorando versión a versión, sobre
+todo desde la publicación de <a href="http://www.eclipse.org/juno">Eclipse 4.2 (Juno)</a>.</p>
+<p>Aunque completamente funcional ...</p>
+                <a class="readmore" href="http://pataliebre.net/2012/08/solucionar-problemas-graficos-en-eclipse-bajo-gnulinux.html">read more</a>
+                <p>There are <a href="http://pataliebre.net/2012/08/solucionar-problemas-graficos-en-eclipse-bajo-gnulinux.html#disqus_thread">comments</a>.</p>                </div><!-- /.entry-content -->
+            </article></li>
+                            </ol><!-- /#posts-list -->
+                            <p class="paginator">
+        Page 1 / 1
+    </p>
+                        </section><!-- /#content -->
+                    <section id="extras" class="body">
+                                <div class="social">
+                        <h2>social</h2>
+                        <ul>
+                            <li><a href="http://pataliebre.net/feeds/all.atom.xml" type="application/atom+xml" rel="alternate">atom feed</a></li>
+                            
+                                                </ul>
+                </div><!-- /.social -->
+                </section><!-- /#extras -->
+
+        <footer id="contentinfo" class="body">
+                <address id="about" class="vcard body">
+                Proudly powered by <a href="http://getpelican.com/">Pelican</a>, which takes great advantage of <a href="http://python.org">Python</a>.
+                </address><!-- /#about -->
+
+                <p>The theme is by <a href="http://coding.smashingmagazine.com/2009/08/04/designing-a-html-5-layout-from-scratch/">Smashing Magazine</a>, thanks!</p>
+        </footer><!-- /#contentinfo -->
+
+    <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-31198203-1']);
+    _gaq.push(['_trackPageview']);
+    (function() {
+        var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+    </script>
+<script type="text/javascript">
+    var disqus_shortname = 'pataliebredotnet';
+    (function () {
+        var s = document.createElement('script'); s.async = true;
+        s.type = 'text/javascript';
+        s.src = 'http://' + disqus_shortname + '.disqus.com/count.js';
+        (document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
+    }());
+</script>
+</body>
+</html>
