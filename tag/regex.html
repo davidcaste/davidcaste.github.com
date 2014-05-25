@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+        <meta charset="utf-8" />
+        <title>pataliebre.net - regex</title>
+        <link rel="stylesheet" href="/theme/css/main.css" />
+
+        <!--[if IE]>
+            <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+        <![endif]-->
+</head>
+
+<body id="index" class="home">
+        <header id="banner" class="body">
+                <h1><a href="/">pataliebre.net </a></h1>
+                <nav><ul>
+                    <li><a href="/pages/about-me.html">acerca de mí</a></li>
+                    <li><a href="/category/desarrollo.html">desarrollo</a></li>
+                    <li><a href="/category/general.html">general</a></li>
+                </ul></nav>
+        </header><!-- /#banner -->
+
+            <aside id="featured" class="body">
+                <article>
+                    <h1 class="entry-title"><a href="/otra-expresion-regular-para-extraer-urls.html">(Otra) expresión regular para extraer URLs</a></h1>
+<footer class="post-info">
+        <abbr class="published" title="2012-06-18T00:00:00">
+                lun 18 junio 2012
+        </abbr>
+
+        <address class="vcard author">
+                By <a class="url fn" href="/author/david.html">david</a>
+        </address>
+<p>In <a href="/category/desarrollo.html">desarrollo</a>. </p>
+<p>tags: <a href="/tag/regex.html">regex</a><a href="/tag/web.html">web</a><a href="/tag/python.html">python</a></p>
+</footer><!-- /.post-info --><p>Escribir una expresión regular que extraiga URLs de un texto arbitrario no es
+una tarea sencilla, la prueba es que existen en Internet literalmente cientos
+de aproximaciones que abordan el problema con más o menos éxito.</p>
+<p>Hay que tener en cuenta que <a href="http://www.codinghorror.com/blog/2008/10/the-problem-with-urls.html">no es posible detectar <em>cualquier</em>
+URL en un texto arbitrario</a>, puesto que el espacio es un carácter admitido en
+las URLs. Después de dedicar bastante tiempo a buscar en Internet, la
+aproximación que más me gustó es la realizada por <a href="http://daringfireball.net/">John Gruber</a>, creador de
+<a href="http://daringfireball.net/projects/markdown/">Markdown</a>, en el artículo <a href="http://daringfireball.net/2010/07/improved_regex_for_matching_urls">An Improved Liberal, Accurate Regex Pattern for
+Matching URLs</a>. Propone  una expresión regular muy interesante porque aborda
+el problema de URLs con parejas de paréntesis, común en ciertos sitios como la
+Wikipedia.  Aunque su expresión regular reconoce correctamente la inmensa
+mayoría de URLs,
+requiere que después del dominio superior (<em>Top Level Domain</em>, o <abbr title="Top Level Domain">TLD</abbr>) de la URL
+tenga una barra invertida después del dominio. Por ejemplo
+<a href="http://t.co/">t.co/</a> se reconoce correctamente, pero <a href="http://t.co">t.co</a> no.</p>
+<p>Afortunadamente Jesús González (Chuso), un compañero de Escritorio Movistar
+para la plataforma Windows, había tenido el mismo problema y había escrito una
+expresión regular que no tiene este problema:</p>
+<div class="highlight"><pre># Capture entire matched URL
+(
+    # Optional: only allow some network protocols
+    # URL protocol and a colon followed by 2 slashes
+    (?:
+        (?:
+            http|https|ftp
+        ):\\/\\/
+    )?
+
+    # Check if it is the beginning of a word
+    (?&lt;=\\b)
+
+    # The URL must not start with the character &#39;@&#39;
+    (?&lt;!\\@)
+
+    # The domain name must begin with a valid character
+    (?:[\w\d]
+
+        # Other characters allowed in the domain
+        (?:[\w\dñÑ()+,-.:=;$_!*&#39;%?#])*
+    )
+
+    # A recognized domain is required
+    \\.
+    (?:
+        aero|arpa|asia|biz|cat|com|coop|edu|gov|inet|info|int|jobs|mil|
+        mobi|museum|name|net|org|pro|tel|travel|xxx|ac|ad|ae|af|ag|ai|
+        al|am|an|ao|aq|ar|as|at|au|aw|az|ba|bb|bd|be|bf|bg|bh|bi|bj|bm|bn|
+        bo|br|bs|bt|bv|bw|by|bz|ca|cc|cd|cf|cg|ch|ci|ck|cl|cm|cn|co|cr|cu|
+        cv|cx|cy|cz|de|dj|dk|dm|do|dz|ec|ee|eg|er|es|et|eu|fi|fj|fk|fm|fo|
+        fr|ga|gb|gd|ge|gf|gg|gh|gi|gl|gm|gn|gp|gq|gr|gs|gt|gu|gw|gy|hk|hm|
+        hn|hr|ht|hu|id|ie|il|im|in|io|iq|ir|is|it|je|jm|jo|jp|ke|kg|kh|ki|
+        km|kn|kp|kr|kw|ky|kz|la|lb|lc|li|lk|lr|ls|lt|lu|lv|ly|ma|mc|md|me|
+        mg|mh|mk|ml|mm|mn|mo|mp|mq|mr|ms|mt|mu|mv|mw|mx|my|mz|na|nc|ne|nf|
+        ng|ni|nl|no|np|nr|nu|nz|om|pa|pe|pf|pg|ph|pk|pl|pm|pn|pr|ps|pt|pw|
+        py|qa|re|ro|rs|ru|rw|sa|sb|sc|sd|se|sg|sh|si|sj|sk|sl|sm|sn|so|sr|
+        st|su|sv|sy|sz|tc|td|tf|tg|th|tj|tk|tl|tm|tn|to|tp|tr|tt|tv|tw|tz|
+        ua|ug|uk|us|uy|uz|va|vc|ve|vg|vi|vn|vu|wf|ws|ye|yt|za|zm|zw
+    )
+
+    # Optional: Port number
+    (?::[0-9]+)?
+
+    # Characters allowed in a URL according to RF1738
+    (?:
+        \\/[\w\d()+,-.:=@;$_!*&#39;%?#&amp;|\\\\]*
+    )*
+
+    # Check if we have consumed all characters allowed in a URL
+    (?![\w\d()+,-./:=@;$_!*&#39;%?#&amp;|\\\\])
+)
+</pre></div>
+
+
+<p>Esta expresión debe compilarse con los flags <code>re.IGNORECASE</code> y <code>re.VERBOSE</code> del
+<a href="http://docs.python.org/library/re.html">módulo re</a>.</p>
+<p>Además de detectar las URLs cortas del tipo <a href="t.co">t.co</a>, sólo hace
+<em>matching</em> si el <abbr title="Top Level Domain">TLD</abbr> de la URL es válido. Sin embargo, tiene la desventaja de
+que si en un futuro cambiara la <a href="http://en.wikipedia.org/wiki/List_of_Internet_top-level_domains">lista de dominios superiores</a>, sería
+necesario actualizar la expresión regular.</p>                </article>
+<p class="paginator">
+    Page 1 / 1
+</p>
+            </aside><!-- /#featured -->
+            </ol><!-- /#posts-list -->
+            </section><!-- /#content -->
+        <section id="extras" class="body">
+                <div class="blogroll">
+                        <h2>blogroll</h2>
+                        <ul>
+                            <li><a href="http://getpelican.com/">Pelican</a></li>
+                            <li><a href="http://python.org/">Python.org</a></li>
+                            <li><a href="http://jinja.pocoo.org/">Jinja2</a></li>
+                        </ul>
+                </div><!-- /.blogroll -->
+                <div class="social">
+                        <h2>social</h2>
+                        <ul>
+
+                            <li><a href="http://github.com/davidcaste">github</a></li>
+                            <li><a href="http://es.linkedin.com/in/davidcaste">linkedin</a></li>
+                            <li><a href="http://twitter.com/davidcaste">twitter</a></li>
+                        </ul>
+                </div><!-- /.social -->
+        </section><!-- /#extras -->
+
+        <footer id="contentinfo" class="body">
+                <address id="about" class="vcard body">
+                Proudly powered by <a href="http://getpelican.com/">Pelican</a>, which takes great advantage of <a href="http://python.org">Python</a>.
+                </address><!-- /#about -->
+
+                <p>The theme is by <a href="http://coding.smashingmagazine.com/2009/08/04/designing-a-html-5-layout-from-scratch/">Smashing Magazine</a>, thanks!</p>
+        </footer><!-- /#contentinfo -->
+
+</body>
+</html>

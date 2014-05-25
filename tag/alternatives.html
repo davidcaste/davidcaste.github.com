@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+        <meta charset="utf-8" />
+        <title>pataliebre.net - alternatives</title>
+        <link rel="stylesheet" href="/theme/css/main.css" />
+
+        <!--[if IE]>
+            <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+        <![endif]-->
+</head>
+
+<body id="index" class="home">
+        <header id="banner" class="body">
+                <h1><a href="/">pataliebre.net </a></h1>
+                <nav><ul>
+                    <li><a href="/pages/about-me.html">acerca de mí</a></li>
+                    <li><a href="/category/desarrollo.html">desarrollo</a></li>
+                    <li><a href="/category/general.html">general</a></li>
+                </ul></nav>
+        </header><!-- /#banner -->
+
+            <aside id="featured" class="body">
+                <article>
+                    <h1 class="entry-title"><a href="/oracle-jdk-y-google-chrome-en-ubuntu-1204-lts.html">Oracle JDK y Google Chrome en Ubuntu 12.04 LTS</a></h1>
+<footer class="post-info">
+        <abbr class="published" title="2012-04-30T00:00:00">
+                lun 30 abril 2012
+        </abbr>
+
+        <address class="vcard author">
+                By <a class="url fn" href="/author/david.html">david</a>
+        </address>
+<p>In <a href="/category/general.html">general</a>. </p>
+<p>tags: <a href="/tag/java.html">java</a><a href="/tag/ubuntu.html">ubuntu</a><a href="/tag/alternatives.html">alternatives</a></p>
+</footer><!-- /.post-info --><p>A menudo utilizo <em>Juniper Network Connect</em> para conectar a la intranet
+corporativa del trabajo. Es un applet de Java que, al menos en mi caso, no
+funciona bien con <a href="http://openjdk.java.net">OpenJDK</a> y sólo funciona con <a href="http://www.java.com">Oracle JVM</a> (la
+anteriormente conocida como Sun JVM). En agosto del 2011, <a href="https://lists.ubuntu.com/archives/ubuntu-security-announce/2011-December/001528.html">Canonical dejó de
+tener permiso para distribuir la JVM de Sun</a>. Aunque existen algunos PPAs
+mantenidos por miembros de la comunidad de Ubuntu que ofrecen paquetes DEB del
+Oracle JVM, suelen ser versiones demasiado antiguas y con problemas de
+seguridad.</p>
+<p>Aunque hay disponible un instalador oficial en la <a href="http://www.oracle.com/technetwork/java/javase/downloads/index.html">sección de descargas de
+Oracle para Java</a>, suele ser mejor opción utilizar el script <code>make-jpkg</code>
+para crear un paquete Debian. Este script está empaquetado para Debian en el
+paquete <a href="http://packages.debian.org/java-package">java-package</a>, y recientemente ha sido actualizado a la versión
+0.50 que tiene como novedad el soporte para Java 7.</p>
+<p>Sólo he encontrado un problema con estos paquetes, y es que no instalan el
+plugin de Java en el navegador Google Chrome, sin embargo si lo hace para
+Iceweasel y Chromium. Es problema es muy sencillo de resolver, sólo es
+necesario crear un enlace simbólico al fichero <code>libnpjp2.so</code> que se encuentra
+en el JRE. Utilizando el <a href="http://www.debian-administration.org/articles/91">sistema de alternatives de Debian</a> se haría de la
+siguiente manera:</p>
+<div class="highlight"><pre>$ sudo update-alternatives --install \
+&gt; /usr/lib/mozilla/plugins/libjavaplugin.so \
+&gt; mozilla-javaplugin.so \
+&gt; /usr/lib/jvm/j2sdk1.6-oracle/jre/lib/i386/libnpjp2.so 100
+</pre></div>                </article>
+<p class="paginator">
+    Page 1 / 1
+</p>
+            </aside><!-- /#featured -->
+            </ol><!-- /#posts-list -->
+            </section><!-- /#content -->
+        <section id="extras" class="body">
+                <div class="blogroll">
+                        <h2>blogroll</h2>
+                        <ul>
+                            <li><a href="http://getpelican.com/">Pelican</a></li>
+                            <li><a href="http://python.org/">Python.org</a></li>
+                            <li><a href="http://jinja.pocoo.org/">Jinja2</a></li>
+                        </ul>
+                </div><!-- /.blogroll -->
+                <div class="social">
+                        <h2>social</h2>
+                        <ul>
+
+                            <li><a href="http://github.com/davidcaste">github</a></li>
+                            <li><a href="http://es.linkedin.com/in/davidcaste">linkedin</a></li>
+                            <li><a href="http://twitter.com/davidcaste">twitter</a></li>
+                        </ul>
+                </div><!-- /.social -->
+        </section><!-- /#extras -->
+
+        <footer id="contentinfo" class="body">
+                <address id="about" class="vcard body">
+                Proudly powered by <a href="http://getpelican.com/">Pelican</a>, which takes great advantage of <a href="http://python.org">Python</a>.
+                </address><!-- /#about -->
+
+                <p>The theme is by <a href="http://coding.smashingmagazine.com/2009/08/04/designing-a-html-5-layout-from-scratch/">Smashing Magazine</a>, thanks!</p>
+        </footer><!-- /#contentinfo -->
+
+</body>
+</html>

@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+        <meta charset="utf-8" />
+        <title>pataliebre.net - ubuntu</title>
+        <link rel="stylesheet" href="/theme/css/main.css" />
+
+        <!--[if IE]>
+            <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+        <![endif]-->
+</head>
+
+<body id="index" class="home">
+        <header id="banner" class="body">
+                <h1><a href="/">pataliebre.net </a></h1>
+                <nav><ul>
+                    <li><a href="/pages/about-me.html">acerca de mí</a></li>
+                    <li><a href="/category/desarrollo.html">desarrollo</a></li>
+                    <li><a href="/category/general.html">general</a></li>
+                </ul></nav>
+        </header><!-- /#banner -->
+
+            <aside id="featured" class="body">
+                <article>
+                    <h1 class="entry-title"><a href="/solucionar-cuelgue-de-eclipse-en-ubuntu-1304-al-mostrar-una-sugerencia-de-autocompletado.html">Solucionar cuelgue de Eclipse en Ubuntu 13.04 al mostrar una sugerencia de autocompletado</a></h1>
+<footer class="post-info">
+        <abbr class="published" title="2013-05-21T00:00:00">
+                mar 21 mayo 2013
+        </abbr>
+
+        <address class="vcard author">
+                By <a class="url fn" href="/author/david.html">david</a>
+        </address>
+<p>In <a href="/category/desarrollo.html">desarrollo</a>. </p>
+<p>tags: <a href="/tag/eclipse.html">eclipse</a><a href="/tag/linux.html">linux</a><a href="/tag/ubuntu.html">ubuntu</a><a href="/tag/wtf.html">wtf</a></p>
+</footer><!-- /.post-info --><p>Para lo bueno y para lo malo Eclipse no deja de sorprenderme, y la última
+sorpresa no ha sido agradable. En Ubuntu 13.04 de 64 bits, Eclipse 4.2 se
+cuelga justo después de mostrar cualquier sugerencia de autocompletado de
+código.</p>
+<p>El error está reportado en Eclipse (<a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=406736">#406763</a>) y en Ubuntu
+(<a href="https://bugs.launchpad.net/ubuntu/+source/eclipse/+bug/988646">#988646</a>), pero en ninguno de estos sitios se describe un <em>workarond</em>.
+Afortunadamente encontré una solución (para variar) en un artículo de
+Stackoverflow titulado <a href="http://stackoverflow.com/questions/16383992/why-does-my-eclipse-indigo-crashes-on-ubuntu-13-04-with-oracle-jdk-64bit">Why does my Eclipse Indigo crashes on Ubuntu 13.04 with
+Oracle JDK 64bit?</a>.</p>
+<p>Este <em>workaround</em> consiste simplemente en añadir al final del fichero
+<code>eclipse.ini</code> la siguiente línea:</p>
+<div class="highlight"><pre>-Dorg.eclipse.swt.browser.DefaultType=mozilla
+</pre></div>                </article>
+            </aside><!-- /#featured -->
+                <section id="content" class="body">
+                    <h1>Other articles</h1>
+                    <hr />
+                    <ol id="posts-list" class="hfeed">
+
+            <li><article class="hentry">
+                <header>
+                    <h1><a href="/oracle-jdk-y-google-chrome-en-ubuntu-1204-lts.html" rel="bookmark"
+                           title="Permalink to Oracle JDK y Google Chrome en Ubuntu 12.04 LTS">Oracle JDK y Google Chrome en Ubuntu 12.04 LTS</a></h1>
+                </header>
+
+                <div class="entry-content">
+<footer class="post-info">
+        <abbr class="published" title="2012-04-30T00:00:00">
+                lun 30 abril 2012
+        </abbr>
+
+        <address class="vcard author">
+                By <a class="url fn" href="/author/david.html">david</a>
+        </address>
+<p>In <a href="/category/general.html">general</a>. </p>
+<p>tags: <a href="/tag/java.html">java</a><a href="/tag/ubuntu.html">ubuntu</a><a href="/tag/alternatives.html">alternatives</a></p>
+</footer><!-- /.post-info -->                <p>A menudo utilizo <em>Juniper Network Connect</em> para conectar a la intranet
+corporativa del trabajo. Es un applet de Java que, al menos en mi caso, no
+funciona bien con <a href="http://openjdk.java.net">OpenJDK</a> y sólo funciona con <a href="http://www.java.com">Oracle JVM</a> (la
+anteriormente conocida como Sun JVM). En agosto del 2011, <a href="https://lists.ubuntu.com/archives/ubuntu-security-announce/2011-December/001528.html">Canonical dejó de
+tener ...</a></p>
+                <a class="readmore" href="/oracle-jdk-y-google-chrome-en-ubuntu-1204-lts.html">read more</a>
+                </div><!-- /.entry-content -->
+            </article></li>
+            </ol><!-- /#posts-list -->
+<p class="paginator">
+    Page 1 / 1
+</p>
+            </section><!-- /#content -->
+        <section id="extras" class="body">
+                <div class="blogroll">
+                        <h2>blogroll</h2>
+                        <ul>
+                            <li><a href="http://getpelican.com/">Pelican</a></li>
+                            <li><a href="http://python.org/">Python.org</a></li>
+                            <li><a href="http://jinja.pocoo.org/">Jinja2</a></li>
+                        </ul>
+                </div><!-- /.blogroll -->
+                <div class="social">
+                        <h2>social</h2>
+                        <ul>
+
+                            <li><a href="http://github.com/davidcaste">github</a></li>
+                            <li><a href="http://es.linkedin.com/in/davidcaste">linkedin</a></li>
+                            <li><a href="http://twitter.com/davidcaste">twitter</a></li>
+                        </ul>
+                </div><!-- /.social -->
+        </section><!-- /#extras -->
+
+        <footer id="contentinfo" class="body">
+                <address id="about" class="vcard body">
+                Proudly powered by <a href="http://getpelican.com/">Pelican</a>, which takes great advantage of <a href="http://python.org">Python</a>.
+                </address><!-- /#about -->
+
+                <p>The theme is by <a href="http://coding.smashingmagazine.com/2009/08/04/designing-a-html-5-layout-from-scratch/">Smashing Magazine</a>, thanks!</p>
+        </footer><!-- /#contentinfo -->
+
+</body>
+</html>
