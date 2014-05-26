@@ -1,7 +1,7 @@
 Title: acerca de mí
 Slug: about-me
 
-<image style="float:right; margin-left: 20px" src="images/me.jpg" />
+<image style="float:right; margin-left: 20px" src="/images/me.jpg" />
 
 Mi nombre es David Castellanos, y actualmente trabajo en [Indra][1]
 desarrollando la versión para GNU/Linux del [Escritorio Movistar][2].
@@ -32,7 +32,7 @@ También utilizo [Twittter][7] y tengo un [Linkedin][8]. Si buscas el nick
 [3]: http://www.uclm.es
 [4]: http://launchpad.net/~davidcaste
 [5]: http://github.com/davidcaste
-[6]: files/cv__david_castellanos.pdf
+[6]: /files/cv__david_castellanos.pdf
 [7]: http://twitter.com/davidcaste
 [8]: http://es.linkedin.com/pub/david-castellanos-serrano/17/655/b53
 
