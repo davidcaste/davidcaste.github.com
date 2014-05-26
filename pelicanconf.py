@@ -32,3 +32,5 @@ DEFAULT_PAGINATION = 10
 
 STATIC_PATHS = ['files', 'images', 'extra/CNAME']
 EXTRA_PATH_METADATA = {'extra/CNAME': {'path': 'CNAME'},}
+
+GITHUB_URL = 'https://github.com/davidcaste/davidcaste.github.com'
