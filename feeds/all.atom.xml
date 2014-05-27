@@ -1,5 +1,55 @@
 <?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom"><title>pataliebre.net</title><link href="http://pataliebre.net/" rel="alternate"></link><link href="http://pataliebre.net/feeds/all.atom.xml" rel="self"></link><id>http://pataliebre.net/</id><updated>2013-05-21T00:00:00+02:00</updated><entry><title>Solucionar cuelgue de Eclipse en Ubuntu 13.04 al mostrar una sugerencia de autocompletado</title><link href="http://pataliebre.net/solucionar-cuelgue-de-eclipse-en-ubuntu-1304-al-mostrar-una-sugerencia-de-autocompletado.html" rel="alternate"></link><updated>2013-05-21T00:00:00+02:00</updated><author><name>david</name></author><id>tag:pataliebre.net,2013-05-21:solucionar-cuelgue-de-eclipse-en-ubuntu-1304-al-mostrar-una-sugerencia-de-autocompletado.html</id><summary type="html">&lt;p&gt;Para lo bueno y para lo malo Eclipse no deja de sorprenderme, y la última
+<feed xmlns="http://www.w3.org/2005/Atom"><title>pataliebre.net</title><link href="http://pataliebre.net/" rel="alternate"></link><link href="http://pataliebre.net/feeds/all.atom.xml" rel="self"></link><id>http://pataliebre.net/</id><updated>2014-05-27T00:00:00+02:00</updated><entry><title>Blog lowcost con GitHub y Pelican</title><link href="http://pataliebre.net/blog-lowcost-con-github-y-pelican.html" rel="alternate"></link><updated>2014-05-27T00:00:00+02:00</updated><author><name>david</name></author><id>tag:pataliebre.net,2014-05-27:blog-lowcost-con-github-y-pelican.html</id><summary type="html">&lt;!--
+Status: draft
+--&gt;
+
+&lt;p&gt;Gracias a &lt;a href="https://pages.github.com/"&gt;GitHub Pages&lt;/a&gt; y un generador estático de contenido como &lt;a href="http://blog.getpelican.com/"&gt;Pelican&lt;/a&gt; es muy fácil montar un blog &lt;em&gt;lowcost&lt;/em&gt;. Un humilde ejemplo es este blog, pero hasta hace poco no había conseguido una configuración que mereciera la pena compartir.&lt;/p&gt;
+&lt;h3&gt;GitHub Pages&lt;/h3&gt;
+&lt;p&gt;En general, el comportamiento de GitHub Pages es muy sencillo. Prácticamente consiste en crear un repositorio &lt;code&gt;git&lt;/code&gt;, realizar un commit con documentos HTML, y unos minutos después este contenido será accesible en una URL.&lt;/p&gt;
+&lt;p&gt;GitHub Pages ofrece dos modalidades de servicio: páginas para desarrolladores u organizaciones, y páginas para proyectos. Dependiendo de la modalidad que estemos usando varía la forma en la que se monta el sitio:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;En la modalidad para desarrolladores u organizaciones, se debe crear un repositorio llamado &lt;em&gt;usuario&lt;/em&gt;.github.io, donde &lt;em&gt;usuario&lt;/em&gt; es el nombre del usuario o de la organización en GitHub. La página (o páginas) HTML que se deseen servir se deben añadir directamente en la rama &lt;code&gt;master&lt;/code&gt;, y no importa lo que haya en el resto de ramas. Este contenido es accesible desde la URL &lt;strong&gt;http://&lt;em&gt;usuario&lt;/em&gt;.github.io&lt;/strong&gt;.&lt;/li&gt;
+&lt;li&gt;En la modalidad para proyectos, no es necesario crear nuevos repositorios. En el repositorio del proyecto se debe crear una rama llamada &lt;code&gt;gh-pages&lt;/code&gt;, y añadir ahí el contenido HTML. Este contenido será accesible desde la URL &lt;strong&gt;http://&lt;em&gt;usuario&lt;/em&gt;.github.io/&lt;em&gt;repository&lt;/em&gt;&lt;/strong&gt;.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Aunque puede parecer un lío la gestión de estas ramas, afortunadamente existe una herramienta llamada &lt;a href="https://github.com/davisp/ghp-import/"&gt;ghp-import&lt;/a&gt; que facilita en gran manera estas operaciones.&lt;/p&gt;
+&lt;h3&gt;Pelican&lt;/h3&gt;
+&lt;p&gt;Pelican es un generador estático de contenido, al estilo de &lt;a href="http://jekyllrb.com/"&gt;Jekyll&lt;/a&gt;. Por si fuera necesario, en &lt;a href="http://staticsitegenerators.net/"&gt;Static Site Generators&lt;/a&gt; hay una recopilación de proyectos similares.&lt;/p&gt;
+&lt;p&gt;Además de la &lt;a href="http://docs.getpelican.com"&gt;documentación&lt;/a&gt; del proyecto, hay multitud de páginas con instrucciones para configurar Pelican (por ejemplo &lt;a href="http://www.circuidipity.com/github-pages.html"&gt;aquí&lt;/a&gt; y &lt;a href="http://mathamy.com/migrating-to-github-pages-using-pelican.html"&gt;aquí&lt;/a&gt;). Además el comando &lt;code&gt;pelican-quickstart&lt;/code&gt; es de ayuda para crear rápidamente una configuración básica de un blog.&lt;/p&gt;
+&lt;h3&gt;Usar Pelican en GitHub Pages para desarrolladores&lt;/h3&gt;
+&lt;p&gt;En mi caso, elegí utilizar GitHub Pages en su modalidad para desarrolladores. Para ello, hice lo siguiente:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;Crear un repositorio llamado &lt;a href="https://github.com/davidcaste/davidcaste.github.io"&gt;davidcaste.github.io&lt;/a&gt;, y clonarlo en mi ordenador:&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;git clone https://github.com/davidcaste/davidcaste.github.io&lt;/code&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;En el repositorio local, crear una rama llamada &lt;code&gt;source&lt;/code&gt;, y cambiar a ella:&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;git checkout -b source&lt;/code&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Crear una configuración básica con &lt;code&gt;pelican-quickstart&lt;/code&gt; y seguir las instrucciones.&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;Llegados a este punto, contamos con una configuración Pelican funcional. La &lt;a href="http://docs.getpelican.com/en/3.3.0/getting_started.html#basic-usage"&gt;documentación de Pelican&lt;/a&gt; nos explica (entre otras muchas cosas) cómo crear contenidos y generar el contenido estático a partir de ellos.&lt;/p&gt;
+&lt;p&gt;Según la configuración por defecto, las páginas generadas se almacenarán en el directorio &lt;code&gt;output&lt;/code&gt;. Este directorio &lt;strong&gt;no&lt;/strong&gt; es necesario añadirlo al repositorio, y lo ideal es añadir las siguientes líneas al fichero &lt;code&gt;.gitignore&lt;/code&gt;:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;output&lt;/span&gt;
+&lt;span class="n"&gt;pelican&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;pid&lt;/span&gt;
+&lt;span class="n"&gt;srv&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;pid&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Como se comentó anteriormente, GitHub Pages para desarrolladores va a servir el contenido HTML que se encuentre en la rama &lt;code&gt;master&lt;/code&gt; del repositorio. Podríamos copiar el contenido del directorio &lt;code&gt;ouput&lt;/code&gt; a algún sitio, cambiar a la rama &lt;code&gt;master&lt;/code&gt; y añadir el contenido anteriores. Es factible, pero sin duda que es un procedimiento muy tedioso.&lt;/p&gt;
+&lt;p&gt;El script &lt;code&gt;ghp-import&lt;/code&gt; nos permite evitar los pasos anteriores. Con ejecutar &lt;code&gt;ghp-import -b master output&lt;/code&gt; él sólo va a realizar un commit en &lt;code&gt;master&lt;/code&gt; con los contenidos del directorio &lt;code&gt;output&lt;/code&gt;. Sólo nos quedaría subir los cambios de vuelta a GitHub con el comando &lt;code&gt;git push origin master&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;El proceso se puede automatizar aún más modificando el fichero &lt;code&gt;Makefile&lt;/code&gt; que genera &lt;code&gt;pelican-quickstart&lt;/code&gt;; en lugar de que el objetivo &lt;code&gt;github&lt;/code&gt; invoque a &lt;code&gt;ghp-import&lt;/code&gt; sobre la rama &lt;code&gt;gh-pages&lt;/code&gt;, nos interesa que se invoque sobre la rama &lt;code&gt;master&lt;/code&gt;:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;github&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="n"&gt;publish&lt;/span&gt;
+    &lt;span class="n"&gt;ghp&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="k"&gt;import&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;b&lt;/span&gt; &lt;span class="n"&gt;master&lt;/span&gt; &lt;span class="n"&gt;$&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;OUTPUTDIR&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;
+    &lt;span class="n"&gt;git&lt;/span&gt; &lt;span class="n"&gt;push&lt;/span&gt; &lt;span class="n"&gt;origin&lt;/span&gt; &lt;span class="n"&gt;master&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h3&gt;Conclusiones&lt;/h3&gt;
+&lt;p&gt;La tupla GitHub Pages y un generador estático de contenido como Pelican permiten crear fácilmente páginas y blogs que requieren un esfuerzo de mantenimiento cercano a cero. Pelican en particular ofrece una serie de scripts y facilidades que automatizan las operaciones más tediosas.&lt;/p&gt;
+&lt;p&gt;En definitiva, la posibilidad de poder usar las mismas herramientas que las usadas durante el desarrollo de software, hacen de GitHub Pages junto con Pelican ofrece una alternativa muy a tener en cuenta con respecto a otras plataformas de blogs tradicionales como &lt;a href="http://es.wordpress.com/"&gt;WordPress&lt;/a&gt; o &lt;a href="https://www.blogger.com"&gt;Blogger&lt;/a&gt;.&lt;/p&gt;</summary><category term="github"></category><category term="python"></category><category term="pelican"></category></entry><entry><title>Solucionar cuelgue de Eclipse en Ubuntu 13.04 al mostrar una sugerencia de autocompletado</title><link href="http://pataliebre.net/solucionar-cuelgue-de-eclipse-en-ubuntu-1304-al-mostrar-una-sugerencia-de-autocompletado.html" rel="alternate"></link><updated>2013-05-21T00:00:00+02:00</updated><author><name>david</name></author><id>tag:pataliebre.net,2013-05-21:solucionar-cuelgue-de-eclipse-en-ubuntu-1304-al-mostrar-una-sugerencia-de-autocompletado.html</id><summary type="html">&lt;p&gt;Para lo bueno y para lo malo Eclipse no deja de sorprenderme, y la última
 sorpresa no ha sido agradable. En Ubuntu 13.04 de 64 bits, Eclipse 4.2 se
 cuelga justo después de mostrar cualquier sugerencia de autocompletado de
 código.&lt;/p&gt;
