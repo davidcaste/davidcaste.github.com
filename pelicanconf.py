@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*- #
 from __future__ import unicode_literals
 
-AUTHOR = u'david'
+AUTHOR = u'David Castellanos'
 SITENAME = u'pataliebre.net'
 SITEURL = ''
 
@@ -34,3 +34,20 @@ STATIC_PATHS = ['files', 'images', 'extra/CNAME']
 EXTRA_PATH_METADATA = {'extra/CNAME': {'path': 'CNAME'},}
 
 GITHUB_URL = 'https://github.com/davidcaste/davidcaste.github.com'
+
+# Pelican-bootstrap3 Theme Settings
+THEME = 'pelican-bootstrap3'
+BOOTSTRAP_NAVBAR_INVERSE = True
+BOOTSTRAP_THEME = "united"
+
+CC_LICENSE = "CC-BY"
+
+DISPLAY_PAGES_ON_MENU = True
+DISPLAY_CATEGORIES_ON_MENU = False
+
+DISPLAY_CATEGORIES_ON_SIDEBAR = True
+DISPLAY_TAGS_INLINE = True
+TAG_CLOUD_MAX_ITEMS = 10
+
+USE_PAGER = True
+DEFAULT_PAGINATION = 5
