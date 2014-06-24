@@ -103,7 +103,7 @@ pataliebre.net            </a>
                 <p>Para distribuir un programa Python en Windows la opción más sencilla suele ser empaquetar la aplicación en un único fichero binario, y que los usuarios ejecuten el fichero <code>.exe</code> resultante. Existen varias alternativas para construir estos ficheros binarios, como p.e. <a href="http://www.py2exe.org/">py2exe</a> y <a href="http://cx-freeze.sourceforge.net/">cx_freeze</a>. Como parece que <a href="https://www.google.es/#q=cx_freeze+virtualenv">cx_freeze no se integra bien con virtualenv</a>, terminé eligiendo <code>py2exe</code>.</p>
 <p>La forma más sencilla de instalar Python, <code>pip</code> y <code>virtualenv</code> en Windows es seguir las instrucciones de la sección <a href="http://docs.python-guide.org/en/latest/starting/install/win/">Installing Python on Windows</a> y <a href="http://docs.python-guide.org/en/latest/dev/virtualenvs/">Virtual Environments</a> de <a href="http://docs.python-guide.org">Python Guide</a>.</p>
 <p>Sin embargo, si usamos Python 2.7 no podemos instalar <code>py2exe</code> con <code>pip</code> debido a que la última versión (a día de hoy <code>0.9.2.0</code>) de <code>py2exe</code> sólo funciona con Python 3.3 o posterior. La versión <code>0.6.9</code> es la última que funciona con Python 2.7, pero no podemos instalarla con <code>pip</code> porque el enlace en <a href="http://stackoverflow.com/questions/11288923/cannot-install-py2exe-with-python-2-7">PyPI</a> es erróneo.</p>
-<p>La <a href="https://pypi.python.org/pypi/py2exe/0.6.9">única solución</a> es descargar el instalador <code>py2exe-0.6.9.win32-py2.7.exe</code> que podemos encontrar en el <a href="http://sourceforge.net/projects/py2exe/files/py2exe/0.6.9/">área de descargas</a> del proyecto en SourceForge, y usar <code>easy_install</code> para instalarlo dentro del `virtualenv:</p>
+<p>La <a href="https://pypi.python.org/pypi/py2exe/0.6.9">única solución</a> es descargar el instalador <code>py2exe-0.6.9.win32-py2.7.exe</code> que podemos encontrar en el <a href="http://sourceforge.net/projects/py2exe/files/py2exe/0.6.9/">área de descargas</a> del proyecto en SourceForge, y usar <code>easy_install</code> para instalarlo dentro del <code>virtualenv</code>:</p>
 <div class="highlight"><pre><span class="go">(env) c:\Users\dcastellanos\Documents\workspace\FooExample&gt;easy_install C:\Users\dcastellanos\Downloads\py2exe-0.6.9.win32-py2.7.exe</span>
 <span class="go">Processing py2exe-0.6.9.win32-py2.7.exe</span>
 <span class="go">zipextimporter: module references __file__</span>
@@ -222,6 +222,11 @@ pataliebre.net            </a>
                             </a>
                         </li>
                         <li class="list-group-item tag-2">
+                            <a href="http://pataliebre.net/tag/github.html">
+                                github
+                            </a>
+                        </li>
+                        <li class="list-group-item tag-2">
                             <a href="http://pataliebre.net/tag/linux.html">
                                 linux
                             </a>
@@ -249,11 +254,6 @@ pataliebre.net            </a>
                         <li class="list-group-item tag-4">
                             <a href="http://pataliebre.net/tag/virtualenv.html">
                                 virtualenv
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://pataliebre.net/tag/web.html">
-                                web
                             </a>
                         </li>
                     </ul>

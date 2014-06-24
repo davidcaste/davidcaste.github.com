@@ -3,7 +3,7 @@
       xmlns:og="http://ogp.me/ns#"
       xmlns:fb="https://www.facebook.com/2008/fbml">
 <head>
-    <title>Extraer cadenas de un fichero .ui de gtk-builder con intltool - pataliebre.net</title>
+    <title>GitHub pages en un dominio principal sin romper el email - pataliebre.net</title>
     <!-- Using the latest rendering mode for IE -->
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta charset="utf-8">
@@ -13,14 +13,13 @@
     <!-- Open Graph tags -->
         <meta property="og:site_name" content="pataliebre.net" />
             <meta property="og:type" content="article"/>
-            <meta property="og:title" content="Extraer cadenas de un fichero .ui de gtk-builder con intltool"/>
-            <meta property="og:url" content="http://pataliebre.net/extraer-cadenas-de-un-fichero-ui-de-gtk-builder-con-intltool.html"/>
-            <meta property="og:description" content="Tenemos entre manos un proyecto en el que utilizamos Glade para la creación de la interfaz de usuario; es muy cómodo porque crea una serie de ficheros XML que describen la UI del programa, en lugar de crearla programáticamente. Hasta ahora usábamos libglade para cargar estos ficheros, pero como esta ..."/>
-            <meta property="article:published_time" content="2012-04-26" />
-                <meta property="article:section" content="desarrollo" />
-                <meta property="article:tag" content="gtk" />
-                <meta property="article:tag" content="autotools" />
-                <meta property="article:tag" content="intltool" />
+            <meta property="og:title" content="GitHub pages en un dominio principal sin romper el email"/>
+            <meta property="og:url" content="http://pataliebre.net/github-pages-en-un-dominio-principal-sin-romper-el-email.html"/>
+            <meta property="og:description" content="Aunque estoy muy contento con mi blog lowcost con GitHub y Pelican, no era un consciente de un problema que tenía mi configuración. Este blog se encuentra en el dominio principal (o apex domain), me parecía razonable crear una entrada CNAME en las DNS que apuntara @.pataliebre.net hacia davidcaste ..."/>
+            <meta property="article:published_time" content="2014-06-23" />
+                <meta property="article:section" content="general" />
+                <meta property="article:tag" content="github" />
+                <meta property="article:tag" content="dns" />
                 <meta property="article:author" content="David Castellanos" />
 
     <!-- Bootstrap -->
@@ -70,10 +69,10 @@ pataliebre.net            </a>
         <article>
             <header class="page-header">
                 <h1>
-                    <a href="http://pataliebre.net/extraer-cadenas-de-un-fichero-ui-de-gtk-builder-con-intltool.html"
+                    <a href="http://pataliebre.net/github-pages-en-un-dominio-principal-sin-romper-el-email.html"
                        rel="bookmark"
-                       title="Permalink to Extraer cadenas de un fichero .ui de gtk-builder con intltool">
-                        Extraer cadenas de un fichero .ui de gtk-builder con intltool
+                       title="Permalink to GitHub pages en un dominio principal sin romper el email">
+                        GitHub pages en un dominio principal sin romper el email
                     </a>
                 </h1>
             </header>
@@ -83,37 +82,30 @@ pataliebre.net            </a>
 <footer class="post-info">
     <span class="label label-default">Date</span>
     <span class="published">
-        <i class="fa fa-calendar"></i><time datetime="2012-04-26T00:00:00"> jue 26 abril 2012</time>
+        <i class="fa fa-calendar"></i><time datetime="2014-06-23T00:00:00"> lun 23 junio 2014</time>
     </span>
 
 
 
 <span class="label label-default">Tags</span>
-	<a href="http://pataliebre.net/tag/gtk.html">gtk</a>
+	<a href="http://pataliebre.net/tag/github.html">github</a>
         /
-	<a href="http://pataliebre.net/tag/autotools.html">autotools</a>
-        /
-	<a href="http://pataliebre.net/tag/intltool.html">intltool</a>
+	<a href="http://pataliebre.net/tag/dns.html">dns</a>
     
 </footer><!-- /.post-info -->                    </div>
                 </div>
-                <p>Tenemos entre manos un proyecto en el que utilizamos Glade para la creación de
-la interfaz de usuario; es muy cómodo porque crea una serie de ficheros XML que
-describen la UI del programa, en lugar de crearla programáticamente. Hasta ahora
-usábamos <code>libglade</code> para cargar estos ficheros, pero como esta librería <a href="http://mail.gnome.org/archives/devel-announce-list/2009-May/msg00003.html">está
-deprecada desde el año 2009</a>, estamos trabajando en reemplazarla con
-<code>gtk-builder</code> del proyecto GTK.</p>
-<p>Es un proceso aburrido y tedioso más que difícil, pero nos hemos encontrado con
-un pequeño problema. Estamos usando Autotools en el proyecto, e <code>intltool</code> no
-es capaz de extraer cadenas de los ficheros con extensión <code>.ui</code> de
-<code>gtk-builder</code>.</p>
-<p>La solución para este problema es sencilla y la encontramos en un documento
-llamado <a href="http://live.gnome.org/GnomeGoals/RemoveLibGladeUseGtkBuilder">GNOME Goal: Use GtkBuilder instead of libglade</a>. Consiste en
-indicar a <code>intltool</code> que estos ficheros son de tipo <code>gettext/glade</code>. Basta con
-editar el fichero <code>POTFILES.in</code> y añadir un prefijo a cada una de las líneas
-donde aparezca un fichero <code>.ui</code> de la siguiente manera:</p>
-<div class="highlight"><pre>[type: gettext/glade]data/preferences.ui
-</pre></div>
+                <p>Aunque estoy muy contento con mi <a href="/blog-lowcost-con-github-y-pelican.">blog lowcost con GitHub y Pelican</a>, no era un consciente de un problema que tenía mi configuración. Este blog se encuentra en el dominio principal (o <em>apex domain</em>), me parecía razonable crear una entrada <code>CNAME</code> en las DNS que apuntara <em>@.pataliebre.net</em> hacia <em>davidcaste.github.io</em>. Lo que no sabía era que esta entrada en las DNS iba a romper el email del dominio <em>pataliebre.net</em>.</p>
+<p>En el <a href="http://imakewebthings.com/blog/github-pages-email/">RFC1034</a> sección 3.6.2 se comenta explícitamente:</p>
+<blockquote>
+<p>If a CNAME RR is present at a node, no other data should be present; this ensures that the data for a canonical name and its aliases cannot be different.</p>
+</blockquote>
+<p>Por esta razón, si se encuentra una entrada <code>CNAME</code> en el dominio principal se ignoran el resto de entradas, <code>MX</code> incluidas. Lo más triste de todo es que se comenta explícitamente en las sección <a href="http://joshstrange.com/why-its-a-bad-idea-to-put-a-cname-record-on-your-root-domain/">Setting up a custom domain with GitHub Pages</a> de la documentación de GitHub Pages.</p>
+<p>Hay dos posibles soluciones según la sección <a href="http://blog.dnsimple.com/2011/11/introducing-alias-record/">Tips for configuring an A record with your DNS provider</a>:</p>
+<ol>
+<li>Configurar una entrada <code>A</code> en el DNS.</li>
+<li>Configurar una entrada <code>ALIAS</code> o <code>ANAME</code> si el proveedor de DNS lo permite.</li>
+<li>Utilizar un subdominio como <code>www</code>.</li>
+</ol>
             </div>
             <!-- /.entry-content -->
     <hr />
@@ -135,8 +127,8 @@ donde aparezca un fichero <code>.ui</code> de la siguiente manera:</p>
             /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
             var disqus_shortname = 'pataliebredotnet'; // required: replace example with your forum shortname
 
-                    var disqus_identifier = 'extraer-cadenas-de-un-fichero-ui-de-gtk-builder-con-intltool';
-                var disqus_url = 'http://pataliebre.net/extraer-cadenas-de-un-fichero-ui-de-gtk-builder-con-intltool.html';
+                    var disqus_identifier = 'github-pages-en-un-dominio-principal-sin-romper-el-email';
+                var disqus_url = 'http://pataliebre.net/github-pages-en-un-dominio-principal-sin-romper-el-email.html';
 
             var disqus_config = function () {
                 this.language = "es";
