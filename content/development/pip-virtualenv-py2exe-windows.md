@@ -9,7 +9,7 @@ La forma más sencilla de instalar Python, `pip` y `virtualenv` en Windows es se
 
 Sin embargo, si usamos Python 2.7 no podemos instalar `py2exe` con `pip` debido a que la última versión (a día de hoy `0.9.2.0`) de `py2exe` sólo funciona con Python 3.3 o posterior. La versión `0.6.9` es la última que funciona con Python 2.7, pero no podemos instalarla con `pip` porque el enlace en [PyPI][10] es erróneo.
 
-La [única solución][9] es descargar el instalador `py2exe-0.6.9.win32-py2.7.exe` que podemos encontrar en el [área de descargas][11] del proyecto en SourceForge, y usar `easy_install` para instalarlo dentro del `virtualenv:
+La [única solución][9] es descargar el instalador `py2exe-0.6.9.win32-py2.7.exe` que podemos encontrar en el [área de descargas][11] del proyecto en SourceForge, y usar `easy_install` para instalarlo dentro del `virtualenv`:
 
     :::console
     (env) c:\Users\dcastellanos\Documents\workspace\FooExample>easy_install C:\Users\dcastellanos\Downloads\py2exe-0.6.9.win32-py2.7.exe
