@@ -3,7 +3,7 @@
       xmlns:og="http://ogp.me/ns#"
       xmlns:fb="https://www.facebook.com/2008/fbml">
 <head>
-    <title>Solucionar problemas gráficos en Eclipse bajo GNU/Linux - pataliebre.net</title>
+    <title>GitHub pages en un dominio principal sin romper el email - pataliebre.net</title>
     <!-- Using the latest rendering mode for IE -->
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta charset="utf-8">
@@ -13,15 +13,13 @@
     <!-- Open Graph tags -->
         <meta property="og:site_name" content="pataliebre.net" />
             <meta property="og:type" content="article"/>
-            <meta property="og:title" content="Solucionar problemas gráficos en Eclipse bajo GNU/Linux"/>
-            <meta property="og:url" content="http://www.pataliebre.net/solucionar-problemas-graficos-en-eclipse-bajo-gnulinux.html"/>
-            <meta property="og:description" content="Aunque Eclipse es una plataforma de desarrollo multiplataforma, no es un secreto que MS Windows ha sido hasta ahora la plataforma mejor soportada. La versión de Eclipse para Mac OS X ha ido mejorando versión a versión, sobre todo desde la publicación de Eclipse 4.2 (Juno). Aunque completamente funcional ..."/>
-            <meta property="article:published_time" content="2012-08-01" />
-                <meta property="article:section" content="desarrollo" />
-                <meta property="article:tag" content="eclipse" />
-                <meta property="article:tag" content="linux" />
-                <meta property="article:tag" content="windowbuilder" />
-                <meta property="article:tag" content="android" />
+            <meta property="og:title" content="GitHub pages en un dominio principal sin romper el email"/>
+            <meta property="og:url" content="http://www.pataliebre.net/github-pages-en-un-dominio-principal-sin-romper-el-email.html"/>
+            <meta property="og:description" content="Aunque estoy muy contento con mi blog lowcost con GitHub y Pelican, no era un consciente de un problema que tenía mi configuración. Y es que entre otras cosas, he perdido el correo del dominio de unos meses... Como este blog se encuentra en el dominio principal (o ..."/>
+            <meta property="article:published_time" content="2014-06-23" />
+                <meta property="article:section" content="general" />
+                <meta property="article:tag" content="github" />
+                <meta property="article:tag" content="dns" />
                 <meta property="article:author" content="David Castellanos" />
 
     <!-- Bootstrap -->
@@ -71,10 +69,10 @@ pataliebre.net            </a>
         <article>
             <header class="page-header">
                 <h1>
-                    <a href="http://www.pataliebre.net/solucionar-problemas-graficos-en-eclipse-bajo-gnulinux.html"
+                    <a href="http://www.pataliebre.net/github-pages-en-un-dominio-principal-sin-romper-el-email.html"
                        rel="bookmark"
-                       title="Permalink to Solucionar problemas gráficos en Eclipse bajo GNU/Linux">
-                        Solucionar problemas gráficos en Eclipse bajo GNU/Linux
+                       title="Permalink to GitHub pages en un dominio principal sin romper el email">
+                        GitHub pages en un dominio principal sin romper el email
                     </a>
                 </h1>
             </header>
@@ -84,44 +82,38 @@ pataliebre.net            </a>
 <footer class="post-info">
     <span class="label label-default">Date</span>
     <span class="published">
-        <i class="fa fa-calendar"></i><time datetime="2012-08-01T00:00:00"> mié 01 agosto 2012</time>
+        <i class="fa fa-calendar"></i><time datetime="2014-06-23T00:00:00"> lun 23 junio 2014</time>
     </span>
 
 
 
 <span class="label label-default">Tags</span>
-	<a href="http://www.pataliebre.net/tag/eclipse.html">eclipse</a>
+	<a href="http://www.pataliebre.net/tag/github.html">github</a>
         /
-	<a href="http://www.pataliebre.net/tag/linux.html">linux</a>
-        /
-	<a href="http://www.pataliebre.net/tag/windowbuilder.html">windowbuilder</a>
-        /
-	<a href="http://www.pataliebre.net/tag/android.html">android</a>
+	<a href="http://www.pataliebre.net/tag/dns.html">dns</a>
     
 </footer><!-- /.post-info -->                    </div>
                 </div>
-                <p>Aunque <a href="http://www.eclipse.org">Eclipse</a> es una plataforma de desarrollo multiplataforma, no es un
-secreto que MS Windows ha sido hasta ahora la plataforma mejor soportada.
-La versión de Eclipse para Mac OS X ha ido mejorando versión a versión, sobre
-todo desde la publicación de <a href="http://www.eclipse.org/juno">Eclipse 4.2 (Juno)</a>.</p>
-<p>Aunque completamente funcional, el soporte de Eclipse para GNU/Linux no está a
-la altura quei en el resto de plataformas. Un ejemplo es el bug <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=368543">#368543</a>,
-en el que se describen problemas gráficos con <a href="http://www.eclipse.org/windowbuilder/">WindowBuilder</a> bajo
-GNU/Linux. Estes mismos problemas los tiene el <a href="https://twitter.com/vogella/">plugin ADT</a> de Google (que
-al fin y al cabo utiliza el mismo editor gráfico que WindowBuilder).</p>
-<p><a href="https://twitter.com/vogella/">Lars Vogel</a> propone un <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=368543#c17">workaround</a> a este problema, que consiste en
-forzar a SWT a no utilizar <a href="http://cairographics.org/">Cairo</a>. En mi caso, utilizo un script que
-además desactiva las <a href="https://launchpad.net/ayatana-scrollbar/">overlay scrollbars</a> de Ubuntu, que tampoco parecen
-terminar de funcionar bien en Eclipse:</p>
-<div class="highlight"><pre><span class="c">#!/usr/bin/env bash</span>
+                <!--
+Status: draft
+-->
 
-<span class="nb">export </span><span class="nv">GDK_NATIVE_WINDOWS</span><span class="o">=</span>1
-<span class="nb">export </span><span class="nv">LIBOVERLAY_SCROLLBAR</span><span class="o">=</span>0
-
-<span class="nv">ECLIPSE_DIR</span><span class="o">=</span><span class="s2">&quot;$( cd &quot;</span><span class="k">$(</span> dirname <span class="s2">&quot;${BASH_SOURCE[0]}&quot;</span> <span class="k">)</span><span class="s2">&quot; &amp;&amp; pwd )&quot;</span>
-<span class="nv">$ECLIPSE_DIR</span>/eclipse -Dorg.eclipse.swt.internal.gtk.cairoGraphics<span class="o">=</span><span class="nb">false</span> <span class="se">\</span>
-    -Dorg.eclipse.swt.internal.gtk.useCairo<span class="o">=</span><span class="nb">false</span>
-</pre></div>
+<p>Aunque estoy muy contento con mi <a href="/blog-lowcost-con-github-y-pelican.">blog lowcost con GitHub y Pelican</a>, no era un consciente de un problema que tenía mi configuración. Y es que entre otras cosas, he perdido el correo del dominio de unos meses...</p>
+<p>Como este blog se encuentra en el dominio principal (o <em>apex domain</em>), me pareció razonable en su momento crear una entrada <code>CNAME</code> en las DNS que apuntara de <em>@.pataliebre.net</em> hacia <em>davidcaste.github.io</em>. Lo que no sabía es que en el <a href="http://www.faqs.org/rfcs/rfc1034.html">RFC1034</a> sección 3.6.2 se comenta explícitamente:</p>
+<blockquote>
+<p>If a CNAME RR is present at a node, no other data should be present; this ensures that the data for a canonical name and its aliases cannot be different.</p>
+</blockquote>
+<p>Por esta razón, si se encuentra una entrada <code>CNAME</code> en el dominio principal se ignoran el resto de entradas, <code>MX</code> incluidas. Lo más triste de todo es que se comenta explícitamente en las sección <a href="http://joshstrange.com/why-its-a-bad-idea-to-put-a-cname-record-on-your-root-domain/">Setting up a custom domain with GitHub Pages</a> de la documentación de GitHub Pages. </p>
+<p>Según <a href="http://blog.dnsimple.com/2011/11/introducing-alias-record/">Tips for configuring an A record with your DNS provider</a>, hay tres posibles opciones:</p>
+<ol>
+<li>Configurar una entrada <code>A</code> en el DNS.</li>
+<li>Configurar una entrada <code>ALIAS</code> o <code>ANAME</code> si el proveedor de DNS lo permite.</li>
+<li>Utilizar un subdominio como <code>www</code>.</li>
+</ol>
+<h4>Configurar una entrada <code>A</code> en el DNS</h4>
+<p>Si no se puede usar una entrada <code>CNAME</code>, parece que la solución obvia es utilizar una entrada <code>A</code>. Pero proveedores como GitHub, Heroku, etc. utilizan sistemas dinámicos de enrutado y de respuesta a congestión</p>
+<h4>Configurar una entrada <code>ALIAS</code> o <code>ANAME</code> si el proveedor de DNS lo permite</h4>
+<h4>Utilizar un subdominio como <code>www</code></h4>
             </div>
             <!-- /.entry-content -->
     <hr />
@@ -143,8 +135,8 @@ terminar de funcionar bien en Eclipse:</p>
             /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
             var disqus_shortname = 'pataliebredotnet'; // required: replace example with your forum shortname
 
-                    var disqus_identifier = 'solucionar-problemas-graficos-en-eclipse-bajo-gnulinux';
-                var disqus_url = 'http://www.pataliebre.net/solucionar-problemas-graficos-en-eclipse-bajo-gnulinux.html';
+                    var disqus_identifier = 'github-pages-en-un-dominio-principal-sin-romper-el-email';
+                var disqus_url = 'http://www.pataliebre.net/github-pages-en-un-dominio-principal-sin-romper-el-email.html';
 
             var disqus_config = function () {
                 this.language = "es";

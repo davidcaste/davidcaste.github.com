@@ -1,5 +1,193 @@
 <?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom"><title>pataliebre.net</title><link href="http://www.pataliebre.net/" rel="alternate"></link><link href="http://www.pataliebre.net/feeds/general.atom.xml" rel="self"></link><id>http://www.pataliebre.net/</id><updated>2014-05-27T00:00:00+02:00</updated><entry><title>Blog lowcost con GitHub y Pelican</title><link href="http://www.pataliebre.net/blog-lowcost-con-github-y-pelican.html" rel="alternate"></link><updated>2014-05-27T00:00:00+02:00</updated><author><name>David Castellanos</name></author><id>tag:www.pataliebre.net,2014-05-27:blog-lowcost-con-github-y-pelican.html</id><summary type="html">&lt;!--
+<feed xmlns="http://www.w3.org/2005/Atom"><title>pataliebre.net</title><link href="http://www.pataliebre.net/" rel="alternate"></link><link href="http://www.pataliebre.net/feeds/general.atom.xml" rel="self"></link><id>http://www.pataliebre.net/</id><updated>2014-06-27T00:00:00+02:00</updated><entry><title>Monitorizar una red privada desde un Nagios público con NRPE</title><link href="http://www.pataliebre.net/monitorizar-una-red-privada-desde-un-nagios-publico-con-nrpe.html" rel="alternate"></link><updated>2014-06-27T00:00:00+02:00</updated><author><name>David Castellanos</name></author><id>tag:www.pataliebre.net,2014-06-27:monitorizar-una-red-privada-desde-un-nagios-publico-con-nrpe.html</id><summary type="html">&lt;p&gt;Hace apenas un par de semanas he cambiado de trabajo, y uno de los primeros problemas que he tenido que resolver estaba relacionado con &lt;a href="http://www.nagios.org/"&gt;Nagios&lt;/a&gt;. Ocurre que tenemos unas máquinas en una red privada, y un servidor Nagios corporativo que no puede acceder a ellas.&lt;/p&gt;
+&lt;p&gt;Nagios es una herramienta de monitorización de redes y sistemas de código abierto. Es extremadamente popular, y desde su origen en 1999 se usa en multitud de sistemas. Por lo general se compone de un servidor que realiza tests y recopila sus resultados, agentes que tienen la capacidad de realizar tests, y de &lt;em&gt;plugins&lt;/em&gt;. Estos plugins son pequeños programas que se pueden utilizar para ejecutar pruebas locales, pruebas remotas, o para realizar tareas auxiliares que asistan a los dos usos anteriores.&lt;/p&gt;
+&lt;p&gt;La principal característica de Nagios es la cantidad de recursos y plugins existenes. Algunos ejemplos de repositorios de plugins son &lt;a href="http://exchange.nagios.org"&gt;Nagios Exchange&lt;/a&gt;, &lt;a href="http://nagios-plugins.org/"&gt;Nagios Plugins&lt;/a&gt;, &lt;a href="https://www.monitoring-plugins.org/"&gt;The Monitoring Plugins Project&lt;/a&gt;, etc. El blog de &lt;a href="http://www.eldespistado.com/"&gt;El Despistado&lt;/a&gt; trata casi en exclusiva sobre Nagios y tiene publicados multitud de artículos de interés.&lt;/p&gt;
+&lt;p&gt;En esta entrada voy a repasar la solución que hemos adoptado. El sistema operativo de los equipos que he utilizado es Ubuntu 12.04, aunque posiblemente la configuración del entorno sea exactamente la misma (o al menos muy parecida) en Ubuntu 14.04.&lt;/p&gt;
+&lt;h3&gt;Problemática&lt;/h3&gt;
+&lt;p&gt;El servidor Nagios (en adelante Nagios a secas) no es capaz de llegar a un conjunto de hosts que se encuentran en una red privada. Después de investigar, encontramos dos posibles soluciones:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Realizar chequeos pasivos utilizando &lt;a href="http://exchange.nagios.org/directory/Addons/Passive-Checks/NSCA--2D-Nagios-Service-Check-Acceptor/details"&gt;NSCA&lt;/a&gt; (&lt;em&gt;Nagios Service Check Acceptor&lt;/em&gt;). La iniciativa de la comunicación la toman los hosts, y estos si que pueden llegar al Nagios porque salen a través de un NAT. Esta aproximación requiere la instalación de un servidor NSCA en el Nagios, y de un cliente NSCA en cada uno de los hosts.&lt;/li&gt;
+&lt;li&gt;Utilizar &lt;a href="http://exchange.nagios.org/directory/Addons/Monitoring-Agents/NRPE--2D-Nagios-Remote-Plugin-Executor/details"&gt;NRPE&lt;/a&gt; (&lt;em&gt;Nagios Remote Plugin Executor&lt;/em&gt;) para montar un escenario muy parecido al descrito en &lt;a href="http://nagios.sourceforge.net/docs/3_0/indirectchecks.html"&gt;Multiple Indirected Service Checks&lt;/a&gt;. NRPE es un agente de Nagios que permite la monitorización mediante plugins que se encuentran instalados en los sistemas remotos. Se compone de un plugin NRPE que se debe instalar en el Nagios, y de un servidor NRPE en cada uno de los hosts.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Como resulta que el Nagios es corporativo, y que ya tenían el plugin NRPE instalado, se eligió esta última opción.&lt;/p&gt;
+&lt;h3&gt;Descripción del escenario&lt;/h3&gt;
+&lt;p&gt;Nuestro escenario consiste básicamente en que hay un host que está detrás del firewall y que tiene acceso al resto de elementos que queremos monitorizar. El servidor Nagios se conecta a él, y éste a su vez se conectará al resto de elementos de la red:&lt;/p&gt;
+&lt;p&gt;&lt;a href="/images/indirectsvccheck2.png"&gt;&lt;img width="75%" src="/images/indirectsvccheck2.png"&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;Tendremos por tanto los siguientes elementos:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;Un &lt;em&gt;servidor&lt;/em&gt; en el que estará instalado Nagios, y el plugin de NRPE.&lt;/li&gt;
+&lt;li&gt;Una &lt;em&gt;máquina de salto&lt;/em&gt; en la que estarán instalados el servidor NRPE, el plugin NRPE, y posiblemente otros plugins de Nagios.&lt;/li&gt;
+&lt;li&gt;Un conjunto de &lt;em&gt;hosts&lt;/em&gt; a monitorizar, en los que se instalarán un servidor NRPE en cada uno de ellos, y un cojunto de plugins de Nagios.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h4&gt;Configuración de los hosts&lt;/h4&gt;
+&lt;p&gt;En los hosts es necesario instalar el servidor NRPE:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;sudo&lt;/span&gt; &lt;span class="n"&gt;apt&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;get&lt;/span&gt; &lt;span class="n"&gt;install&lt;/span&gt; &lt;span class="n"&gt;nagios&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;nrpe&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;server&lt;/span&gt; &lt;span class="n"&gt;nagios&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;plugins&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Los comandos que van a ser invocados por el servidor NRPE se configuran en el archivo &lt;code&gt;/etc/nagios/nrpe.cfg&lt;/code&gt;, como por ejemplo:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;command&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;check_users&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;&lt;span class="o"&gt;=/&lt;/span&gt;&lt;span class="n"&gt;usr&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;lib&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;nagios&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;plugins&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;check_users&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;w&lt;/span&gt; &lt;span class="mi"&gt;5&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;c&lt;/span&gt; &lt;span class="mi"&gt;10&lt;/span&gt;
+&lt;span class="n"&gt;command&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;check_load&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;&lt;span class="o"&gt;=/&lt;/span&gt;&lt;span class="n"&gt;usr&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;lib&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;nagios&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;plugins&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;check_load&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;w&lt;/span&gt; &lt;span class="mi"&gt;15&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="mi"&gt;10&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="mi"&gt;5&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;c&lt;/span&gt; &lt;span class="mi"&gt;30&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="mi"&gt;25&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="mi"&gt;20&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Como medida de seguridad, se puede añadir la IP de la máquina de salto en la variable &lt;code&gt;allowed_hosts&lt;/code&gt; del archivo &lt;code&gt;/etc/nagios/nrpe.cfg&lt;/code&gt;:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;allowed_hosts&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mf"&gt;192.168.60.10&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;La documentación de NRPE informa que esta opción se ignora si NPRE se ejecuta bajo &lt;code&gt;inetd&lt;/code&gt; o &lt;code&gt;xinetd&lt;/code&gt;, y que en los casos que se aplica las comprobaciones que realiza son bastante rudimentarias. Por estas razones es bastante común combinar esta variable con comprobaciones adicionales en los archivos &lt;code&gt;/etc/hosts.allow&lt;/code&gt; y &lt;code&gt;/etc/hosts.deny&lt;/code&gt;. &lt;/p&gt;
+&lt;p&gt;No hay que olvidar reiniciar el servicio &lt;code&gt;nagios-nrpe-server&lt;/code&gt; después de modificar la configuración:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;sudo&lt;/span&gt; &lt;span class="n"&gt;service&lt;/span&gt; &lt;span class="n"&gt;nagios&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;nrpe&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;server&lt;/span&gt; &lt;span class="n"&gt;restart&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h4&gt;Configuración de la máquina de salto&lt;/h4&gt;
+&lt;p&gt;En la máquina de salto se deben instalar el servidor NRPE y el plugin NRPE de Nagios:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;sudo&lt;/span&gt; &lt;span class="n"&gt;apt&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;get&lt;/span&gt; &lt;span class="n"&gt;install&lt;/span&gt; &lt;span class="n"&gt;nagios&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;nrpe&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;server&lt;/span&gt; &lt;span class="n"&gt;nagios&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;plugins&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Hay que prestar atención a la hora de instalar el paquete &lt;code&gt;nagios-nrpe-plugin&lt;/code&gt; porque "recomienda" el paquete &lt;code&gt;nagios3&lt;/code&gt;, y en Ubuntu los paquetes recomendados se instalan automáticamente. Como no necesitamos instalar Nagios en la máquina de salto, le debemos pasar el flag &lt;code&gt;--no-install-recommends&lt;/code&gt; a &lt;code&gt;apt-get&lt;/code&gt;:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;sudo&lt;/span&gt; &lt;span class="n"&gt;apt&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;get&lt;/span&gt; &lt;span class="n"&gt;install&lt;/span&gt; &lt;span class="o"&gt;--&lt;/span&gt;&lt;span class="n"&gt;no&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;install&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;recommends&lt;/span&gt; &lt;span class="n"&gt;nagios&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;nrpe&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;plugin&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;El paquete &lt;code&gt;nagios-nrpe-plugin&lt;/code&gt; proporciona el binario &lt;code&gt;check_nrpe&lt;/code&gt; en la ruta &lt;code&gt;/usr/lib/nagios/plugins&lt;/code&gt;. Este binario es en realidad un cliente que utilizaremos para ordenar la ejecución de tests en un host remoto que tenga instalado un servidor NRPE.&lt;/p&gt;
+&lt;p&gt;Es recomendable ejecutar primero el binario &lt;code&gt;check_nrpe&lt;/code&gt; para depurar la configuración, y comprobar que la comunicación entre los hosts es correcta:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;/usr/lib/nagios/plugins/check_nrpe -H 192.168.60.11 -c check_users
+USERS OK - 1 users currently logged in |users&lt;span class="o"&gt;=&lt;/span&gt;1;5;10;0
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Una vez se ha comprobado que la comunicación entre la máquina de salto y los hosts es correcta, se añadirá un nuevo test &lt;em&gt;dummy&lt;/em&gt; llamado &lt;code&gt;check_remote_check&lt;/code&gt; en el servidor NRPE de la máquina de salto. La misión de este test es ordenar la ejecución de un test en un host remoto y recoger el resultado. Este nuevo test se definirá al igual que antes en el archivo  &lt;code&gt;/etc/nagios/nrpe.cfg&lt;/code&gt;:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;command&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;check_remote_check&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;&lt;span class="o"&gt;=/&lt;/span&gt;&lt;span class="n"&gt;usr&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;lib&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;nagios&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;plugins&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;check_nrpe&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;H&lt;/span&gt; &lt;span class="err"&gt;$&lt;/span&gt;&lt;span class="n"&gt;ARG1&lt;/span&gt;&lt;span class="err"&gt;$&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;c&lt;/span&gt; &lt;span class="err"&gt;$&lt;/span&gt;&lt;span class="n"&gt;ARG2&lt;/span&gt;&lt;span class="err"&gt;$&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Este test toma dos parámetros:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;$ARG1$&lt;/code&gt; es el host remoto.&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;$ARG2$&lt;/code&gt; es el test que se desea ejecutar.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;En Ubuntu, el servidor NRPE no permite por defecto el paso de parámetros a los tests porque es un riesgo de seguridad. Para habilitar esta funcionalidad se debe modificar el fichero &lt;code&gt;/etc/nagios/nrpe.cfg&lt;/code&gt; y habilitar la opción &lt;code&gt;dont_blame_nrpe&lt;/code&gt;:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;dont_blame_nrpe&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Una alternativa a habilitar los parámetros sería que en lugar de crear un comando genérico como &lt;code&gt;check_remote_check&lt;/code&gt;, añadir comandos específicos para cada host como:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;command&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;check_remote_users_host1&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;&lt;span class="o"&gt;=/&lt;/span&gt;&lt;span class="n"&gt;usr&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;lib&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;nagios&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;plugins&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;check_nrpe&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;H&lt;/span&gt; &lt;span class="mf"&gt;192.168.60.11&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;c&lt;/span&gt; &lt;span class="n"&gt;check_users&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Aunque posiblemente más segura, esta aproximación tiene la desventaja de que habría que crear un comando para cada uno de los tests de cada uno de los hosts que se quisieran monitorizar.&lt;/p&gt;
+&lt;p&gt;Al igual que en el caso anterior, es aconsejable configurar la variable &lt;code&gt;allowed_hosts&lt;/code&gt; para que sólo figure la IP del servidor Nagios. &lt;/p&gt;
+&lt;p&gt;No hay que olvidar reiniciar el servicio &lt;code&gt;nagios-nrpe-server&lt;/code&gt; después de modificar la configuración:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;sudo&lt;/span&gt; &lt;span class="n"&gt;service&lt;/span&gt; &lt;span class="n"&gt;nagios&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;nrpe&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;server&lt;/span&gt; &lt;span class="n"&gt;restart&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h4&gt;Configuración servidor Nagios&lt;/h4&gt;
+&lt;p&gt;Además de Nagios, en el servidor se debe instalar el plugin NRPE:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;sudo&lt;/span&gt; &lt;span class="n"&gt;apt&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;get&lt;/span&gt; &lt;span class="n"&gt;install&lt;/span&gt; &lt;span class="n"&gt;nagios&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;nrpe&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;plugin&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Si la configuración de la máquina de salto y de los hosts es correcta, el binario &lt;code&gt;check_nrpe&lt;/code&gt; debería poder ejecutar el test &lt;code&gt;check_remote_check&lt;/code&gt; en la máquina de salto:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;/usr/lib/nagios/plugins/check_nrpe -H 192.168.50.5 -c check_remote_check -a 192.168.60.11 check_users
+USERS OK - 1 users currently logged in |users&lt;span class="o"&gt;=&lt;/span&gt;1;5;10;0
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Por ejemplo, se pueden definir un conjunto de test que usen &lt;code&gt;check_remote_check&lt;/code&gt; de la máquina de salto de la siguiente manera:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;define&lt;/span&gt; &lt;span class="n"&gt;host&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="n"&gt;use&lt;/span&gt;                 &lt;span class="n"&gt;generic&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;host&lt;/span&gt;
+    &lt;span class="n"&gt;host_name&lt;/span&gt;           &lt;span class="n"&gt;jumpbox&lt;/span&gt;
+    &lt;span class="n"&gt;alias&lt;/span&gt;               &lt;span class="n"&gt;JumpBox&lt;/span&gt;
+    &lt;span class="n"&gt;address&lt;/span&gt;             &lt;span class="mf"&gt;192.168.50.5&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+
+&lt;span class="n"&gt;define&lt;/span&gt; &lt;span class="n"&gt;service&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="n"&gt;use&lt;/span&gt;                 &lt;span class="n"&gt;generic&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;service&lt;/span&gt;
+    &lt;span class="n"&gt;host_name&lt;/span&gt;           &lt;span class="n"&gt;jumpbox&lt;/span&gt;
+    &lt;span class="n"&gt;service_description&lt;/span&gt; &lt;span class="n"&gt;JumpBox_PING&lt;/span&gt;
+    &lt;span class="n"&gt;check_command&lt;/span&gt;       &lt;span class="n"&gt;check_ping&lt;/span&gt;&lt;span class="o"&gt;!&lt;/span&gt;&lt;span class="mf"&gt;100.0&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="mi"&gt;20&lt;/span&gt;&lt;span class="o"&gt;%!&lt;/span&gt;&lt;span class="mf"&gt;500.0&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="mi"&gt;60&lt;/span&gt;&lt;span class="o"&gt;%&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+
+&lt;span class="n"&gt;define&lt;/span&gt; &lt;span class="n"&gt;service&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="n"&gt;use&lt;/span&gt;                 &lt;span class="n"&gt;generic&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;service&lt;/span&gt;
+    &lt;span class="n"&gt;host_name&lt;/span&gt;           &lt;span class="n"&gt;jumpbox&lt;/span&gt;
+    &lt;span class="n"&gt;service_description&lt;/span&gt; &lt;span class="n"&gt;host1_System_Load_With_Params&lt;/span&gt;
+    &lt;span class="n"&gt;check_command&lt;/span&gt;       &lt;span class="n"&gt;check_nrpe_3args&lt;/span&gt;&lt;span class="o"&gt;!&lt;/span&gt;&lt;span class="n"&gt;check_remote_check&lt;/span&gt;&lt;span class="o"&gt;!&lt;/span&gt;&lt;span class="mf"&gt;192.168.60.11&lt;/span&gt;&lt;span class="o"&gt;!&lt;/span&gt;&lt;span class="n"&gt;check_load&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+
+&lt;span class="n"&gt;define&lt;/span&gt; &lt;span class="n"&gt;service&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="n"&gt;use&lt;/span&gt;                 &lt;span class="n"&gt;generic&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;service&lt;/span&gt;
+    &lt;span class="n"&gt;host_name&lt;/span&gt;           &lt;span class="n"&gt;jumpbox&lt;/span&gt;
+    &lt;span class="n"&gt;service_description&lt;/span&gt; &lt;span class="n"&gt;host1_System_Load_Without_Params&lt;/span&gt;
+    &lt;span class="n"&gt;check_command&lt;/span&gt;       &lt;span class="n"&gt;check_nrpe_1arg&lt;/span&gt;&lt;span class="o"&gt;!&lt;/span&gt;&lt;span class="n"&gt;check_remote_load_host1&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Hay que prestar atención a los siguientes detalles:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Sólo se define el como &lt;em&gt;host&lt;/em&gt; la máquina de salto. No es necesario definir el resto de hosts porque no son accesibles desde Nagios, y sus tests se van a realizar indirectamente a través de la máquina de salto.&lt;/li&gt;
+&lt;li&gt;El test &lt;em&gt;[host1] System Load (params)&lt;/em&gt; utiliza el comando &lt;code&gt;check_remote_check&lt;/code&gt; que hemos definido anteriormente en la máquina de salto.&lt;/li&gt;
+&lt;li&gt;El test &lt;em&gt;[host1] System Load (no params)&lt;/em&gt; utiliza el comando &lt;code&gt;check_remote_load_host1&lt;/code&gt; para ejecutar un test sin que haya un paso de parámetros del Nagios a la máquina de salto.&lt;/li&gt;
+&lt;li&gt;Se utilizan los comandos &lt;code&gt;check_nrpe_1arg&lt;/code&gt; y &lt;code&gt;check_nrpe_3args&lt;/code&gt; que respectivan invocan a &lt;code&gt;check_nrpe&lt;/code&gt; tomando uno y tres argumentos.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;A diferencia de la distribución estándar de Nagios, Ubuntu (o mas bien Debian) fragmenta la definición de los comandos en múltiples ficheros que se encuentran en &lt;code&gt;/etc/nagios-plugins/config/&lt;/code&gt;. En el caso de NRPE, utiliza el archivo &lt;code&gt;check_nrpe.cfg&lt;/code&gt;. En mi caso tuve que añadir la definición del comando &lt;code&gt;check_nrpe_3args&lt;/code&gt; para invocar a &lt;code&gt;check_nrpe&lt;/code&gt; con 3 argumentos:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="cp"&gt;# this command runs a program $ARG1$ with arguments $ARG2$&lt;/span&gt;
+&lt;span class="n"&gt;define&lt;/span&gt; &lt;span class="n"&gt;command&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="n"&gt;command_name&lt;/span&gt;    &lt;span class="n"&gt;check_nrpe&lt;/span&gt;
+    &lt;span class="n"&gt;command_line&lt;/span&gt;    &lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;usr&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;lib&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;nagios&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;plugins&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;check_nrpe&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;H&lt;/span&gt; &lt;span class="err"&gt;$&lt;/span&gt;&lt;span class="n"&gt;HOSTADDRESS&lt;/span&gt;&lt;span class="err"&gt;$&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;c&lt;/span&gt; &lt;span class="err"&gt;$&lt;/span&gt;&lt;span class="n"&gt;ARG1&lt;/span&gt;&lt;span class="err"&gt;$&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;a&lt;/span&gt; &lt;span class="err"&gt;$&lt;/span&gt;&lt;span class="n"&gt;ARG2&lt;/span&gt;&lt;span class="err"&gt;$&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+
+&lt;span class="cp"&gt;# this command runs a program $ARG1$ with no arguments&lt;/span&gt;
+&lt;span class="n"&gt;define&lt;/span&gt; &lt;span class="n"&gt;command&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="n"&gt;command_name&lt;/span&gt;    &lt;span class="n"&gt;check_nrpe_1arg&lt;/span&gt;
+    &lt;span class="n"&gt;command_line&lt;/span&gt;    &lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;usr&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;lib&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;nagios&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;plugins&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;check_nrpe&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;H&lt;/span&gt; &lt;span class="err"&gt;$&lt;/span&gt;&lt;span class="n"&gt;HOSTADDRESS&lt;/span&gt;&lt;span class="err"&gt;$&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;c&lt;/span&gt; &lt;span class="err"&gt;$&lt;/span&gt;&lt;span class="n"&gt;ARG1&lt;/span&gt;&lt;span class="err"&gt;$&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+
+&lt;span class="cp"&gt;# this command runs a program $ARG1$ with arguments $ARG2$ and $ARG3$&lt;/span&gt;
+&lt;span class="n"&gt;define&lt;/span&gt; &lt;span class="n"&gt;command&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="n"&gt;command_name&lt;/span&gt;    &lt;span class="n"&gt;check_nrpe_3args&lt;/span&gt;
+    &lt;span class="n"&gt;command_line&lt;/span&gt;    &lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;usr&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;lib&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;nagios&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;plugins&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;check_nrpe&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;H&lt;/span&gt; &lt;span class="err"&gt;$&lt;/span&gt;&lt;span class="n"&gt;HOSTADDRESS&lt;/span&gt;&lt;span class="err"&gt;$&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;c&lt;/span&gt; &lt;span class="err"&gt;$&lt;/span&gt;&lt;span class="n"&gt;ARG1&lt;/span&gt;&lt;span class="err"&gt;$&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;a&lt;/span&gt; &lt;span class="err"&gt;$&lt;/span&gt;&lt;span class="n"&gt;ARG2&lt;/span&gt;&lt;span class="err"&gt;$&lt;/span&gt; &lt;span class="err"&gt;$&lt;/span&gt;&lt;span class="n"&gt;ARG3&lt;/span&gt;&lt;span class="err"&gt;$&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;No hay que olvidar reiniciar el servicio &lt;code&gt;nagios3&lt;/code&gt; después de modificar la configuración:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;sudo&lt;/span&gt; &lt;span class="n"&gt;service&lt;/span&gt; &lt;span class="n"&gt;nagios3&lt;/span&gt; &lt;span class="n"&gt;restart&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h4&gt;Problemas&lt;/h4&gt;
+&lt;p&gt;El principal problema de esta aproximación es que para Nagios sólo existe un único host. Las posibilidades de filtrado son mucho más limitadas, y las alertas y los informes serán cada vez más complejos conforme la lista de hosts y de servicios vaya creciendo:&lt;/p&gt;
+&lt;p&gt;&lt;a href="/images/nagios_screenshot.png"&gt;&lt;img width="75%" src="/images/nagios_screenshot.png"&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;Otro problema que también es grave es que la monitorización de gran parte de la infraestructura depende exclusivamente de la máquina de salto. Como esta máquina se desconecte o se caiga nos llegarán miles de alertas, aún cuando el resto de la infraestructura esté operativa.&lt;/p&gt;
+&lt;h3&gt;Conclusiones&lt;/h3&gt;
+&lt;p&gt;Se ha presentado una posible solución para el problema de monitorizar una red privada desde un servidor Nagios que no tiene acceso directo a los elementos de red. No es la solución óptima porque se pierden algunas funcionalidades de Nagios como filtrar por host, informes más representativos de la infraestructura, etc., pero aún así hay situaciones en las que puede ser de utilidad este recurso.&lt;/p&gt;</summary><category term="nagios"></category><category term="firewall"></category><category term="ubuntu"></category></entry><entry><title>GitHub pages en un dominio principal sin romper el email</title><link href="http://www.pataliebre.net/github-pages-en-un-dominio-principal-sin-romper-el-email.html" rel="alternate"></link><updated>2014-06-23T00:00:00+02:00</updated><author><name>David Castellanos</name></author><id>tag:www.pataliebre.net,2014-06-23:github-pages-en-un-dominio-principal-sin-romper-el-email.html</id><summary type="html">&lt;!--
+Status: draft
+--&gt;
+
+&lt;p&gt;Aunque estoy muy contento con mi &lt;a href="/blog-lowcost-con-github-y-pelican."&gt;blog lowcost con GitHub y Pelican&lt;/a&gt;, no era un consciente de un problema que tenía mi configuración. Y es que entre otras cosas, he perdido el correo del dominio de unos meses...&lt;/p&gt;
+&lt;p&gt;Como este blog se encuentra en el dominio principal (o &lt;em&gt;apex domain&lt;/em&gt;), me pareció razonable en su momento crear una entrada &lt;code&gt;CNAME&lt;/code&gt; en las DNS que apuntara de &lt;em&gt;@.pataliebre.net&lt;/em&gt; hacia &lt;em&gt;davidcaste.github.io&lt;/em&gt;. Lo que no sabía es que en el &lt;a href="http://www.faqs.org/rfcs/rfc1034.html"&gt;RFC1034&lt;/a&gt; sección 3.6.2 se comenta explícitamente:&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;If a CNAME RR is present at a node, no other data should be present; this ensures that the data for a canonical name and its aliases cannot be different.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;Por esta razón, si se encuentra una entrada &lt;code&gt;CNAME&lt;/code&gt; en el dominio principal se ignoran el resto de entradas, &lt;code&gt;MX&lt;/code&gt; incluidas. Lo más triste de todo es que se comenta explícitamente en las sección &lt;a href="http://joshstrange.com/why-its-a-bad-idea-to-put-a-cname-record-on-your-root-domain/"&gt;Setting up a custom domain with GitHub Pages&lt;/a&gt; de la documentación de GitHub Pages. &lt;/p&gt;
+&lt;p&gt;Según &lt;a href="http://blog.dnsimple.com/2011/11/introducing-alias-record/"&gt;Tips for configuring an A record with your DNS provider&lt;/a&gt;, hay tres posibles opciones:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;Configurar una entrada &lt;code&gt;A&lt;/code&gt; en el DNS.&lt;/li&gt;
+&lt;li&gt;Configurar una entrada &lt;code&gt;ALIAS&lt;/code&gt; o &lt;code&gt;ANAME&lt;/code&gt; si el proveedor de DNS lo permite.&lt;/li&gt;
+&lt;li&gt;Utilizar un subdominio como &lt;code&gt;www&lt;/code&gt;.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h4&gt;Configurar una entrada &lt;code&gt;A&lt;/code&gt; en el DNS&lt;/h4&gt;
+&lt;p&gt;Si no se puede usar una entrada &lt;code&gt;CNAME&lt;/code&gt;, parece que la solución obvia es utilizar una entrada &lt;code&gt;A&lt;/code&gt;. Pero proveedores como GitHub, Heroku, etc. utilizan sistemas dinámicos de enrutado y de respuesta a congestión&lt;/p&gt;
+&lt;h4&gt;Configurar una entrada &lt;code&gt;ALIAS&lt;/code&gt; o &lt;code&gt;ANAME&lt;/code&gt; si el proveedor de DNS lo permite&lt;/h4&gt;
+&lt;h4&gt;Utilizar un subdominio como &lt;code&gt;www&lt;/code&gt;&lt;/h4&gt;</summary><category term="github"></category><category term="dns"></category></entry><entry><title>Blog lowcost con GitHub y Pelican</title><link href="http://www.pataliebre.net/blog-lowcost-con-github-y-pelican.html" rel="alternate"></link><updated>2014-05-27T00:00:00+02:00</updated><author><name>David Castellanos</name></author><id>tag:www.pataliebre.net,2014-05-27:blog-lowcost-con-github-y-pelican.html</id><summary type="html">&lt;!--
 Status: draft
 --&gt;
 
