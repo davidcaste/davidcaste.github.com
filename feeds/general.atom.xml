@@ -168,26 +168,7 @@ define command {
 &lt;p&gt;&lt;a href="/images/nagios_screenshot.png"&gt;&lt;img width="75%" src="/images/nagios_screenshot.png"&gt;&lt;/a&gt;&lt;/p&gt;
 &lt;p&gt;Otro problema que también es grave es que la monitorización de gran parte de la infraestructura depende exclusivamente de la máquina de salto. Como esta máquina se desconecte o se caiga nos llegarán miles de alertas, aún cuando el resto de la infraestructura esté operativa.&lt;/p&gt;
 &lt;h3&gt;Conclusiones&lt;/h3&gt;
-&lt;p&gt;Se ha presentado una posible solución para el problema de monitorizar una red privada desde un servidor Nagios que no tiene acceso directo a los elementos de red. No es la solución óptima porque se pierden algunas funcionalidades de Nagios como filtrar por host, informes más representativos de la infraestructura, etc., pero aún así hay situaciones en las que puede ser de utilidad este recurso.&lt;/p&gt;</summary><category term="nagios"></category><category term="firewall"></category><category term="ubuntu"></category></entry><entry><title>GitHub pages en un dominio principal sin romper el email</title><link href="http://www.pataliebre.net/github-pages-en-un-dominio-principal-sin-romper-el-email.html" rel="alternate"></link><updated>2014-06-23T00:00:00+02:00</updated><author><name>David Castellanos</name></author><id>tag:www.pataliebre.net,2014-06-23:github-pages-en-un-dominio-principal-sin-romper-el-email.html</id><summary type="html">&lt;!--
-Status: draft
---&gt;
-
-&lt;p&gt;Aunque estoy muy contento con mi &lt;a href="/blog-lowcost-con-github-y-pelican."&gt;blog lowcost con GitHub y Pelican&lt;/a&gt;, no era un consciente de un problema que tenía mi configuración. Y es que entre otras cosas, he perdido el correo del dominio de unos meses...&lt;/p&gt;
-&lt;p&gt;Como este blog se encuentra en el dominio principal (o &lt;em&gt;apex domain&lt;/em&gt;), me pareció razonable en su momento crear una entrada &lt;code&gt;CNAME&lt;/code&gt; en las DNS que apuntara de &lt;em&gt;@.pataliebre.net&lt;/em&gt; hacia &lt;em&gt;davidcaste.github.io&lt;/em&gt;. Lo que no sabía es que en el &lt;a href="http://www.faqs.org/rfcs/rfc1034.html"&gt;RFC1034&lt;/a&gt; sección 3.6.2 se comenta explícitamente:&lt;/p&gt;
-&lt;blockquote&gt;
-&lt;p&gt;If a CNAME RR is present at a node, no other data should be present; this ensures that the data for a canonical name and its aliases cannot be different.&lt;/p&gt;
-&lt;/blockquote&gt;
-&lt;p&gt;Por esta razón, si se encuentra una entrada &lt;code&gt;CNAME&lt;/code&gt; en el dominio principal se ignoran el resto de entradas, &lt;code&gt;MX&lt;/code&gt; incluidas. Lo más triste de todo es que se comenta explícitamente en las sección &lt;a href="http://joshstrange.com/why-its-a-bad-idea-to-put-a-cname-record-on-your-root-domain/"&gt;Setting up a custom domain with GitHub Pages&lt;/a&gt; de la documentación de GitHub Pages. &lt;/p&gt;
-&lt;p&gt;Según &lt;a href="http://blog.dnsimple.com/2011/11/introducing-alias-record/"&gt;Tips for configuring an A record with your DNS provider&lt;/a&gt;, hay tres posibles opciones:&lt;/p&gt;
-&lt;ol&gt;
-&lt;li&gt;Configurar una entrada &lt;code&gt;A&lt;/code&gt; en el DNS.&lt;/li&gt;
-&lt;li&gt;Configurar una entrada &lt;code&gt;ALIAS&lt;/code&gt; o &lt;code&gt;ANAME&lt;/code&gt; si el proveedor de DNS lo permite.&lt;/li&gt;
-&lt;li&gt;Utilizar un subdominio como &lt;code&gt;www&lt;/code&gt;.&lt;/li&gt;
-&lt;/ol&gt;
-&lt;h4&gt;Configurar una entrada &lt;code&gt;A&lt;/code&gt; en el DNS&lt;/h4&gt;
-&lt;p&gt;Si no se puede usar una entrada &lt;code&gt;CNAME&lt;/code&gt;, parece que la solución obvia es utilizar una entrada &lt;code&gt;A&lt;/code&gt;. Pero proveedores como GitHub, Heroku, etc. utilizan sistemas dinámicos de enrutado y de respuesta a congestión&lt;/p&gt;
-&lt;h4&gt;Configurar una entrada &lt;code&gt;ALIAS&lt;/code&gt; o &lt;code&gt;ANAME&lt;/code&gt; si el proveedor de DNS lo permite&lt;/h4&gt;
-&lt;h4&gt;Utilizar un subdominio como &lt;code&gt;www&lt;/code&gt;&lt;/h4&gt;</summary><category term="github"></category><category term="dns"></category></entry><entry><title>Blog lowcost con GitHub y Pelican</title><link href="http://www.pataliebre.net/blog-lowcost-con-github-y-pelican.html" rel="alternate"></link><updated>2014-05-27T00:00:00+02:00</updated><author><name>David Castellanos</name></author><id>tag:www.pataliebre.net,2014-05-27:blog-lowcost-con-github-y-pelican.html</id><summary type="html">&lt;!--
+&lt;p&gt;Se ha presentado una posible solución para el problema de monitorizar una red privada desde un servidor Nagios que no tiene acceso directo a los elementos de red. No es la solución óptima porque se pierden algunas funcionalidades de Nagios como filtrar por host, informes más representativos de la infraestructura, etc., pero aún así hay situaciones en las que puede ser de utilidad este recurso.&lt;/p&gt;</summary><category term="nagios"></category><category term="firewall"></category><category term="ubuntu"></category></entry><entry><title>Blog lowcost con GitHub y Pelican</title><link href="http://www.pataliebre.net/blog-lowcost-con-github-y-pelican.html" rel="alternate"></link><updated>2014-05-27T00:00:00+02:00</updated><author><name>David Castellanos</name></author><id>tag:www.pataliebre.net,2014-05-27:blog-lowcost-con-github-y-pelican.html</id><summary type="html">&lt;!--
 Status: draft
 --&gt;
 
