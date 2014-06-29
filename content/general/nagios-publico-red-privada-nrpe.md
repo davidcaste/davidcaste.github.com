@@ -5,7 +5,7 @@ Tags: nagios, firewall, ubuntu
 
 Hace apenas un par de semanas he cambiado de trabajo, y uno de los primeros problemas que he tenido que resolver estaba relacionado con [Nagios](http://www.nagios.org/). Ocurre que tenemos unas máquinas en una red privada, y un servidor Nagios corporativo que no puede acceder a ellas.
 
-Nagios es una herramienta de monitorización de redes y sistemas de código abierto. Es extremadamente popular, y desde su origen en 1999 se usa en multitud de sistemas. Por lo general se compone de un servidor que realiza tests y recopila sus resultados, agentes que tienen la capacidad de realizar tests, y de *plugins*. Estos plugins son pequeños programas que se pueden utilizar para ejecutar pruebas locales, pruebas remotas, o para realizar tareas auxiliares que asistan a los dos usos anteriores.
+Nagios es una herramienta de monitorización de redes y sistemas de código abierto. Es extremadamente popular, y desde su origen en 1999 se usa en multitud de sistemas. Por lo general se compone de un servidor que realiza tests y recopila sus resultados, [agentes](http://exchange.nagios.org/directory/Addons/Monitoring-Agents) que tienen la capacidad de realizar tests, y de *plugins*. Estos plugins son pequeños programas que se pueden utilizar para ejecutar pruebas locales, pruebas remotas, o para realizar tareas auxiliares que asistan a los dos usos anteriores.
 
 La principal característica de Nagios es la cantidad de recursos y plugins existenes. Algunos ejemplos de repositorios de plugins son [Nagios Exchange](http://exchange.nagios.org), [Nagios Plugins](http://nagios-plugins.org/), [The Monitoring Plugins Project](https://www.monitoring-plugins.org/), etc. El blog de [El Despistado](http://www.eldespistado.com/) trata casi en exclusiva sobre Nagios y tiene publicados multitud de artículos de interés.
 
@@ -148,8 +148,8 @@ define service {
 Hay que prestar atención a los siguientes detalles:
 
 * Sólo se define el como *host* la máquina de salto. No es necesario definir el resto de hosts porque no son accesibles desde Nagios, y sus tests se van a realizar indirectamente a través de la máquina de salto.
-* El test *[host1] System Load (params)* utiliza el comando `check_remote_check` que hemos definido anteriormente en la máquina de salto.
-* El test *[host1] System Load (no params)* utiliza el comando `check_remote_load_host1` para ejecutar un test sin que haya un paso de parámetros del Nagios a la máquina de salto.
+* El test *host1_System_Load_With_Params* utiliza el comando `check_remote_check` que hemos definido anteriormente en la máquina de salto.
+* El test *host1_System_Load_Without_Params* utiliza el comando `check_remote_load_host1` para ejecutar un test sin que haya un paso de parámetros del Nagios a la máquina de salto.
 * Se utilizan los comandos `check_nrpe_1arg` y `check_nrpe_3args` que respectivan invocan a `check_nrpe` tomando uno y tres argumentos.
 
 A diferencia de la distribución estándar de Nagios, Ubuntu (o mas bien Debian) fragmenta la definición de los comandos en múltiples ficheros que se encuentran en `/etc/nagios-plugins/config/`. En el caso de NRPE, utiliza el archivo `check_nrpe.cfg`. En mi caso tuve que añadir la definición del comando `check_nrpe_3args` para invocar a `check_nrpe` con 3 argumentos:
