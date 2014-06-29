@@ -37,21 +37,25 @@ Tendremos por tanto los siguientes elementos:
 
 En los hosts es necesario instalar el servidor NRPE:
 
+    ::text
     sudo apt-get install nagios-nrpe-server nagios-plugins
 
 Los comandos que van a ser invocados por el servidor NRPE se configuran en el archivo `/etc/nagios/nrpe.cfg`, como por ejemplo:
 
+    ::text
     command[check_users]=/usr/lib/nagios/plugins/check_users -w 5 -c 10
     command[check_load]=/usr/lib/nagios/plugins/check_load -w 15,10,5 -c 30,25,20
 
 Como medida de seguridad, se puede añadir la IP de la máquina de salto en la variable `allowed_hosts` del archivo `/etc/nagios/nrpe.cfg`:
 
+    ::text
     allowed_hosts=192.168.60.10
 
 La documentación de NRPE informa que esta opción se ignora si NPRE se ejecuta bajo `inetd` o `xinetd`, y que en los casos que se aplica las comprobaciones que realiza son bastante rudimentarias. Por estas razones es bastante común combinar esta variable con comprobaciones adicionales en los archivos `/etc/hosts.allow` y `/etc/hosts.deny`. 
 
 No hay que olvidar reiniciar el servicio `nagios-nrpe-server` después de modificar la configuración:
 
+    ::text
     sudo service nagios-nrpe-server restart
 
 
@@ -59,23 +63,25 @@ No hay que olvidar reiniciar el servicio `nagios-nrpe-server` después de modifi
 
 En la máquina de salto se deben instalar el servidor NRPE y el plugin NRPE de Nagios:
 
+    ::text
     sudo apt-get install nagios-nrpe-server nagios-plugins
 
 Hay que prestar atención a la hora de instalar el paquete `nagios-nrpe-plugin` porque "recomienda" el paquete `nagios3`, y en Ubuntu los paquetes recomendados se instalan automáticamente. Como no necesitamos instalar Nagios en la máquina de salto, le debemos pasar el flag `--no-install-recommends` a `apt-get`:
 
+    ::text
     sudo apt-get install --no-install-recommends nagios-nrpe-plugin
 
 El paquete `nagios-nrpe-plugin` proporciona el binario `check_nrpe` en la ruta `/usr/lib/nagios/plugins`. Este binario es en realidad un cliente que utilizaremos para ordenar la ejecución de tests en un host remoto que tenga instalado un servidor NRPE.
 
 Es recomendable ejecutar primero el binario `check_nrpe` para depurar la configuración, y comprobar que la comunicación entre los hosts es correcta:
 
-```sh
-/usr/lib/nagios/plugins/check_nrpe -H 192.168.60.11 -c check_users
-USERS OK - 1 users currently logged in |users=1;5;10;0
-```
+    ::text
+    /usr/lib/nagios/plugins/check_nrpe -H 192.168.60.11 -c check_users
+    USERS OK - 1 users currently logged in |users=1;5;10;0
 
 Una vez se ha comprobado que la comunicación entre la máquina de salto y los hosts es correcta, se añadirá un nuevo test *dummy* llamado `check_remote_check` en el servidor NRPE de la máquina de salto. La misión de este test es ordenar la ejecución de un test en un host remoto y recoger el resultado. Este nuevo test se definirá al igual que antes en el archivo  `/etc/nagios/nrpe.cfg`:
 
+    ::text
     command[check_remote_check]=/usr/lib/nagios/plugins/check_nrpe -H $ARG1$ -c $ARG2$
 
 Este test toma dos parámetros:
@@ -85,10 +91,12 @@ Este test toma dos parámetros:
 
 En Ubuntu, el servidor NRPE no permite por defecto el paso de parámetros a los tests porque es un riesgo de seguridad. Para habilitar esta funcionalidad se debe modificar el fichero `/etc/nagios/nrpe.cfg` y habilitar la opción `dont_blame_nrpe`:
 
+    ::text
     dont_blame_nrpe=1
 
 Una alternativa a habilitar los parámetros sería que en lugar de crear un comando genérico como `check_remote_check`, añadir comandos específicos para cada host como:
 
+    ::text
     command[check_remote_users_host1]=/usr/lib/nagios/plugins/check_nrpe -H 192.168.60.11 -c check_users
 
 Aunque posiblemente más segura, esta aproximación tiene la desventaja de que habría que crear un comando para cada uno de los tests de cada uno de los hosts que se quisieran monitorizar.
@@ -97,6 +105,7 @@ Al igual que en el caso anterior, es aconsejable configurar la variable `allowed
 
 No hay que olvidar reiniciar el servicio `nagios-nrpe-server` después de modificar la configuración:
 
+    ::text
     sudo service nagios-nrpe-server restart
 
 
@@ -104,46 +113,45 @@ No hay que olvidar reiniciar el servicio `nagios-nrpe-server` después de modifi
 
 Además de Nagios, en el servidor se debe instalar el plugin NRPE:
 
+    ::text
     sudo apt-get install nagios-nrpe-plugin
 
 Si la configuración de la máquina de salto y de los hosts es correcta, el binario `check_nrpe` debería poder ejecutar el test `check_remote_check` en la máquina de salto:
 
-```bash
-/usr/lib/nagios/plugins/check_nrpe -H 192.168.50.5 -c check_remote_check -a 192.168.60.11 check_users
-USERS OK - 1 users currently logged in |users=1;5;10;0
-```
+    ::text
+    /usr/lib/nagios/plugins/check_nrpe -H 192.168.50.5 -c check_remote_check -a 192.168.60.11 check_users
+    USERS OK - 1 users currently logged in |users=1;5;10;0
 
 Por ejemplo, se pueden definir un conjunto de test que usen `check_remote_check` de la máquina de salto de la siguiente manera:
 
-```
-define host {
-    use                 generic-host
-    host_name           jumpbox
-    alias               JumpBox
-    address             192.168.50.5
-}
+    ::text
+    define host {
+        use                 generic-host
+        host_name           jumpbox
+        alias               JumpBox
+        address             192.168.50.5
+    }
 
-define service {
-    use                 generic-service
-    host_name           jumpbox
-    service_description JumpBox_PING
-    check_command       check_ping!100.0,20%!500.0,60%
-}
+    define service {
+        use                 generic-service
+        host_name           jumpbox
+        service_description JumpBox_PING
+        check_command       check_ping!100.0,20%!500.0,60%
+    }
 
-define service {
-    use                 generic-service
-    host_name           jumpbox
-    service_description host1_System_Load_With_Params
-    check_command       check_nrpe_3args!check_remote_check!192.168.60.11!check_load
-}
+    define service {
+        use                 generic-service
+        host_name           jumpbox
+        service_description host1_System_Load_With_Params
+        check_command       check_nrpe_3args!check_remote_check!192.168.60.11!check_load
+    }
 
-define service {
-    use                 generic-service
-    host_name           jumpbox
-    service_description host1_System_Load_Without_Params
-    check_command       check_nrpe_1arg!check_remote_load_host1
-}
-```
+    define service {
+        use                 generic-service
+        host_name           jumpbox
+        service_description host1_System_Load_Without_Params
+        check_command       check_nrpe_1arg!check_remote_load_host1
+    }
 
 Hay que prestar atención a los siguientes detalles:
 
@@ -154,28 +162,28 @@ Hay que prestar atención a los siguientes detalles:
 
 A diferencia de la distribución estándar de Nagios, Ubuntu (o mas bien Debian) fragmenta la definición de los comandos en múltiples ficheros que se encuentran en `/etc/nagios-plugins/config/`. En el caso de NRPE, utiliza el archivo `check_nrpe.cfg`. En mi caso tuve que añadir la definición del comando `check_nrpe_3args` para invocar a `check_nrpe` con 3 argumentos:
 
-```
-# this command runs a program $ARG1$ with arguments $ARG2$
-define command {
-    command_name    check_nrpe
-    command_line    /usr/lib/nagios/plugins/check_nrpe -H $HOSTADDRESS$ -c $ARG1$ -a $ARG2$
-}
+    ::text
+    # this command runs a program $ARG1$ with arguments $ARG2$
+    define command {
+        command_name    check_nrpe
+        command_line    /usr/lib/nagios/plugins/check_nrpe -H $HOSTADDRESS$ -c $ARG1$ -a $ARG2$
+    }
 
-# this command runs a program $ARG1$ with no arguments
-define command {
-    command_name    check_nrpe_1arg
-    command_line    /usr/lib/nagios/plugins/check_nrpe -H $HOSTADDRESS$ -c $ARG1$
-}
+    # this command runs a program $ARG1$ with no arguments
+    define command {
+        command_name    check_nrpe_1arg
+        command_line    /usr/lib/nagios/plugins/check_nrpe -H $HOSTADDRESS$ -c $ARG1$
+    }
 
-# this command runs a program $ARG1$ with arguments $ARG2$ and $ARG3$
-define command {
-    command_name    check_nrpe_3args
-    command_line    /usr/lib/nagios/plugins/check_nrpe -H $HOSTADDRESS$ -c $ARG1$ -a $ARG2$ $ARG3$
-}
-```
+    # this command runs a program $ARG1$ with arguments $ARG2$ and $ARG3$
+    define command {
+        command_name    check_nrpe_3args
+        command_line    /usr/lib/nagios/plugins/check_nrpe -H $HOSTADDRESS$ -c $ARG1$ -a $ARG2$ $ARG3$
+    }
 
 No hay que olvidar reiniciar el servicio `nagios3` después de modificar la configuración:
 
+    ::text
     sudo service nagios3 restart
 
 
