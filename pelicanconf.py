@@ -35,6 +35,10 @@ EXTRA_PATH_METADATA = {'extra/CNAME': {'path': 'CNAME'},}
 
 GITHUB_URL = 'https://github.com/davidcaste/davidcaste.github.com'
 
+# Pelican plugins
+PLUGIN_PATHS = ['pelican-plugins']
+PLUGINS = ['related_posts']
+
 # Pelican-bootstrap3 Theme Settings
 THEME = 'pelican-bootstrap3'
 BOOTSTRAP_NAVBAR_INVERSE = True

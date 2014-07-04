@@ -125,4 +125,5 @@ Session.vim
 ### pelican ###
 pelican.pid
 srv.pid
+cache
 output
