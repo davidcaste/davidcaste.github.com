@@ -1,27 +1,33 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:og="http://ogp.me/ns#"
-      xmlns:fb="https://www.facebook.com/2008/fbml">
+<html lang="es"
+>
 <head>
     <title>Blog lowcost con GitHub y Pelican - pataliebre.net</title>
     <!-- Using the latest rendering mode for IE -->
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
 
-    <!-- Open Graph tags -->
+
+
+<link rel="canonical" href="http://www.pataliebre.net/blog-lowcost-con-github-y-pelican.html">
+
+        <meta name="author" content="David Castellanos" />
+        <meta name="keywords" content="github,python,pelican" />
+        <meta name="description" content="Gracias a GitHub Pages y un generador estático de contenido como Pelican es muy fácil montar un blog lowcost. Un humilde ejemplo es este blog, pero hasta hace poco no había conseguido una configuración que mereciera la pena compartir. GitHub Pages En general, el comportamiento de GitHub Pages ..." />
+
         <meta property="og:site_name" content="pataliebre.net" />
-            <meta property="og:type" content="article"/>
-            <meta property="og:title" content="Blog lowcost con GitHub y Pelican"/>
-            <meta property="og:url" content="http://www.pataliebre.net/blog-lowcost-con-github-y-pelican.html"/>
-            <meta property="og:description" content="Gracias a GitHub Pages y un generador estático de contenido como Pelican es muy fácil montar un blog lowcost. Un humilde ejemplo es este blog, pero hasta hace poco no había conseguido una configuración que mereciera la pena compartir. GitHub Pages En general, el comportamiento de GitHub Pages ..."/>
-            <meta property="article:published_time" content="2014-05-27" />
-                <meta property="article:section" content="general" />
-                <meta property="article:tag" content="github" />
-                <meta property="article:tag" content="python" />
-                <meta property="article:tag" content="pelican" />
-                <meta property="article:author" content="David Castellanos" />
+        <meta property="og:type" content="article"/>
+        <meta property="og:title" content="Blog lowcost con GitHub y Pelican"/>
+        <meta property="og:url" content="http://www.pataliebre.net/blog-lowcost-con-github-y-pelican.html"/>
+        <meta property="og:description" content="Gracias a GitHub Pages y un generador estático de contenido como Pelican es muy fácil montar un blog lowcost. Un humilde ejemplo es este blog, pero hasta hace poco no había conseguido una configuración que mereciera la pena compartir. GitHub Pages En general, el comportamiento de GitHub Pages ..."/>
+        <meta property="article:published_time" content="2014-05-27" />
+            <meta property="article:section" content="general" />
+            <meta property="article:tag" content="github" />
+            <meta property="article:tag" content="python" />
+            <meta property="article:tag" content="pelican" />
+            <meta property="article:author" content="David Castellanos" />
+
 
     <!-- Bootstrap -->
         <link rel="stylesheet" href="http://www.pataliebre.net/theme/css/bootstrap.united.min.css" type="text/css"/>
@@ -55,13 +61,14 @@ pataliebre.net            </a>
                           </a></li>
             </ul>
             <ul class="nav navbar-nav navbar-right">
-                <li><a href="http://www.pataliebre.net/archives.html"><i class="fa fa-th-list"></i><span class="icon-label">Archives</span></a></li>
+              <li><a href="http://www.pataliebre.net/archives.html"><i class="fa fa-th-list"></i><span class="icon-label">Archives</span></a></li>
             </ul>
         </div>
         <!-- /.navbar-collapse -->
     </div>
 </div> <!-- /.navbar -->
-
+<!-- Banner -->
+<!-- End Banner -->
 <div class="container">
     <div class="row">
         <div class="col-sm-9">
@@ -83,7 +90,7 @@ pataliebre.net            </a>
 <footer class="post-info">
     <span class="label label-default">Date</span>
     <span class="published">
-        <i class="fa fa-calendar"></i><time datetime="2014-05-27T00:00:00"> mar 27 mayo 2014</time>
+        <i class="fa fa-calendar"></i><time datetime="2014-05-27T00:00:00+02:00"> mar 27 mayo 2014</time>
     </span>
 
 
@@ -130,17 +137,17 @@ Status: draft
 </ol>
 <p>Llegados a este punto, contamos con una configuración Pelican funcional. La <a href="http://docs.getpelican.com/en/3.3.0/getting_started.html#basic-usage">documentación de Pelican</a> nos explica (entre otras muchas cosas) cómo crear contenidos y generar el contenido estático a partir de ellos.</p>
 <p>Según la configuración por defecto, las páginas generadas se almacenarán en el directorio <code>output</code>. Este directorio <strong>no</strong> es necesario añadirlo al repositorio, y lo ideal es añadir las siguientes líneas al fichero <code>.gitignore</code>:</p>
-<div class="highlight"><pre><span class="n">output</span>
-<span class="n">pelican</span><span class="p">.</span><span class="n">pid</span>
-<span class="n">srv</span><span class="p">.</span><span class="n">pid</span>
+<div class="highlight"><pre>output
+pelican.pid
+srv.pid
 </pre></div>
 
 
 <p>Como se comentó anteriormente, GitHub Pages para desarrolladores va a servir el contenido HTML que se encuentre en la rama <code>master</code> del repositorio. Podríamos copiar el contenido del directorio <code>ouput</code> a algún sitio, cambiar a la rama <code>master</code> y añadir el contenido anteriores. Es factible, pero sin duda que es un procedimiento muy tedioso.</p>
 <p>El script <code>ghp-import</code> nos permite evitar los pasos anteriores. Con ejecutar <code>ghp-import -b master output</code> él sólo va a realizar un commit en <code>master</code> con los contenidos del directorio <code>output</code>. Sólo nos quedaría subir los cambios de vuelta a GitHub con el comando <code>git push origin master</code>.</p>
 <p>El proceso se puede automatizar aún más modificando el fichero <code>Makefile</code> que genera <code>pelican-quickstart</code>; en lugar de que el objetivo <code>github</code> invoque a <code>ghp-import</code> sobre la rama <code>gh-pages</code>, nos interesa que se invoque sobre la rama <code>master</code>:</p>
-<div class="highlight"><pre><span class="n">github</span><span class="o">:</span> <span class="n">publish</span>
-    <span class="n">ghp</span><span class="o">-</span><span class="k">import</span> <span class="o">-</span><span class="n">b</span> <span class="n">master</span> <span class="n">$</span><span class="o">(</span><span class="n">OUTPUTDIR</span><span class="o">)</span>
+<div class="highlight"><pre><span class="n">github</span><span class="p">:</span> <span class="n">publish</span>
+    <span class="n">ghp</span><span class="o">-</span><span class="kn">import</span> <span class="o">-</span><span class="n">b</span> <span class="n">master</span> <span class="err">$</span><span class="p">(</span><span class="n">OUTPUTDIR</span><span class="p">)</span>
     <span class="n">git</span> <span class="n">push</span> <span class="n">origin</span> <span class="n">master</span>
 </pre></div>
 
@@ -153,8 +160,8 @@ Status: draft
 <section class="well" id="related-posts">
     <h4>Related Posts:</h4>
     <ul>
-        <li><a href="http://www.pataliebre.net/otra-expresion-regular-para-extraer-urls.html">(Otra) expresión regular para extraer URLs</a></li>
         <li><a href="http://www.pataliebre.net/instalar-py2exe-en-un-virtualenv-con-python-27.html">Instalar py2exe en un virtualenv con Python 2.7</a></li>
+        <li><a href="http://www.pataliebre.net/otra-expresion-regular-para-extraer-urls.html">(Otra) expresión regular para extraer URLs</a></li>
         <li><a href="http://www.pataliebre.net/control-de-concurrencia-usando-d-bus.html">Control de concurrencia usando D-Bus</a></li>
     </ul>
 </section>
@@ -202,101 +209,105 @@ Status: draft
     </section>
 
         </div>
-        <div class="col-sm-3 well well-sm" id="sidebar">
+        <div class="col-sm-3" id="sidebar">
+            <aside>
 
-<aside>
-    <section>
-        <ul class="list-group list-group-flush">
-                <li class="list-group-item"><h4><i class="fa fa-home fa-lg"></i><span class="icon-label">Social</span></h4>
-                  <ul class="list-group" id="social">
-                    <li class="list-group-item"><a href="http://github.com/davidcaste"><i class="fa fa-github-square fa-lg"></i> github</a></li>
-                    <li class="list-group-item"><a href="http://es.linkedin.com/in/davidcaste"><i class="fa fa-linkedin-square fa-lg"></i> linkedin</a></li>
-                    <li class="list-group-item"><a href="http://twitter.com/davidcaste"><i class="fa fa-twitter-square fa-lg"></i> twitter</a></li>
-                  </ul>
-                </li>
+<section class="well well-sm">
+    <ul class="list-group list-group-flush">
+            <li class="list-group-item"><h4><i class="fa fa-home fa-lg"></i><span class="icon-label">Social</span></h4>
+              <ul class="list-group" id="social">
+                <li class="list-group-item"><a href="http://github.com/davidcaste"><i class="fa fa-github-square fa-lg"></i> github</a></li>
+                <li class="list-group-item"><a href="http://es.linkedin.com/in/davidcaste"><i class="fa fa-linkedin-square fa-lg"></i> linkedin</a></li>
+                <li class="list-group-item"><a href="http://twitter.com/davidcaste"><i class="fa fa-twitter-square fa-lg"></i> twitter</a></li>
+              </ul>
+            </li>
 
 
-                <li class="list-group-item"><a href="http://www.pataliebre.net/"><h4><i class="fa fa-home fa-lg"></i><span class="icon-label">Categories</span></h4></a>
-                    <ul class="list-group" id="categories">
-                        <li class="list-group-item">
-                            <a href="http://www.pataliebre.net/category/desarrollo.html">
-                                <i class="fa fa-folder-open fa-lg"></i> desarrollo
-                            </a>
-                        </li>
-                        <li class="list-group-item">
-                            <a href="http://www.pataliebre.net/category/general.html">
-                                <i class="fa fa-folder-open fa-lg"></i> general
-                            </a>
-                        </li>
-                    </ul>
-                </li>
+            <li class="list-group-item"><a href="http://www.pataliebre.net/"><h4><i class="fa fa-home fa-lg"></i><span class="icon-label">Categories</span></h4></a>
+                <ul class="list-group" id="categories">
+                    <li class="list-group-item">
+                        <a href="http://www.pataliebre.net/category/desarrollo.html">
+                            <i class="fa fa-folder-open fa-lg"></i> desarrollo
+                        </a>
+                    </li>
+                    <li class="list-group-item">
+                        <a href="http://www.pataliebre.net/category/general.html">
+                            <i class="fa fa-folder-open fa-lg"></i> general
+                        </a>
+                    </li>
+                    <li class="list-group-item">
+                        <a href="http://www.pataliebre.net/category/sysadmin.html">
+                            <i class="fa fa-folder-open fa-lg"></i> sysadmin
+                        </a>
+                    </li>
+                </ul>
+            </li>
 
-                <li class="list-group-item"><a href="http://www.pataliebre.net/"><h4><i class="fa fa-tags fa-lg"></i><span class="icon-label">Tags</span></h4></a>
-                    <ul class="list-group list-inline tagcloud" id="tags">
-                        <li class="list-group-item tag-4">
-                            <a href="http://www.pataliebre.net/tag/alternatives.html">
-                                alternatives
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://www.pataliebre.net/tag/concurrencia.html">
-                                concurrencia
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-2">
-                            <a href="http://www.pataliebre.net/tag/eclipse.html">
-                                eclipse
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://www.pataliebre.net/tag/firewall.html">
-                                firewall
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-2">
-                            <a href="http://www.pataliebre.net/tag/linux.html">
-                                linux
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://www.pataliebre.net/tag/nagios.html">
-                                nagios
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://www.pataliebre.net/tag/pelican.html">
-                                pelican
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://www.pataliebre.net/tag/pip.html">
-                                pip
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-1">
-                            <a href="http://www.pataliebre.net/tag/python.html">
-                                python
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-1">
-                            <a href="http://www.pataliebre.net/tag/ubuntu.html">
-                                ubuntu
-                            </a>
-                        </li>
-                    </ul>
-                </li>    
-
-        </ul>
-    </section>
-
-</aside>        </div>
+            <li class="list-group-item"><a href="http://www.pataliebre.net/"><h4><i class="fa fa-tags fa-lg"></i><span class="icon-label">Tags</span></h4></a>
+                <ul class="list-group list-inline tagcloud" id="tags">
+                    <li class="list-group-item tag-4">
+                        <a href="http://www.pataliebre.net/tag/alternatives.html">
+                            alternatives
+                        </a>
+                    </li>
+                    <li class="list-group-item tag-4">
+                        <a href="http://www.pataliebre.net/tag/concurrencia.html">
+                            concurrencia
+                        </a>
+                    </li>
+                    <li class="list-group-item tag-2">
+                        <a href="http://www.pataliebre.net/tag/eclipse.html">
+                            eclipse
+                        </a>
+                    </li>
+                    <li class="list-group-item tag-4">
+                        <a href="http://www.pataliebre.net/tag/firewall.html">
+                            firewall
+                        </a>
+                    </li>
+                    <li class="list-group-item tag-2">
+                        <a href="http://www.pataliebre.net/tag/linux.html">
+                            linux
+                        </a>
+                    </li>
+                    <li class="list-group-item tag-4">
+                        <a href="http://www.pataliebre.net/tag/nagios.html">
+                            nagios
+                        </a>
+                    </li>
+                    <li class="list-group-item tag-4">
+                        <a href="http://www.pataliebre.net/tag/pelican.html">
+                            pelican
+                        </a>
+                    </li>
+                    <li class="list-group-item tag-4">
+                        <a href="http://www.pataliebre.net/tag/pip.html">
+                            pip
+                        </a>
+                    </li>
+                    <li class="list-group-item tag-1">
+                        <a href="http://www.pataliebre.net/tag/python.html">
+                            python
+                        </a>
+                    </li>
+                    <li class="list-group-item tag-1">
+                        <a href="http://www.pataliebre.net/tag/ubuntu.html">
+                            ubuntu
+                        </a>
+                    </li>
+                </ul>
+            </li>
+    </ul>
+</section>
+            </aside>
+        </div>
     </div>
 </div>
 <footer>
    <div class="container">
       <hr>
       <div class="row">
-         <div class="col-xs-10">&copy; 2014 David Castellanos
+         <div class="col-xs-10">&copy; 2015 David Castellanos
             &middot; Powered by <a href="https://github.com/DandyDev/pelican-bootstrap3" target="_blank">pelican-bootstrap3</a>,
             <a href="http://docs.getpelican.com/" target="_blank">Pelican</a>,
             <a href="http://getbootstrap.com" target="_blank">Bootstrap</a>              <p><small>  <a rel="license" href="http://creativecommons.org/licenses/by/4.0/"><img alt="Creative Commons License" style="border-width:0" src="//i.creativecommons.org/l/by/4.0/80x15.png" /></a>
@@ -348,5 +359,6 @@ Status: draft
         })();
     </script>
     <!-- End Google Analytics Code -->
+
 </body>
 </html>

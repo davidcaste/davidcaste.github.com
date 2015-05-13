@@ -1,21 +1,26 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:og="http://ogp.me/ns#"
-      xmlns:fb="https://www.facebook.com/2008/fbml">
+<html lang="es"
+>
 <head>
     <title>web - pataliebre.net</title>
     <!-- Using the latest rendering mode for IE -->
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
+
+
+
+
+    <meta name="author" content="David Castellanos" />
+    <meta name="keywords" content="web" />
 
     <!-- Open Graph tags -->
         <meta property="og:site_name" content="pataliebre.net" />
-            <meta property="og:type" content="website"/>
-            <meta property="og:title" content="pataliebre.net"/>
-            <meta property="og:url" content="http://www.pataliebre.net"/>
-            <meta property="og:description" content="pataliebre.net"/>
+        <meta property="og:type" content="website"/>
+        <meta property="og:title" content="pataliebre.net"/>
+        <meta property="og:url" content="http://www.pataliebre.net"/>
+        <meta property="og:description" content="pataliebre.net"/>
+
 
     <!-- Bootstrap -->
         <link rel="stylesheet" href="http://www.pataliebre.net/theme/css/bootstrap.united.min.css" type="text/css"/>
@@ -49,13 +54,14 @@ pataliebre.net            </a>
                           </a></li>
             </ul>
             <ul class="nav navbar-nav navbar-right">
-                <li><a href="http://www.pataliebre.net/archives.html"><i class="fa fa-th-list"></i><span class="icon-label">Archives</span></a></li>
+              <li><a href="http://www.pataliebre.net/archives.html"><i class="fa fa-th-list"></i><span class="icon-label">Archives</span></a></li>
             </ul>
         </div>
         <!-- /.navbar-collapse -->
     </div>
 </div> <!-- /.navbar -->
-
+<!-- Banner -->
+<!-- End Banner -->
 <div class="container">
     <div class="row">
         <div class="col-sm-9">
@@ -73,94 +79,98 @@ URL en un ...</a></p>
             <hr/>
 
         </div>
-        <div class="col-sm-3 well well-sm" id="sidebar">
+        <div class="col-sm-3" id="sidebar">
+            <aside>
 
-<aside>
-    <section>
-        <ul class="list-group list-group-flush">
-                <li class="list-group-item"><h4><i class="fa fa-home fa-lg"></i><span class="icon-label">Social</span></h4>
-                  <ul class="list-group" id="social">
-                    <li class="list-group-item"><a href="http://github.com/davidcaste"><i class="fa fa-github-square fa-lg"></i> github</a></li>
-                    <li class="list-group-item"><a href="http://es.linkedin.com/in/davidcaste"><i class="fa fa-linkedin-square fa-lg"></i> linkedin</a></li>
-                    <li class="list-group-item"><a href="http://twitter.com/davidcaste"><i class="fa fa-twitter-square fa-lg"></i> twitter</a></li>
-                  </ul>
-                </li>
+<section class="well well-sm">
+    <ul class="list-group list-group-flush">
+            <li class="list-group-item"><h4><i class="fa fa-home fa-lg"></i><span class="icon-label">Social</span></h4>
+              <ul class="list-group" id="social">
+                <li class="list-group-item"><a href="http://github.com/davidcaste"><i class="fa fa-github-square fa-lg"></i> github</a></li>
+                <li class="list-group-item"><a href="http://es.linkedin.com/in/davidcaste"><i class="fa fa-linkedin-square fa-lg"></i> linkedin</a></li>
+                <li class="list-group-item"><a href="http://twitter.com/davidcaste"><i class="fa fa-twitter-square fa-lg"></i> twitter</a></li>
+              </ul>
+            </li>
 
 
-                <li class="list-group-item"><a href="http://www.pataliebre.net/"><h4><i class="fa fa-home fa-lg"></i><span class="icon-label">Categories</span></h4></a>
-                    <ul class="list-group" id="categories">
-                        <li class="list-group-item">
-                            <a href="http://www.pataliebre.net/category/desarrollo.html">
-                                <i class="fa fa-folder-open fa-lg"></i> desarrollo
-                            </a>
-                        </li>
-                        <li class="list-group-item">
-                            <a href="http://www.pataliebre.net/category/general.html">
-                                <i class="fa fa-folder-open fa-lg"></i> general
-                            </a>
-                        </li>
-                    </ul>
-                </li>
+            <li class="list-group-item"><a href="http://www.pataliebre.net/"><h4><i class="fa fa-home fa-lg"></i><span class="icon-label">Categories</span></h4></a>
+                <ul class="list-group" id="categories">
+                    <li class="list-group-item">
+                        <a href="http://www.pataliebre.net/category/desarrollo.html">
+                            <i class="fa fa-folder-open fa-lg"></i> desarrollo
+                        </a>
+                    </li>
+                    <li class="list-group-item">
+                        <a href="http://www.pataliebre.net/category/general.html">
+                            <i class="fa fa-folder-open fa-lg"></i> general
+                        </a>
+                    </li>
+                    <li class="list-group-item">
+                        <a href="http://www.pataliebre.net/category/sysadmin.html">
+                            <i class="fa fa-folder-open fa-lg"></i> sysadmin
+                        </a>
+                    </li>
+                </ul>
+            </li>
 
-                <li class="list-group-item"><a href="http://www.pataliebre.net/"><h4><i class="fa fa-tags fa-lg"></i><span class="icon-label">Tags</span></h4></a>
-                    <ul class="list-group list-inline tagcloud" id="tags">
-                        <li class="list-group-item tag-4">
-                            <a href="http://www.pataliebre.net/tag/alternatives.html">
-                                alternatives
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://www.pataliebre.net/tag/concurrencia.html">
-                                concurrencia
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-2">
-                            <a href="http://www.pataliebre.net/tag/eclipse.html">
-                                eclipse
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://www.pataliebre.net/tag/firewall.html">
-                                firewall
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-2">
-                            <a href="http://www.pataliebre.net/tag/linux.html">
-                                linux
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://www.pataliebre.net/tag/nagios.html">
-                                nagios
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://www.pataliebre.net/tag/pelican.html">
-                                pelican
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-4">
-                            <a href="http://www.pataliebre.net/tag/pip.html">
-                                pip
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-1">
-                            <a href="http://www.pataliebre.net/tag/python.html">
-                                python
-                            </a>
-                        </li>
-                        <li class="list-group-item tag-1">
-                            <a href="http://www.pataliebre.net/tag/ubuntu.html">
-                                ubuntu
-                            </a>
-                        </li>
-                    </ul>
-                </li>    
-
-        </ul>
-    </section>
-
-</aside>        </div>
+            <li class="list-group-item"><a href="http://www.pataliebre.net/"><h4><i class="fa fa-tags fa-lg"></i><span class="icon-label">Tags</span></h4></a>
+                <ul class="list-group list-inline tagcloud" id="tags">
+                    <li class="list-group-item tag-4">
+                        <a href="http://www.pataliebre.net/tag/alternatives.html">
+                            alternatives
+                        </a>
+                    </li>
+                    <li class="list-group-item tag-4">
+                        <a href="http://www.pataliebre.net/tag/concurrencia.html">
+                            concurrencia
+                        </a>
+                    </li>
+                    <li class="list-group-item tag-2">
+                        <a href="http://www.pataliebre.net/tag/eclipse.html">
+                            eclipse
+                        </a>
+                    </li>
+                    <li class="list-group-item tag-4">
+                        <a href="http://www.pataliebre.net/tag/firewall.html">
+                            firewall
+                        </a>
+                    </li>
+                    <li class="list-group-item tag-2">
+                        <a href="http://www.pataliebre.net/tag/linux.html">
+                            linux
+                        </a>
+                    </li>
+                    <li class="list-group-item tag-4">
+                        <a href="http://www.pataliebre.net/tag/nagios.html">
+                            nagios
+                        </a>
+                    </li>
+                    <li class="list-group-item tag-4">
+                        <a href="http://www.pataliebre.net/tag/pelican.html">
+                            pelican
+                        </a>
+                    </li>
+                    <li class="list-group-item tag-4">
+                        <a href="http://www.pataliebre.net/tag/pip.html">
+                            pip
+                        </a>
+                    </li>
+                    <li class="list-group-item tag-1">
+                        <a href="http://www.pataliebre.net/tag/python.html">
+                            python
+                        </a>
+                    </li>
+                    <li class="list-group-item tag-1">
+                        <a href="http://www.pataliebre.net/tag/ubuntu.html">
+                            ubuntu
+                        </a>
+                    </li>
+                </ul>
+            </li>
+    </ul>
+</section>
+            </aside>
+        </div>
     </div>
 </div>
 <footer>
@@ -219,5 +229,6 @@ URL en un ...</a></p>
         })();
     </script>
     <!-- End Google Analytics Code -->
+
 </body>
 </html>

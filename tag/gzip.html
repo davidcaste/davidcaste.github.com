@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="es"
+>
+<head>
+    <title>gzip - pataliebre.net</title>
+    <!-- Using the latest rendering mode for IE -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+
+
+    <meta name="author" content="David Castellanos" />
+    <meta name="keywords" content="gzip" />
+
+    <!-- Open Graph tags -->
+        <meta property="og:site_name" content="pataliebre.net" />
+        <meta property="og:type" content="website"/>
+        <meta property="og:title" content="pataliebre.net"/>
+        <meta property="og:url" content="http://www.pataliebre.net"/>
+        <meta property="og:description" content="pataliebre.net"/>
+
+
+    <!-- Bootstrap -->
+        <link rel="stylesheet" href="http://www.pataliebre.net/theme/css/bootstrap.united.min.css" type="text/css"/>
+    <link href="http://www.pataliebre.net/theme/css/font-awesome.min.css" rel="stylesheet">
+
+    <link href="http://www.pataliebre.net/theme/css/pygments/native.css" rel="stylesheet">
+    <link rel="stylesheet" href="http://www.pataliebre.net/theme/css/style.css" type="text/css"/>
+
+        <link href="http://www.pataliebre.net/feeds/all.atom.xml" type="application/atom+xml" rel="alternate"
+              title="pataliebre.net ATOM Feed"/>
+
+</head>
+<body>
+
+<div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a href="http://www.pataliebre.net/" class="navbar-brand">
+pataliebre.net            </a>
+        </div>
+        <div class="collapse navbar-collapse navbar-ex1-collapse">
+            <ul class="nav navbar-nav">
+                         <li><a href="http://www.pataliebre.net/pages/acerca-de-mi.html">
+                             Acerca de mí
+                          </a></li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+              <li><a href="http://www.pataliebre.net/archives.html"><i class="fa fa-th-list"></i><span class="icon-label">Archives</span></a></li>
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+</div> <!-- /.navbar -->
+<!-- Banner -->
+<!-- End Banner -->
+<div class="container">
+    <div class="row">
+        <div class="col-sm-9">
+
+            <article>
+                <h2><a href="http://www.pataliebre.net/howto-make-nginx-decompress-a-gzipped-request.html">Howto make Nginx decompress a gzipped request</a></h2>
+                <div class="summary"><p>It is not usual, but sometimes could be useful to receive compressed request bodies. Although clients and the service itself can benefit from lower bandwith usage, it is very dangerous because a small compressed file can be inflated to a relatively huge file. To handle such a request could exhaust ...</p>
+                    <a class="btn btn-default btn-xs" href="http://www.pataliebre.net/howto-make-nginx-decompress-a-gzipped-request.html">more ...</a>
+                </div>
+            </article>
+            <hr/>
+
+        </div>
+        <div class="col-sm-3" id="sidebar">
+            <aside>
+
+<section class="well well-sm">
+    <ul class="list-group list-group-flush">
+            <li class="list-group-item"><h4><i class="fa fa-home fa-lg"></i><span class="icon-label">Social</span></h4>
+              <ul class="list-group" id="social">
+                <li class="list-group-item"><a href="http://github.com/davidcaste"><i class="fa fa-github-square fa-lg"></i> github</a></li>
+                <li class="list-group-item"><a href="http://es.linkedin.com/in/davidcaste"><i class="fa fa-linkedin-square fa-lg"></i> linkedin</a></li>
+                <li class="list-group-item"><a href="http://twitter.com/davidcaste"><i class="fa fa-twitter-square fa-lg"></i> twitter</a></li>
+              </ul>
+            </li>
+
+
+            <li class="list-group-item"><a href="http://www.pataliebre.net/"><h4><i class="fa fa-home fa-lg"></i><span class="icon-label">Categories</span></h4></a>
+                <ul class="list-group" id="categories">
+                    <li class="list-group-item">
+                        <a href="http://www.pataliebre.net/category/desarrollo.html">
+                            <i class="fa fa-folder-open fa-lg"></i> desarrollo
+                        </a>
+                    </li>
+                    <li class="list-group-item">
+                        <a href="http://www.pataliebre.net/category/general.html">
+                            <i class="fa fa-folder-open fa-lg"></i> general
+                        </a>
+                    </li>
+                    <li class="list-group-item">
+                        <a href="http://www.pataliebre.net/category/sysadmin.html">
+                            <i class="fa fa-folder-open fa-lg"></i> sysadmin
+                        </a>
+                    </li>
+                </ul>
+            </li>
+
+            <li class="list-group-item"><a href="http://www.pataliebre.net/"><h4><i class="fa fa-tags fa-lg"></i><span class="icon-label">Tags</span></h4></a>
+                <ul class="list-group list-inline tagcloud" id="tags">
+                    <li class="list-group-item tag-4">
+                        <a href="http://www.pataliebre.net/tag/alternatives.html">
+                            alternatives
+                        </a>
+                    </li>
+                    <li class="list-group-item tag-4">
+                        <a href="http://www.pataliebre.net/tag/concurrencia.html">
+                            concurrencia
+                        </a>
+                    </li>
+                    <li class="list-group-item tag-2">
+                        <a href="http://www.pataliebre.net/tag/eclipse.html">
+                            eclipse
+                        </a>
+                    </li>
+                    <li class="list-group-item tag-4">
+                        <a href="http://www.pataliebre.net/tag/firewall.html">
+                            firewall
+                        </a>
+                    </li>
+                    <li class="list-group-item tag-2">
+                        <a href="http://www.pataliebre.net/tag/linux.html">
+                            linux
+                        </a>
+                    </li>
+                    <li class="list-group-item tag-4">
+                        <a href="http://www.pataliebre.net/tag/nagios.html">
+                            nagios
+                        </a>
+                    </li>
+                    <li class="list-group-item tag-4">
+                        <a href="http://www.pataliebre.net/tag/pelican.html">
+                            pelican
+                        </a>
+                    </li>
+                    <li class="list-group-item tag-4">
+                        <a href="http://www.pataliebre.net/tag/pip.html">
+                            pip
+                        </a>
+                    </li>
+                    <li class="list-group-item tag-1">
+                        <a href="http://www.pataliebre.net/tag/python.html">
+                            python
+                        </a>
+                    </li>
+                    <li class="list-group-item tag-1">
+                        <a href="http://www.pataliebre.net/tag/ubuntu.html">
+                            ubuntu
+                        </a>
+                    </li>
+                </ul>
+            </li>
+    </ul>
+</section>
+            </aside>
+        </div>
+    </div>
+</div>
+<footer>
+   <div class="container">
+      <hr>
+      <div class="row">
+         <div class="col-xs-10">&copy; 2015 David Castellanos
+            &middot; Powered by <a href="https://github.com/DandyDev/pelican-bootstrap3" target="_blank">pelican-bootstrap3</a>,
+            <a href="http://docs.getpelican.com/" target="_blank">Pelican</a>,
+            <a href="http://getbootstrap.com" target="_blank">Bootstrap</a>              <p><small>  <a rel="license" href="http://creativecommons.org/licenses/by/4.0/"><img alt="Creative Commons License" style="border-width:0" src="//i.creativecommons.org/l/by/4.0/80x15.png" /></a>
+    Content
+  licensed under a <a rel="license" href="http://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution 4.0 International License</a>, except where indicated otherwise.
+</small></p>
+         </div>
+         <div class="col-xs-2"><p class="pull-right"><i class="fa fa-arrow-up"></i> <a href="#">Back to top</a></p></div>
+      </div>
+   </div>
+</footer>
+<script src="http://www.pataliebre.net/theme/js/jquery.min.js"></script>
+
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="http://www.pataliebre.net/theme/js/bootstrap.min.js"></script>
+
+<!-- Enable responsive features in IE8 with Respond.js (https://github.com/scottjehl/Respond) -->
+<script src="http://www.pataliebre.net/theme/js/respond.min.js"></script>
+
+    <!-- Disqus -->
+    <script type="text/javascript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'pataliebredotnet'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function () {
+            var s = document.createElement('script');
+            s.async = true;
+            s.type = 'text/javascript';
+            s.src = '//' + disqus_shortname + '.disqus.com/count.js';
+            (document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
+        }());
+    </script>
+    <!-- End Disqus Code -->
+    <!-- Google Analytics -->
+    <script type="text/javascript">
+
+        var _gaq = _gaq || [];
+        _gaq.push(['_setAccount', 'UA-31198203-1']);
+        _gaq.push(['_trackPageview']);
+
+        (function () {
+            var ga = document.createElement('script');
+            ga.type = 'text/javascript';
+            ga.async = true;
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(ga, s);
+        })();
+    </script>
+    <!-- End Google Analytics Code -->
+
+</body>
+</html>

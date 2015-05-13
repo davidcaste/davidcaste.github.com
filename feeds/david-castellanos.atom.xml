@@ -1,5 +1,114 @@
 <?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom"><title>pataliebre.net</title><link href="http://www.pataliebre.net/" rel="alternate"></link><link href="http://www.pataliebre.net/feeds/david-castellanos.atom.xml" rel="self"></link><id>http://www.pataliebre.net/</id><updated>2014-06-27T00:00:00+02:00</updated><entry><title>Monitorizar una red privada desde un Nagios público con NRPE</title><link href="http://www.pataliebre.net/monitorizar-una-red-privada-desde-un-nagios-publico-con-nrpe.html" rel="alternate"></link><updated>2014-06-27T00:00:00+02:00</updated><author><name>David Castellanos</name></author><id>tag:www.pataliebre.net,2014-06-27:monitorizar-una-red-privada-desde-un-nagios-publico-con-nrpe.html</id><summary type="html">&lt;p&gt;Hace apenas un par de semanas he cambiado de trabajo, y uno de los primeros problemas que he tenido que resolver estaba relacionado con &lt;a href="http://www.nagios.org/"&gt;Nagios&lt;/a&gt;. Ocurre que tenemos unas máquinas en una red privada, y un servidor Nagios corporativo que no puede acceder a ellas.&lt;/p&gt;
+<feed xmlns="http://www.w3.org/2005/Atom"><title>pataliebre.net</title><link href="http://www.pataliebre.net/" rel="alternate"></link><link href="http://www.pataliebre.net/feeds/david-castellanos.atom.xml" rel="self"></link><id>http://www.pataliebre.net/</id><updated>2015-05-13T00:00:00+02:00</updated><entry><title>Howto make Nginx decompress a gzipped request</title><link href="http://www.pataliebre.net/howto-make-nginx-decompress-a-gzipped-request.html" rel="alternate"></link><updated>2015-05-13T00:00:00+02:00</updated><author><name>David Castellanos</name></author><id>tag:www.pataliebre.net,2015-05-13:howto-make-nginx-decompress-a-gzipped-request.html</id><summary type="html">&lt;p&gt;It is not usual, but sometimes could be useful to receive compressed request bodies. Although clients and the service itself can benefit from lower bandwith usage, it is very dangerous because a small compressed file can be inflated to a relatively huge file. To handle such a request could exhaust the resources of the server, causing a &lt;a href="http://en.wikipedia.org/wiki/Denial-of-service_attack"&gt;Denial of Service (DoS)&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;There are two options to handle compressed requests:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;Let the backend service itself to decompress the request.&lt;/li&gt;
+&lt;li&gt;Use a proxy reverse server, like &lt;a href="http://nginx.org/"&gt;Nginx&lt;/a&gt;, handle the request and forward it to the backend service.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;Both approximations have its own advantages or disadvantages, but ultimately it depends if the backend service is able to handle the requests compressed.&lt;/p&gt;
+&lt;p&gt;Apache provides a module called &lt;a href="http://httpd.apache.org/docs/2.4/mod/mod_deflate.html"&gt;mod_deflate&lt;/a&gt; which can be used (among more things) to decompress gzipped requests. Unfortunately according to &lt;a href="http://forum.nginx.org/read.php?11,96472,214266"&gt;this&lt;/a&gt; and &lt;a href="http://forum.nginx.org/read.php?2,246979,246994#msg-246994"&gt;this&lt;/a&gt;, Nginx doesn't seem to have that functionality right out of the box.&lt;/p&gt;
+&lt;p&gt;On the other hand, there is a Nginx module called &lt;a href="http://wiki.nginx.org/HttpLuaModule"&gt;ngx_lua&lt;/a&gt;, which according to its description:&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;This module embeds Lua, via the standard Lua 5.1 interpreter or LuaJIT 2.0/2.1, into Nginx and by leveraging Nginx's subrequests, allows the integration of the powerful Lua threads (Lua coroutines) into the Nginx event model.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;After spending a couple of days learning the basics of Lua and playing with Nginx, I wrote a Lua script to make Nginx handle requests with a gzipped body before handling the decompressed request to some backend server:&lt;/p&gt;
+&lt;div class="gist"&gt;
+    &lt;script src='https://gist.github.com/05b2f9461ebe4a3bb3fc.js'&gt;&lt;/script&gt;
+    &lt;noscript&gt;
+        &lt;pre&gt;&lt;code&gt;server {
+	server_name default_server;
+	listen 80;
+ 
+	location / {
+		proxy_pass http://127.0.0.1:8080;
+		proxy_pass_request_headers on;
+		proxy_redirect off;
+		proxy_set_header X-Real-IP $remote_addr;
+ 
+		client_max_body_size 512k;
+		client_body_buffer_size 512k;
+
+		set $max_chunk_size = 10240;  # 10k
+		set $max_body_size = 524288;  # 512k
+ 
+		rewrite_by_lua '
+			-- Debian packages nginx-extras, lua-zlib required
+
+			ngx.ctx.max_chunk_size = ngx.var.max_chunk_size
+			ngx.ctx.max_body_size = ngx.var.max_body_size
+
+			function create_error_response (code, description)
+				local message = string.format('{"status":400,"statusReason":"Bad Request","code":%d,"exception":"","description":"%s","message":"HTTP 400 Bad Request"}', code, description)
+				ngx.status = ngx.HTTP_BAD_REQUEST
+				ngx.header.content_type = "application/json"
+				ngx.say(message)
+				ngx.exit(ngx.HTTP_OK)
+			end
+
+			function inflate_chunk (stream, chunk)
+				return stream(chunk)
+			end
+
+			function inflate_body (data)
+				local stream = require("zlib").inflate()
+
+				local bytes_out_total = 0
+				local buffer = ""
+				local chunk = ""
+
+				for index = 0, data:len(), ngx.ctx.max_chunk_size do
+					chunk = string.sub(data, index, index + ngx.ctx.max_chunk_size - 1)
+					local status, output, eof, bytes_in, bytes_out = pcall(stream, chunk)
+
+					if not status then
+						-- corrupted chunk
+						ngx.log(ngx.ERR, output)
+						create_error_response(4001, "Corrupted GZIP body")
+					end
+
+					if bytes_in == 0 and bytes_out == 0 then
+						-- body is not gzip compressed
+						create_error_response(4002, "Invalid GZIP body")
+					end
+
+					bytes_out_total = bytes_out_total + bytes_out
+					buffer = buffer .. output
+
+					if bytes_out_total &gt; ngx.ctx.max_body_size then
+						-- uncompressed body too large
+						create_error_response(4003, "Uncompressed body too large")
+					end
+				end
+
+				return buffer
+			end
+
+			local content_encoding = ngx.req.get_headers()["Content-Encoding"]
+			if content_encoding == "gzip" then
+				ngx.req.read_body()
+				local data = ngx.req.get_body_data()
+
+				if data ~= '' then
+					local new_data = inflate_body(data)
+
+					ngx.req.clear_header("Content-Encoding")
+					ngx.req.clear_header("Content-Length")
+					ngx.req.set_body_data(new_data)
+				end
+			end';
+	}
+}&lt;/code&gt;&lt;/pre&gt;
+    &lt;/noscript&gt;
+&lt;/div&gt;
+&lt;p&gt;Some things to take into consideration:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;The module &lt;code&gt;ngx_lua&lt;/code&gt; is not included by default in Nginx. If you are using Debian or Ubuntu you must install package &lt;code&gt;nginx-extras&lt;/code&gt; and its dependencies.&lt;/li&gt;
+&lt;li&gt;A Lua module called &lt;a href="https://github.com/LuaDist/lzlib"&gt;lzlib&lt;/a&gt; does the actual decompression of the requests body. Again, if you are using Debian or Ubuntu you must install package &lt;code&gt;lua-zib&lt;/code&gt; and its dependencies.&lt;/li&gt;
+&lt;li&gt;You really need to limit the maximum size of a request body and the maximum size of a decompressed/inflated body.&lt;/li&gt;
+&lt;li&gt;A request handled by Nginx goes though a series of &lt;a href="http://wiki.nginx.org/Phases"&gt;phases&lt;/a&gt;. The request body must be manipulated before handling the request to the backend server, so the phase handler &lt;a href="http://wiki.nginx.org/HttpLuaModule#rewrite_by_lua"&gt;rewrite_by_lua&lt;/a&gt; provided by &lt;code&gt;ngx_lua&lt;/code&gt; is used.&lt;/li&gt;
+&lt;li&gt;I've implemented some sanity checks to avoid some common misuse cases (e.g. corrupted body, not gzip-compressed, huge uncompressed body). In that case, Nginx does not forward the request to the backend server, and a &lt;code&gt;HTTP_BAD_REQUEST&lt;/code&gt; status is returned instead.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Feel free to study, fork and use the gist above :-)&lt;/p&gt;</summary><category term="nginx"></category><category term="lua"></category><category term="gzip"></category></entry><entry><title>Monitorizar una red privada desde un Nagios público con NRPE</title><link href="http://www.pataliebre.net/monitorizar-una-red-privada-desde-un-nagios-publico-con-nrpe.html" rel="alternate"></link><updated>2015-05-13T00:00:00+02:00</updated><author><name>David Castellanos</name></author><id>tag:www.pataliebre.net,2014-06-27:monitorizar-una-red-privada-desde-un-nagios-publico-con-nrpe.html</id><summary type="html">&lt;p&gt;Hace apenas un par de semanas he cambiado de trabajo, y uno de los primeros problemas que he tenido que resolver estaba relacionado con &lt;a href="http://www.nagios.org/"&gt;Nagios&lt;/a&gt;. Ocurre que tenemos unas máquinas en una red privada, y un servidor Nagios corporativo que no puede acceder a ellas.&lt;/p&gt;
 &lt;p&gt;Nagios es una herramienta de monitorización de redes y sistemas de código abierto. Es extremadamente popular, y desde su origen en 1999 se usa en multitud de sistemas. Por lo general se compone de un servidor que realiza tests y recopila sus resultados, &lt;a href="http://exchange.nagios.org/directory/Addons/Monitoring-Agents"&gt;agentes&lt;/a&gt; que tienen la capacidad de realizar tests, y de &lt;em&gt;plugins&lt;/em&gt;. Estos plugins son pequeños programas que se pueden utilizar para ejecutar pruebas locales, pruebas remotas, o para realizar tareas auxiliares que asistan a los dos usos anteriores.&lt;/p&gt;
 &lt;p&gt;La principal característica de Nagios es la cantidad de recursos y plugins existenes. Algunos ejemplos de repositorios de plugins son &lt;a href="http://exchange.nagios.org"&gt;Nagios Exchange&lt;/a&gt;, &lt;a href="http://nagios-plugins.org/"&gt;Nagios Plugins&lt;/a&gt;, &lt;a href="https://www.monitoring-plugins.org/"&gt;The Monitoring Plugins Project&lt;/a&gt;, etc. El blog de &lt;a href="http://www.eldespistado.com/"&gt;El Despistado&lt;/a&gt; trata casi en exclusiva sobre Nagios y tiene publicados multitud de artículos de interés.&lt;/p&gt;
 &lt;p&gt;En esta entrada voy a repasar la solución que hemos adoptado. El sistema operativo de los equipos que he utilizado es Ubuntu 12.04, aunque posiblemente la configuración del entorno sea exactamente la misma (o al menos muy parecida) en Ubuntu 14.04.&lt;/p&gt;
@@ -12,7 +121,10 @@
 &lt;p&gt;Como resulta que el Nagios es corporativo, y que ya tenían el plugin NRPE instalado, se eligió esta última opción.&lt;/p&gt;
 &lt;h3&gt;Descripción del escenario&lt;/h3&gt;
 &lt;p&gt;Nuestro escenario consiste básicamente en que hay un host que está detrás del firewall y que tiene acceso al resto de elementos que queremos monitorizar. El servidor Nagios se conecta a él, y éste a su vez se conectará al resto de elementos de la red:&lt;/p&gt;
-&lt;p&gt;&lt;a href="/images/indirectsvccheck2.png"&gt;&lt;img width="75%" src="/images/indirectsvccheck2.png"&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;div class="figure"&gt;
+    &lt;img alt="{filename}/images/indirectsvccheck2.png" src="http://www.pataliebre.net/images/indirectsvccheck2.png" /&gt;
+&lt;/div&gt;
+
 &lt;p&gt;Tendremos por tanto los siguientes elementos:&lt;/p&gt;
 &lt;ol&gt;
 &lt;li&gt;Un &lt;em&gt;servidor&lt;/em&gt; en el que estará instalado Nagios, y el plugin de NRPE.&lt;/li&gt;
@@ -107,6 +219,13 @@ USERS OK - 1 users currently logged in |users=1;5;10;0
     address             192.168.50.5
 }
 
+define host {
+    use                 generic-host
+    host_name           host1
+    alias               Host1
+    address             192.168.50.5  
+}
+
 define service {
     use                 generic-service
     host_name           jumpbox
@@ -116,14 +235,14 @@ define service {
 
 define service {
     use                 generic-service
-    host_name           jumpbox
+    host_name           host1
     service_description host1_System_Load_With_Params
     check_command       check_nrpe_3args!check_remote_check!192.168.60.11!check_load
 }
 
 define service {
     use                 generic-service
-    host_name           jumpbox
+    host_name           host1
     service_description host1_System_Load_Without_Params
     check_command       check_nrpe_1arg!check_remote_load_host1
 }
@@ -132,7 +251,7 @@ define service {
 
 &lt;p&gt;Hay que prestar atención a los siguientes detalles:&lt;/p&gt;
 &lt;ul&gt;
-&lt;li&gt;Sólo se define el como &lt;em&gt;host&lt;/em&gt; la máquina de salto. No es necesario definir el resto de hosts porque no son accesibles desde Nagios, y sus tests se van a realizar indirectamente a través de la máquina de salto.&lt;/li&gt;
+&lt;li&gt;Cuando se definan los hosts que no están directamente accesibles en Internet, el campo &lt;code&gt;address&lt;/code&gt; debe tener la dirección IP de la máquina de salto. De esta forma, cuando Nagios vaya a ejecutar los tests de &lt;code&gt;host1&lt;/code&gt; realmente se ejecutarán en la máquina &lt;code&gt;jumpbox&lt;/code&gt;.&lt;/li&gt;
 &lt;li&gt;El test &lt;em&gt;host1_System_Load_With_Params&lt;/em&gt; utiliza el comando &lt;code&gt;check_remote_check&lt;/code&gt; que hemos definido anteriormente en la máquina de salto.&lt;/li&gt;
 &lt;li&gt;El test &lt;em&gt;host1_System_Load_Without_Params&lt;/em&gt; utiliza el comando &lt;code&gt;check_remote_load_host1&lt;/code&gt; para ejecutar un test sin que haya un paso de parámetros del Nagios a la máquina de salto.&lt;/li&gt;
 &lt;li&gt;Se utilizan los comandos &lt;code&gt;check_nrpe_1arg&lt;/code&gt; y &lt;code&gt;check_nrpe_3args&lt;/code&gt; que respectivan invocan a &lt;code&gt;check_nrpe&lt;/code&gt; tomando uno y tres argumentos.&lt;/li&gt;
@@ -164,11 +283,13 @@ define command {
 
 
 &lt;h4&gt;Problemas&lt;/h4&gt;
-&lt;p&gt;El principal problema de esta aproximación es que para Nagios sólo existe un único host. Las posibilidades de filtrado son mucho más limitadas, y las alertas y los informes serán cada vez más complejos conforme la lista de hosts y de servicios vaya creciendo:&lt;/p&gt;
-&lt;p&gt;&lt;a href="/images/nagios_screenshot.png"&gt;&lt;img width="75%" src="/images/nagios_screenshot.png"&gt;&lt;/a&gt;&lt;/p&gt;
-&lt;p&gt;Otro problema que también es grave es que la monitorización de gran parte de la infraestructura depende exclusivamente de la máquina de salto. Como esta máquina se desconecte o se caiga nos llegarán miles de alertas, aún cuando el resto de la infraestructura esté operativa.&lt;/p&gt;
+&lt;p&gt;Más que problemas, esta aproximación introduce las siguientes &lt;em&gt;molestias&lt;/em&gt;:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;Nagios realiza &lt;em&gt;pings&lt;/em&gt; periódicos a todos los hosts definidos en su configuración. Según el resultado de este test explícito, Nagios determina si un host está &lt;em&gt;UP&lt;/em&gt; o &lt;em&gt;DOWN&lt;/em&gt;. Como en la definición de las máquinas que están en la red interna se ha utilizado la dirección IP de la máquina de salto, el resultado de este test será falso porque quien en realidad estará contestando los pings es la máquina de salto.&lt;/li&gt;
+&lt;li&gt;La monitorización de gran parte de la infraestructura depende exclusivamente de la máquina de salto. Como esta máquina se desconecte o se caiga nos llegarán miles de alertas, aún cuando el resto de la infraestructura esté operativa.&lt;/li&gt;
+&lt;/ol&gt;
 &lt;h3&gt;Conclusiones&lt;/h3&gt;
-&lt;p&gt;Se ha presentado una posible solución para el problema de monitorizar una red privada desde un servidor Nagios que no tiene acceso directo a los elementos de red. No es la solución óptima porque se pierden algunas funcionalidades de Nagios como filtrar por host, informes más representativos de la infraestructura, etc., pero aún así hay situaciones en las que puede ser de utilidad este recurso.&lt;/p&gt;</summary><category term="nagios"></category><category term="firewall"></category><category term="ubuntu"></category></entry><entry><title>Instalar py2exe en un virtualenv con Python 2.7</title><link href="http://www.pataliebre.net/instalar-py2exe-en-un-virtualenv-con-python-27.html" rel="alternate"></link><updated>2014-06-02T00:00:00+02:00</updated><author><name>David Castellanos</name></author><id>tag:www.pataliebre.net,2014-06-02:instalar-py2exe-en-un-virtualenv-con-python-27.html</id><summary type="html">&lt;p&gt;Para distribuir un programa Python en Windows la opción más sencilla suele ser empaquetar la aplicación en un único fichero binario, y que los usuarios ejecuten el fichero &lt;code&gt;.exe&lt;/code&gt; resultante. Existen varias alternativas para construir estos ficheros binarios, como p.e. &lt;a href="http://www.py2exe.org/"&gt;py2exe&lt;/a&gt; y &lt;a href="http://cx-freeze.sourceforge.net/"&gt;cx_freeze&lt;/a&gt;. Como parece que &lt;a href="https://www.google.es/#q=cx_freeze+virtualenv"&gt;cx_freeze no se integra bien con virtualenv&lt;/a&gt;, terminé eligiendo &lt;code&gt;py2exe&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;Se ha presentado una posible solución para el problema de monitorizar una red privada desde un servidor Nagios que no tiene acceso directo a los elementos de red. Es posible que la solución óptima en estos casos sea que las propias máquinas envíen sus resultados al servidor Nagios, pero cuando esto no sea posible la propuesta presentada puede ser de utilidad.&lt;/p&gt;</summary><category term="nagios"></category><category term="firewall"></category><category term="ubuntu"></category></entry><entry><title>Instalar py2exe en un virtualenv con Python 2.7</title><link href="http://www.pataliebre.net/instalar-py2exe-en-un-virtualenv-con-python-27.html" rel="alternate"></link><updated>2014-06-02T00:00:00+02:00</updated><author><name>David Castellanos</name></author><id>tag:www.pataliebre.net,2014-06-02:instalar-py2exe-en-un-virtualenv-con-python-27.html</id><summary type="html">&lt;p&gt;Para distribuir un programa Python en Windows la opción más sencilla suele ser empaquetar la aplicación en un único fichero binario, y que los usuarios ejecuten el fichero &lt;code&gt;.exe&lt;/code&gt; resultante. Existen varias alternativas para construir estos ficheros binarios, como p.e. &lt;a href="http://www.py2exe.org/"&gt;py2exe&lt;/a&gt; y &lt;a href="http://cx-freeze.sourceforge.net/"&gt;cx_freeze&lt;/a&gt;. Como parece que &lt;a href="https://www.google.es/#q=cx_freeze+virtualenv"&gt;cx_freeze no se integra bien con virtualenv&lt;/a&gt;, terminé eligiendo &lt;code&gt;py2exe&lt;/code&gt;.&lt;/p&gt;
 &lt;p&gt;La forma más sencilla de instalar Python, &lt;code&gt;pip&lt;/code&gt; y &lt;code&gt;virtualenv&lt;/code&gt; en Windows es seguir las instrucciones de la sección &lt;a href="http://docs.python-guide.org/en/latest/starting/install/win/"&gt;Installing Python on Windows&lt;/a&gt; y &lt;a href="http://docs.python-guide.org/en/latest/dev/virtualenvs/"&gt;Virtual Environments&lt;/a&gt; de &lt;a href="http://docs.python-guide.org"&gt;Python Guide&lt;/a&gt;.&lt;/p&gt;
 &lt;p&gt;Sin embargo, si usamos Python 2.7 no podemos instalar &lt;code&gt;py2exe&lt;/code&gt; con &lt;code&gt;pip&lt;/code&gt; debido a que la última versión (a día de hoy &lt;code&gt;0.9.2.0&lt;/code&gt;) de &lt;code&gt;py2exe&lt;/code&gt; sólo funciona con Python 3.3 o posterior. La versión &lt;code&gt;0.6.9&lt;/code&gt; es la última que funciona con Python 2.7, pero no podemos instalarla con &lt;code&gt;pip&lt;/code&gt; porque el enlace en &lt;a href="http://stackoverflow.com/questions/11288923/cannot-install-py2exe-with-python-2-7"&gt;PyPI&lt;/a&gt; es erróneo.&lt;/p&gt;
 &lt;p&gt;La &lt;a href="https://pypi.python.org/pypi/py2exe/0.6.9"&gt;única solución&lt;/a&gt; es descargar el instalador &lt;code&gt;py2exe-0.6.9.win32-py2.7.exe&lt;/code&gt; que podemos encontrar en el &lt;a href="http://sourceforge.net/projects/py2exe/files/py2exe/0.6.9/"&gt;área de descargas&lt;/a&gt; del proyecto en SourceForge, y usar &lt;code&gt;easy_install&lt;/code&gt; para instalarlo dentro del &lt;code&gt;virtualenv&lt;/code&gt;:&lt;/p&gt;
@@ -229,17 +350,17 @@ Status: draft
 &lt;/ol&gt;
 &lt;p&gt;Llegados a este punto, contamos con una configuración Pelican funcional. La &lt;a href="http://docs.getpelican.com/en/3.3.0/getting_started.html#basic-usage"&gt;documentación de Pelican&lt;/a&gt; nos explica (entre otras muchas cosas) cómo crear contenidos y generar el contenido estático a partir de ellos.&lt;/p&gt;
 &lt;p&gt;Según la configuración por defecto, las páginas generadas se almacenarán en el directorio &lt;code&gt;output&lt;/code&gt;. Este directorio &lt;strong&gt;no&lt;/strong&gt; es necesario añadirlo al repositorio, y lo ideal es añadir las siguientes líneas al fichero &lt;code&gt;.gitignore&lt;/code&gt;:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;output&lt;/span&gt;
-&lt;span class="n"&gt;pelican&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;pid&lt;/span&gt;
-&lt;span class="n"&gt;srv&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;pid&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;output
+pelican.pid
+srv.pid
 &lt;/pre&gt;&lt;/div&gt;
 
 
 &lt;p&gt;Como se comentó anteriormente, GitHub Pages para desarrolladores va a servir el contenido HTML que se encuentre en la rama &lt;code&gt;master&lt;/code&gt; del repositorio. Podríamos copiar el contenido del directorio &lt;code&gt;ouput&lt;/code&gt; a algún sitio, cambiar a la rama &lt;code&gt;master&lt;/code&gt; y añadir el contenido anteriores. Es factible, pero sin duda que es un procedimiento muy tedioso.&lt;/p&gt;
 &lt;p&gt;El script &lt;code&gt;ghp-import&lt;/code&gt; nos permite evitar los pasos anteriores. Con ejecutar &lt;code&gt;ghp-import -b master output&lt;/code&gt; él sólo va a realizar un commit en &lt;code&gt;master&lt;/code&gt; con los contenidos del directorio &lt;code&gt;output&lt;/code&gt;. Sólo nos quedaría subir los cambios de vuelta a GitHub con el comando &lt;code&gt;git push origin master&lt;/code&gt;.&lt;/p&gt;
 &lt;p&gt;El proceso se puede automatizar aún más modificando el fichero &lt;code&gt;Makefile&lt;/code&gt; que genera &lt;code&gt;pelican-quickstart&lt;/code&gt;; en lugar de que el objetivo &lt;code&gt;github&lt;/code&gt; invoque a &lt;code&gt;ghp-import&lt;/code&gt; sobre la rama &lt;code&gt;gh-pages&lt;/code&gt;, nos interesa que se invoque sobre la rama &lt;code&gt;master&lt;/code&gt;:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;github&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="n"&gt;publish&lt;/span&gt;
-    &lt;span class="n"&gt;ghp&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="k"&gt;import&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;b&lt;/span&gt; &lt;span class="n"&gt;master&lt;/span&gt; &lt;span class="n"&gt;$&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;OUTPUTDIR&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;github&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="n"&gt;publish&lt;/span&gt;
+    &lt;span class="n"&gt;ghp&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;b&lt;/span&gt; &lt;span class="n"&gt;master&lt;/span&gt; &lt;span class="err"&gt;$&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;OUTPUTDIR&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
     &lt;span class="n"&gt;git&lt;/span&gt; &lt;span class="n"&gt;push&lt;/span&gt; &lt;span class="n"&gt;origin&lt;/span&gt; &lt;span class="n"&gt;master&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 
@@ -276,7 +397,7 @@ terminar de funcionar bien en Eclipse:&lt;/p&gt;
 &lt;span class="nb"&gt;export &lt;/span&gt;&lt;span class="nv"&gt;GDK_NATIVE_WINDOWS&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;1
 &lt;span class="nb"&gt;export &lt;/span&gt;&lt;span class="nv"&gt;LIBOVERLAY_SCROLLBAR&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;0
 
-&lt;span class="nv"&gt;ECLIPSE_DIR&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;$( cd &amp;quot;&lt;/span&gt;&lt;span class="k"&gt;$(&lt;/span&gt; dirname &lt;span class="s2"&gt;&amp;quot;${BASH_SOURCE[0]}&amp;quot;&lt;/span&gt; &lt;span class="k"&gt;)&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot; &amp;amp;&amp;amp; pwd )&amp;quot;&lt;/span&gt;
+&lt;span class="nv"&gt;ECLIPSE_DIR&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;&lt;/span&gt;&lt;span class="k"&gt;$(&lt;/span&gt; &lt;span class="nb"&gt;cd&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;&lt;/span&gt;&lt;span class="k"&gt;$(&lt;/span&gt; dirname &lt;span class="s2"&gt;&amp;quot;&lt;/span&gt;&lt;span class="si"&gt;${&lt;/span&gt;&lt;span class="nv"&gt;BASH_SOURCE&lt;/span&gt;&lt;span class="p"&gt;[0]&lt;/span&gt;&lt;span class="si"&gt;}&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;&lt;/span&gt; &lt;span class="k"&gt;)&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;&lt;/span&gt; &lt;span class="o"&gt;&amp;amp;&amp;amp;&lt;/span&gt; &lt;span class="nb"&gt;pwd&lt;/span&gt; &lt;span class="k"&gt;)&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;&lt;/span&gt;
 &lt;span class="nv"&gt;$ECLIPSE_DIR&lt;/span&gt;/eclipse -Dorg.eclipse.swt.internal.gtk.cairoGraphics&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="nb"&gt;false&lt;/span&gt; &lt;span class="se"&gt;\&lt;/span&gt;
     -Dorg.eclipse.swt.internal.gtk.useCairo&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="nb"&gt;false&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;</summary><category term="eclipse"></category><category term="linux"></category><category term="windowbuilder"></category><category term="android"></category></entry><entry><title>(Otra) expresión regular para extraer URLs</title><link href="http://www.pataliebre.net/otra-expresion-regular-para-extraer-urls.html" rel="alternate"></link><updated>2012-06-18T00:00:00+02:00</updated><author><name>David Castellanos</name></author><id>tag:www.pataliebre.net,2012-06-18:otra-expresion-regular-para-extraer-urls.html</id><summary type="html">&lt;p&gt;Escribir una expresión regular que extraiga URLs de un texto arbitrario no es
@@ -406,7 +527,7 @@ nombre. Un ejemplo sencillo implementado en Python es el siguiente:&lt;/p&gt;
 
 
 &lt;p&gt;Al ejecutarlo de forma concurrente &lt;em&gt;n&lt;/em&gt; veces se obtiene la salida:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$ &lt;/span&gt;&lt;span class="k"&gt;for &lt;/span&gt;i in &lt;span class="o"&gt;{&lt;/span&gt;1..5&lt;span class="o"&gt;}&lt;/span&gt;; &lt;span class="k"&gt;do &lt;/span&gt;python dbus-concurrenty-example.py &amp;amp; &lt;span class="k"&gt;done&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$ &lt;/span&gt;&lt;span class="k"&gt;for&lt;/span&gt; i in &lt;span class="o"&gt;{&lt;/span&gt;1..5&lt;span class="o"&gt;}&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="k"&gt;do&lt;/span&gt; python dbus-concurrenty-example.py &lt;span class="p"&gt;&amp;amp;&lt;/span&gt; &lt;span class="k"&gt;done&lt;/span&gt;
 Adquired D-Bus name: &lt;span class="s2"&gt;&amp;quot;es.foo.Bar&amp;quot;&lt;/span&gt;
 Failed to request D-Bus name: &lt;span class="s2"&gt;&amp;quot;es.foo.Bar&amp;quot;&lt;/span&gt;
 Failed to request D-Bus name: &lt;span class="s2"&gt;&amp;quot;es.foo.Bar&amp;quot;&lt;/span&gt;
