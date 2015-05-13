@@ -1,6 +1,7 @@
 Title: Monitorizar una red privada desde un Nagios público con NRPE
 Date: 2014-06-27
-Category: general
+Modified: 2015-05-13
+Category: sysadmin
 Tags: nagios, firewall, ubuntu
 
 Hace apenas un par de semanas he cambiado de trabajo, y uno de los primeros problemas que he tenido que resolver estaba relacionado con [Nagios](http://www.nagios.org/). Ocurre que tenemos unas máquinas en una red privada, y un servidor Nagios corporativo que no puede acceder a ellas.
@@ -25,7 +26,9 @@ Como resulta que el Nagios es corporativo, y que ya tenían el plugin NRPE insta
 
 Nuestro escenario consiste básicamente en que hay un host que está detrás del firewall y que tiene acceso al resto de elementos que queremos monitorizar. El servidor Nagios se conecta a él, y éste a su vez se conectará al resto de elementos de la red:
 
-<a href="/images/indirectsvccheck2.png"><img width="75%" src="/images/indirectsvccheck2.png"></a>
+<div class="figure">
+    <img alt="{filename}/images/indirectsvccheck2.png" src="{filename}/images/indirectsvccheck2.png" />
+</div>
 
 Tendremos por tanto los siguientes elementos:
 
@@ -132,6 +135,13 @@ Por ejemplo, se pueden definir un conjunto de test que usen `check_remote_check`
         address             192.168.50.5
     }
 
+    define host {
+        use                 generic-host
+        host_name           host1
+        alias               Host1
+        address             192.168.50.5  
+    }
+
     define service {
         use                 generic-service
         host_name           jumpbox
@@ -141,21 +151,21 @@ Por ejemplo, se pueden definir un conjunto de test que usen `check_remote_check`
 
     define service {
         use                 generic-service
-        host_name           jumpbox
+        host_name           host1
         service_description host1_System_Load_With_Params
         check_command       check_nrpe_3args!check_remote_check!192.168.60.11!check_load
     }
 
     define service {
         use                 generic-service
-        host_name           jumpbox
+        host_name           host1
         service_description host1_System_Load_Without_Params
         check_command       check_nrpe_1arg!check_remote_load_host1
     }
 
 Hay que prestar atención a los siguientes detalles:
 
-* Sólo se define el como *host* la máquina de salto. No es necesario definir el resto de hosts porque no son accesibles desde Nagios, y sus tests se van a realizar indirectamente a través de la máquina de salto.
+* Cuando se definan los hosts que no están directamente accesibles en Internet, el campo `address` debe tener la dirección IP de la máquina de salto. De esta forma, cuando Nagios vaya a ejecutar los tests de `host1` realmente se ejecutarán en la máquina `jumpbox`.
 * El test *host1_System_Load_With_Params* utiliza el comando `check_remote_check` que hemos definido anteriormente en la máquina de salto.
 * El test *host1_System_Load_Without_Params* utiliza el comando `check_remote_load_host1` para ejecutar un test sin que haya un paso de parámetros del Nagios a la máquina de salto.
 * Se utilizan los comandos `check_nrpe_1arg` y `check_nrpe_3args` que respectivan invocan a `check_nrpe` tomando uno y tres argumentos.
@@ -189,12 +199,11 @@ No hay que olvidar reiniciar el servicio `nagios3` después de modificar la conf
 
 #### Problemas
 
-El principal problema de esta aproximación es que para Nagios sólo existe un único host. Las posibilidades de filtrado son mucho más limitadas, y las alertas y los informes serán cada vez más complejos conforme la lista de hosts y de servicios vaya creciendo:
+Más que problemas, esta aproximación introduce las siguientes *molestias*:
 
-<a href="/images/nagios_screenshot.png"><img width="75%" src="/images/nagios_screenshot.png"></a>
-
-Otro problema que también es grave es que la monitorización de gran parte de la infraestructura depende exclusivamente de la máquina de salto. Como esta máquina se desconecte o se caiga nos llegarán miles de alertas, aún cuando el resto de la infraestructura esté operativa.
+1. Nagios realiza *pings* periódicos a todos los hosts definidos en su configuración. Según el resultado de este test explícito, Nagios determina si un host está *UP* o *DOWN*. Como en la definición de las máquinas que están en la red interna se ha utilizado la dirección IP de la máquina de salto, el resultado de este test será falso porque quien en realidad estará contestando los pings es la máquina de salto.
+2. La monitorización de gran parte de la infraestructura depende exclusivamente de la máquina de salto. Como esta máquina se desconecte o se caiga nos llegarán miles de alertas, aún cuando el resto de la infraestructura esté operativa.
 
 ### Conclusiones
 
-Se ha presentado una posible solución para el problema de monitorizar una red privada desde un servidor Nagios que no tiene acceso directo a los elementos de red. No es la solución óptima porque se pierden algunas funcionalidades de Nagios como filtrar por host, informes más representativos de la infraestructura, etc., pero aún así hay situaciones en las que puede ser de utilidad este recurso.
+Se ha presentado una posible solución para el problema de monitorizar una red privada desde un servidor Nagios que no tiene acceso directo a los elementos de red. Es posible que la solución óptima en estos casos sea que las propias máquinas envíen sus resultados al servidor Nagios, pero cuando esto no sea posible la propuesta presentada puede ser de utilidad.
