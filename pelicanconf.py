@@ -37,7 +37,7 @@ GITHUB_URL = 'https://github.com/davidcaste/davidcaste.github.com'
 
 # Pelican plugins
 PLUGIN_PATHS = ['pelican-plugins']
-PLUGINS = ['related_posts']
+PLUGINS = ['related_posts', 'pelican_gist']
 
 # Pelican-bootstrap3 Theme Settings
 THEME = 'pelican-bootstrap3'
