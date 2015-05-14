@@ -14,13 +14,13 @@
 
         <meta name="author" content="David Castellanos" />
         <meta name="keywords" content="nginx,lua,gzip" />
-        <meta name="description" content="It is not usual, but sometimes could be useful to receive compressed request bodies. Although clients and the service itself can benefit from lower bandwith usage, it is very dangerous because a small compressed file can be inflated to a relatively huge file. To handle such a request could exhaust ..." />
+        <meta name="description" content="It is not usual, but sometimes it could be useful to receive compressed request bodies. Although clients and the service itself can benefit from lower bandwith usage, it is very dangerous because a small compressed file can be inflated to a relatively huge file. To handle such a request could ..." />
 
         <meta property="og:site_name" content="pataliebre.net" />
         <meta property="og:type" content="article"/>
         <meta property="og:title" content="Howto make Nginx decompress a gzipped request"/>
         <meta property="og:url" content="http://www.pataliebre.net/howto-make-nginx-decompress-a-gzipped-request.html"/>
-        <meta property="og:description" content="It is not usual, but sometimes could be useful to receive compressed request bodies. Although clients and the service itself can benefit from lower bandwith usage, it is very dangerous because a small compressed file can be inflated to a relatively huge file. To handle such a request could exhaust ..."/>
+        <meta property="og:description" content="It is not usual, but sometimes it could be useful to receive compressed request bodies. Although clients and the service itself can benefit from lower bandwith usage, it is very dangerous because a small compressed file can be inflated to a relatively huge file. To handle such a request could ..."/>
         <meta property="article:published_time" content="2015-05-13" />
             <meta property="article:section" content="sysadmin" />
             <meta property="article:tag" content="nginx" />
@@ -33,7 +33,7 @@
         <link rel="stylesheet" href="http://www.pataliebre.net/theme/css/bootstrap.united.min.css" type="text/css"/>
     <link href="http://www.pataliebre.net/theme/css/font-awesome.min.css" rel="stylesheet">
 
-    <link href="http://www.pataliebre.net/theme/css/pygments/native.css" rel="stylesheet">
+    <link href="http://www.pataliebre.net/theme/css/pygments/solarizedlight.css" rel="stylesheet">
     <link rel="stylesheet" href="http://www.pataliebre.net/theme/css/style.css" type="text/css"/>
 
         <link href="http://www.pataliebre.net/feeds/all.atom.xml" type="application/atom+xml" rel="alternate"
@@ -104,13 +104,13 @@ pataliebre.net            </a>
     
 </footer><!-- /.post-info -->                    </div>
                 </div>
-                <p>It is not usual, but sometimes could be useful to receive compressed request bodies. Although clients and the service itself can benefit from lower bandwith usage, it is very dangerous because a small compressed file can be inflated to a relatively huge file. To handle such a request could exhaust the resources of the server, causing a <a href="http://en.wikipedia.org/wiki/Denial-of-service_attack">Denial of Service (DoS)</a>.</p>
+                <p>It is not usual, but sometimes it could be useful to receive compressed request bodies. Although clients and the service itself can benefit from lower bandwith usage, it is very dangerous because a small compressed file can be inflated to a relatively huge file. To handle such a request could exhaust the resources of the server, causing a <a href="http://en.wikipedia.org/wiki/Denial-of-service_attack">Denial of Service (DoS)</a>.</p>
 <p>There are two options to handle compressed requests:</p>
 <ol>
 <li>Let the backend service itself to decompress the request.</li>
 <li>Use a proxy reverse server, like <a href="http://nginx.org/">Nginx</a>, handle the request and forward it to the backend service.</li>
 </ol>
-<p>Both approximations have its own advantages or disadvantages, but ultimately it depends if the backend service is able to handle the requests compressed.</p>
+<p>Both approximations have their own advantages or disadvantages, but ultimately it depends if the backend service is able to handle the compressed requests.</p>
 <p>Apache provides a module called <a href="http://httpd.apache.org/docs/2.4/mod/mod_deflate.html">mod_deflate</a> which can be used (among more things) to decompress gzipped requests. Unfortunately according to <a href="http://forum.nginx.org/read.php?11,96472,214266">this</a> and <a href="http://forum.nginx.org/read.php?2,246979,246994#msg-246994">this</a>, Nginx doesn't seem to have that functionality right out of the box.</p>
 <p>On the other hand, there is a Nginx module called <a href="http://wiki.nginx.org/HttpLuaModule">ngx_lua</a>, which according to its description:</p>
 <blockquote>
