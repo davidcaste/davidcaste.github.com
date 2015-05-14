@@ -4,14 +4,14 @@ Modified: 2015-05-13
 Category: sysadmin
 Tags: nginx, lua, gzip
 
-It is not usual, but sometimes could be useful to receive compressed request bodies. Although clients and the service itself can benefit from lower bandwith usage, it is very dangerous because a small compressed file can be inflated to a relatively huge file. To handle such a request could exhaust the resources of the server, causing a [Denial of Service (DoS)](http://en.wikipedia.org/wiki/Denial-of-service_attack).
+It is not usual, but sometimes it could be useful to receive compressed request bodies. Although clients and the service itself can benefit from lower bandwith usage, it is very dangerous because a small compressed file can be inflated to a relatively huge file. To handle such a request could exhaust the resources of the server, causing a [Denial of Service (DoS)](http://en.wikipedia.org/wiki/Denial-of-service_attack).
 
 There are two options to handle compressed requests:
 
 1. Let the backend service itself to decompress the request.
 2. Use a proxy reverse server, like [Nginx](http://nginx.org/), handle the request and forward it to the backend service.
 
-Both approximations have its own advantages or disadvantages, but ultimately it depends if the backend service is able to handle the requests compressed.
+Both approximations have their own advantages or disadvantages, but ultimately it depends if the backend service is able to handle the compressed requests.
 
 Apache provides a module called [mod_deflate](http://httpd.apache.org/docs/2.4/mod/mod_deflate.html) which can be used (among more things) to decompress gzipped requests. Unfortunately according to [this](http://forum.nginx.org/read.php?11,96472,214266) and [this](http://forum.nginx.org/read.php?2,246979,246994#msg-246994), Nginx doesn't seem to have that functionality right out of the box.
 
