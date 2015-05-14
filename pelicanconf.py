@@ -43,6 +43,7 @@ PLUGINS = ['related_posts', 'pelican_gist']
 THEME = 'pelican-bootstrap3'
 BOOTSTRAP_NAVBAR_INVERSE = True
 BOOTSTRAP_THEME = "united"
+PYGMENTS_STYLE = "solarizedlight"
 
 CC_LICENSE = "CC-BY"
 
