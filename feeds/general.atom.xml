@@ -1,5 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom"><title>pataliebre.net</title><link href="http://www.pataliebre.net/" rel="alternate"></link><link href="http://www.pataliebre.net/feeds/general.atom.xml" rel="self"></link><id>http://www.pataliebre.net/</id><updated>2014-05-27T00:00:00+02:00</updated><entry><title>Blog lowcost con GitHub y Pelican</title><link href="http://www.pataliebre.net/blog-lowcost-con-github-y-pelican.html" rel="alternate"></link><updated>2014-05-27T00:00:00+02:00</updated><author><name>David Castellanos</name></author><id>tag:www.pataliebre.net,2014-05-27:blog-lowcost-con-github-y-pelican.html</id><summary type="html">&lt;!--
+<feed xmlns="http://www.w3.org/2005/Atom"><title>pataliebre.net - general</title><link href="https://pataliebre.net/" rel="alternate"></link><link href="https://pataliebre.net/feeds/general.atom.xml" rel="self"></link><id>https://pataliebre.net/</id><updated>2014-05-27T00:00:00+02:00</updated><entry><title>Blog lowcost con GitHub y Pelican</title><link href="https://pataliebre.net/blog-lowcost-con-github-y-pelican.html" rel="alternate"></link><published>2014-05-27T00:00:00+02:00</published><updated>2014-05-27T00:00:00+02:00</updated><author><name>David Castellanos</name></author><id>tag:pataliebre.net,2014-05-27:/blog-lowcost-con-github-y-pelican.html</id><summary type="html">&lt;!--
+Status: draft
+--&gt;
+
+&lt;p&gt;Gracias a &lt;a href="https://pages.github.com/"&gt;GitHub Pages&lt;/a&gt; y un generador estático de contenido como &lt;a href="http://blog.getpelican.com/"&gt;Pelican&lt;/a&gt; es muy fácil montar un blog &lt;em&gt;lowcost&lt;/em&gt;. Un humilde ejemplo es este blog, pero hasta hace poco no había conseguido una configuración que mereciera la pena compartir.&lt;/p&gt;
+&lt;h3&gt;GitHub Pages&lt;/h3&gt;
+&lt;p&gt;En general, el comportamiento de GitHub Pages es muy …&lt;/p&gt;</summary><content type="html">&lt;!--
 Status: draft
 --&gt;
 
@@ -32,16 +38,16 @@ Status: draft
 &lt;/ol&gt;
 &lt;p&gt;Llegados a este punto, contamos con una configuración Pelican funcional. La &lt;a href="http://docs.getpelican.com/en/3.3.0/getting_started.html#basic-usage"&gt;documentación de Pelican&lt;/a&gt; nos explica (entre otras muchas cosas) cómo crear contenidos y generar el contenido estático a partir de ellos.&lt;/p&gt;
 &lt;p&gt;Según la configuración por defecto, las páginas generadas se almacenarán en el directorio &lt;code&gt;output&lt;/code&gt;. Este directorio &lt;strong&gt;no&lt;/strong&gt; es necesario añadirlo al repositorio, y lo ideal es añadir las siguientes líneas al fichero &lt;code&gt;.gitignore&lt;/code&gt;:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;output
-pelican.pid
-srv.pid
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="err"&gt;output&lt;/span&gt;
+&lt;span class="err"&gt;pelican.pid&lt;/span&gt;
+&lt;span class="err"&gt;srv.pid&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 
 
 &lt;p&gt;Como se comentó anteriormente, GitHub Pages para desarrolladores va a servir el contenido HTML que se encuentre en la rama &lt;code&gt;master&lt;/code&gt; del repositorio. Podríamos copiar el contenido del directorio &lt;code&gt;ouput&lt;/code&gt; a algún sitio, cambiar a la rama &lt;code&gt;master&lt;/code&gt; y añadir el contenido anteriores. Es factible, pero sin duda que es un procedimiento muy tedioso.&lt;/p&gt;
 &lt;p&gt;El script &lt;code&gt;ghp-import&lt;/code&gt; nos permite evitar los pasos anteriores. Con ejecutar &lt;code&gt;ghp-import -b master output&lt;/code&gt; él sólo va a realizar un commit en &lt;code&gt;master&lt;/code&gt; con los contenidos del directorio &lt;code&gt;output&lt;/code&gt;. Sólo nos quedaría subir los cambios de vuelta a GitHub con el comando &lt;code&gt;git push origin master&lt;/code&gt;.&lt;/p&gt;
 &lt;p&gt;El proceso se puede automatizar aún más modificando el fichero &lt;code&gt;Makefile&lt;/code&gt; que genera &lt;code&gt;pelican-quickstart&lt;/code&gt;; en lugar de que el objetivo &lt;code&gt;github&lt;/code&gt; invoque a &lt;code&gt;ghp-import&lt;/code&gt; sobre la rama &lt;code&gt;gh-pages&lt;/code&gt;, nos interesa que se invoque sobre la rama &lt;code&gt;master&lt;/code&gt;:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;github&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="n"&gt;publish&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;github&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="n"&gt;publish&lt;/span&gt;
     &lt;span class="n"&gt;ghp&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;b&lt;/span&gt; &lt;span class="n"&gt;master&lt;/span&gt; &lt;span class="err"&gt;$&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;OUTPUTDIR&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
     &lt;span class="n"&gt;git&lt;/span&gt; &lt;span class="n"&gt;push&lt;/span&gt; &lt;span class="n"&gt;origin&lt;/span&gt; &lt;span class="n"&gt;master&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
@@ -49,7 +55,11 @@ srv.pid
 
 &lt;h3&gt;Conclusiones&lt;/h3&gt;
 &lt;p&gt;La tupla GitHub Pages y un generador estático de contenido como Pelican permiten crear fácilmente páginas y blogs que requieren un esfuerzo de mantenimiento cercano a cero. Pelican en particular ofrece una serie de scripts y facilidades que automatizan las operaciones más tediosas.&lt;/p&gt;
-&lt;p&gt;En definitiva, la posibilidad de poder usar las mismas herramientas que las usadas durante el desarrollo de software, hacen de GitHub Pages junto con Pelican ofrece una alternativa muy a tener en cuenta con respecto a otras plataformas de blogs tradicionales como &lt;a href="http://es.wordpress.com/"&gt;WordPress&lt;/a&gt; o &lt;a href="https://www.blogger.com"&gt;Blogger&lt;/a&gt;.&lt;/p&gt;</summary><category term="github"></category><category term="python"></category><category term="pelican"></category></entry><entry><title>Oracle JDK y Google Chrome en Ubuntu 12.04 LTS</title><link href="http://www.pataliebre.net/oracle-jdk-y-google-chrome-en-ubuntu-1204-lts.html" rel="alternate"></link><updated>2012-04-30T00:00:00+02:00</updated><author><name>David Castellanos</name></author><id>tag:www.pataliebre.net,2012-04-30:oracle-jdk-y-google-chrome-en-ubuntu-1204-lts.html</id><summary type="html">&lt;p&gt;A menudo utilizo &lt;em&gt;Juniper Network Connect&lt;/em&gt; para conectar a la intranet
+&lt;p&gt;En definitiva, la posibilidad de poder usar las mismas herramientas que las usadas durante el desarrollo de software, hacen de GitHub Pages junto con Pelican ofrece una alternativa muy a tener en cuenta con respecto a otras plataformas de blogs tradicionales como &lt;a href="http://es.wordpress.com/"&gt;WordPress&lt;/a&gt; o &lt;a href="https://www.blogger.com"&gt;Blogger&lt;/a&gt;.&lt;/p&gt;</content><category term="general"></category><category term="github"></category><category term="python"></category><category term="pelican"></category></entry><entry><title>Oracle JDK y Google Chrome en Ubuntu 12.04 LTS</title><link href="https://pataliebre.net/oracle-jdk-y-google-chrome-en-ubuntu-1204-lts.html" rel="alternate"></link><published>2012-04-30T00:00:00+02:00</published><updated>2012-04-30T00:00:00+02:00</updated><author><name>David Castellanos</name></author><id>tag:pataliebre.net,2012-04-30:/oracle-jdk-y-google-chrome-en-ubuntu-1204-lts.html</id><summary type="html">&lt;p&gt;A menudo utilizo &lt;em&gt;Juniper Network Connect&lt;/em&gt; para conectar a la intranet
+corporativa del trabajo. Es un applet de Java que, al menos en mi caso, no
+funciona bien con &lt;a href="http://openjdk.java.net"&gt;OpenJDK&lt;/a&gt; y sólo funciona con &lt;a href="http://www.java.com"&gt;Oracle JVM&lt;/a&gt; (la
+anteriormente conocida como Sun JVM). En agosto del 2011, &lt;a href="https://lists.ubuntu.com/archives/ubuntu-security-announce/2011-December/001528.html"&gt;Canonical dejó de
+tener …&lt;/a&gt;&lt;/p&gt;</summary><content type="html">&lt;p&gt;A menudo utilizo &lt;em&gt;Juniper Network Connect&lt;/em&gt; para conectar a la intranet
 corporativa del trabajo. Es un applet de Java que, al menos en mi caso, no
 funciona bien con &lt;a href="http://openjdk.java.net"&gt;OpenJDK&lt;/a&gt; y sólo funciona con &lt;a href="http://www.java.com"&gt;Oracle JVM&lt;/a&gt; (la
 anteriormente conocida como Sun JVM). En agosto del 2011, &lt;a href="https://lists.ubuntu.com/archives/ubuntu-security-announce/2011-December/001528.html"&gt;Canonical dejó de
@@ -68,11 +78,15 @@ Iceweasel y Chromium. Es problema es muy sencillo de resolver, sólo es
 necesario crear un enlace simbólico al fichero &lt;code&gt;libnpjp2.so&lt;/code&gt; que se encuentra
 en el JRE. Utilizando el &lt;a href="http://www.debian-administration.org/articles/91"&gt;sistema de alternatives de Debian&lt;/a&gt; se haría de la
 siguiente manera:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;$ sudo update-alternatives --install \
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ sudo update-alternatives --install \
 &amp;gt; /usr/lib/mozilla/plugins/libjavaplugin.so \
 &amp;gt; mozilla-javaplugin.so \
 &amp;gt; /usr/lib/jvm/j2sdk1.6-oracle/jre/lib/i386/libnpjp2.so 100
-&lt;/pre&gt;&lt;/div&gt;</summary><category term="java"></category><category term="ubuntu"></category><category term="alternatives"></category></entry><entry><title>hello world!</title><link href="http://www.pataliebre.net/hello-world.html" rel="alternate"></link><updated>2012-04-22T00:00:00+02:00</updated><author><name>David Castellanos</name></author><id>tag:www.pataliebre.net,2012-04-22:hello-world.html</id><summary type="html">&lt;p&gt;Quizá sea por deformación profesional, vaguería, o una falta (puntual) de
+&lt;/pre&gt;&lt;/div&gt;</content><category term="general"></category><category term="java"></category><category term="ubuntu"></category><category term="alternatives"></category></entry><entry><title>hello world!</title><link href="https://pataliebre.net/hello-world.html" rel="alternate"></link><published>2012-04-22T00:00:00+02:00</published><updated>2012-04-22T00:00:00+02:00</updated><author><name>David Castellanos</name></author><id>tag:pataliebre.net,2012-04-22:/hello-world.html</id><summary type="html">&lt;p&gt;Quizá sea por deformación profesional, vaguería, o una falta (puntual) de
+imaginación, no se me ocurre una mejor forma de comenzar este lío que con un
+estupendo &lt;em&gt;Hello World!&lt;/em&gt;.&lt;/p&gt;
+&lt;p&gt;El objetivo de este blog es muy humilde: continuamente estoy aprendiendo cosas,
+y continuamente estoy olvidando cosas. Y como soy vago …&lt;/p&gt;</summary><content type="html">&lt;p&gt;Quizá sea por deformación profesional, vaguería, o una falta (puntual) de
 imaginación, no se me ocurre una mejor forma de comenzar este lío que con un
 estupendo &lt;em&gt;Hello World!&lt;/em&gt;.&lt;/p&gt;
 &lt;p&gt;El objetivo de este blog es muy humilde: continuamente estoy aprendiendo cosas,
@@ -86,4 +100,4 @@ futuro. Y si de paso resulta que es útil a alguien, perfecto. Imagino que la
 mayoría de las entradas de este blog serán sobre computación y
 programación en general, y sobre Python en particular. Entre mis intereses se
 encuentran temas como el toolkit GTK, Eclipse (tanto el IDE como la
-plataforma), Java, Android, Git, etc.&lt;/p&gt;</summary><category term="me"></category></entry></feed>
+plataforma), Java, Android, Git, etc.&lt;/p&gt;</content><category term="general"></category><category term="me"></category></entry></feed>

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom"><title>pataliebre.net</title><link href="http://www.pataliebre.net/" rel="alternate"></link><link href="http://www.pataliebre.net/feeds/sysadmin.atom.xml" rel="self"></link><id>http://www.pataliebre.net/</id><updated>2015-05-13T00:00:00+02:00</updated><entry><title>Howto make Nginx decompress a gzipped request</title><link href="http://www.pataliebre.net/howto-make-nginx-decompress-a-gzipped-request.html" rel="alternate"></link><updated>2015-05-13T00:00:00+02:00</updated><author><name>David Castellanos</name></author><id>tag:www.pataliebre.net,2015-05-13:howto-make-nginx-decompress-a-gzipped-request.html</id><summary type="html">&lt;p&gt;It is not usual, but sometimes it could be useful to receive compressed request bodies. Although clients and the service itself can benefit from lower bandwith usage, it is very dangerous because a small compressed file can be inflated to a relatively huge file. To handle such a request could exhaust the resources of the server, causing a &lt;a href="http://en.wikipedia.org/wiki/Denial-of-service_attack"&gt;Denial of Service (DoS)&lt;/a&gt;.&lt;/p&gt;
+<feed xmlns="http://www.w3.org/2005/Atom"><title>pataliebre.net - sysadmin</title><link href="https://pataliebre.net/" rel="alternate"></link><link href="https://pataliebre.net/feeds/sysadmin.atom.xml" rel="self"></link><id>https://pataliebre.net/</id><updated>2015-05-13T00:00:00+02:00</updated><entry><title>Howto make Nginx decompress a gzipped request</title><link href="https://pataliebre.net/howto-make-nginx-decompress-a-gzipped-request.html" rel="alternate"></link><published>2015-05-13T00:00:00+02:00</published><updated>2015-05-13T00:00:00+02:00</updated><author><name>David Castellanos</name></author><id>tag:pataliebre.net,2015-05-13:/howto-make-nginx-decompress-a-gzipped-request.html</id><summary type="html">&lt;p&gt;It is not usual, but sometimes it could be useful to receive compressed request bodies. Although clients and the service itself can benefit from lower bandwith usage, it is very dangerous because a small compressed file can be inflated to a relatively huge file. To handle such a request could …&lt;/p&gt;</summary><content type="html">&lt;p&gt;It is not usual, but sometimes it could be useful to receive compressed request bodies. Although clients and the service itself can benefit from lower bandwith usage, it is very dangerous because a small compressed file can be inflated to a relatively huge file. To handle such a request could exhaust the resources of the server, causing a &lt;a href="http://en.wikipedia.org/wiki/Denial-of-service_attack"&gt;Denial of Service (DoS)&lt;/a&gt;.&lt;/p&gt;
 &lt;p&gt;There are two options to handle compressed requests:&lt;/p&gt;
 &lt;ol&gt;
 &lt;li&gt;Let the backend service itself to decompress the request.&lt;/li&gt;
@@ -15,89 +15,71 @@
 &lt;div class="gist"&gt;
     &lt;script src='https://gist.github.com/05b2f9461ebe4a3bb3fc.js'&gt;&lt;/script&gt;
     &lt;noscript&gt;
-        &lt;pre&gt;&lt;code&gt;server {
-	server_name default_server;
-	listen 80;
- 
-	location / {
-		proxy_pass http://127.0.0.1:8080;
-		proxy_pass_request_headers on;
-		proxy_redirect off;
-		proxy_set_header X-Real-IP $remote_addr;
- 
-		client_max_body_size 512k;
-		client_body_buffer_size 512k;
+        &lt;pre&gt;&lt;code&gt;-- Debian packages nginx-extras, lua-zlib required
 
-		set $max_chunk_size = 10240;  # 10k
-		set $max_body_size = 524288;  # 512k
- 
-		rewrite_by_lua '
-			-- Debian packages nginx-extras, lua-zlib required
+ngx.ctx.max_chunk_size = tonumber(ngx.var.max_chunk_size)
+ngx.ctx.max_body_size = tonumber(ngx.var.max_body_size)
 
-			ngx.ctx.max_chunk_size = ngx.var.max_chunk_size
-			ngx.ctx.max_body_size = ngx.var.max_body_size
+function create_error_response (code, description)
+	local message = string.format('{"status":400,"statusReason":"Bad Request","code":%d,"exception":"","description":"%s","message":"HTTP 400 Bad Request"}', code, description)
+	ngx.status = ngx.HTTP_BAD_REQUEST
+	ngx.header.content_type = "application/json"
+	ngx.say(message)
+	ngx.exit(ngx.HTTP_OK)
+end
 
-			function create_error_response (code, description)
-				local message = string.format('{"status":400,"statusReason":"Bad Request","code":%d,"exception":"","description":"%s","message":"HTTP 400 Bad Request"}', code, description)
-				ngx.status = ngx.HTTP_BAD_REQUEST
-				ngx.header.content_type = "application/json"
-				ngx.say(message)
-				ngx.exit(ngx.HTTP_OK)
-			end
 
-			function inflate_chunk (stream, chunk)
-				return stream(chunk)
-			end
+function inflate_chunk (stream, chunk)
+	return stream(chunk)
+end
 
-			function inflate_body (data)
-				local stream = require("zlib").inflate()
 
-				local bytes_out_total = 0
-				local buffer = ""
-				local chunk = ""
+function inflate_body (data)
+	local stream = require("zlib").inflate()
+	local buffer = ""
+	local chunk = ""
 
-				for index = 0, data:len(), ngx.ctx.max_chunk_size do
-					chunk = string.sub(data, index, index + ngx.ctx.max_chunk_size - 1)
-					local status, output, eof, bytes_in, bytes_out = pcall(stream, chunk)
+	for index = 0, data:len(), ngx.ctx.max_chunk_size do
+		chunk = string.sub(data, index, index + ngx.ctx.max_chunk_size - 1)
+		local status, output, eof, bytes_in, bytes_out = pcall(stream, chunk)
 
-					if not status then
-						-- corrupted chunk
-						ngx.log(ngx.ERR, output)
-						create_error_response(4001, "Corrupted GZIP body")
-					end
+		if not status then
+			-- corrupted chunk
+			ngx.log(ngx.ERR, output)
+			create_error_response(4001, "Corrupted GZIP body")
+		end
 
-					if bytes_in == 0 and bytes_out == 0 then
-						-- body is not gzip compressed
-						create_error_response(4002, "Invalid GZIP body")
-					end
+		if bytes_in == 0 and bytes_out == 0 then
+			-- body is not gzip compressed
+			create_error_response(4002, "Invalid GZIP body")
+		end
 
-					bytes_out_total = bytes_out_total + bytes_out
-					buffer = buffer .. output
+		buffer = buffer .. output
 
-					if bytes_out_total &gt; ngx.ctx.max_body_size then
-						-- uncompressed body too large
-						create_error_response(4003, "Uncompressed body too large")
-					end
-				end
+		if bytes_out &gt; ngx.ctx.max_body_size then
+			-- uncompressed body too large
+			create_error_response(4003, "Uncompressed body too large")
+		end
+	end
 
-				return buffer
-			end
+	return buffer
+end
 
-			local content_encoding = ngx.req.get_headers()["Content-Encoding"]
-			if content_encoding == "gzip" then
-				ngx.req.read_body()
-				local data = ngx.req.get_body_data()
 
-				if data ~= '' then
-					local new_data = inflate_body(data)
+local content_encoding = ngx.req.get_headers()["Content-Encoding"]
+if content_encoding == "gzip" then
+	ngx.req.read_body()
+	local data = ngx.req.get_body_data()
 
-					ngx.req.clear_header("Content-Encoding")
-					ngx.req.clear_header("Content-Length")
-					ngx.req.set_body_data(new_data)
-				end
-			end';
-	}
-}&lt;/code&gt;&lt;/pre&gt;
+	if data ~= '' then
+		local new_data = inflate_body(data)
+
+		ngx.req.clear_header("Content-Encoding")
+		ngx.req.clear_header("Content-Length")
+		ngx.req.set_body_data(new_data)
+	end
+end
+&lt;/code&gt;&lt;/pre&gt;
     &lt;/noscript&gt;
 &lt;/div&gt;
 &lt;p&gt;Some things to take into consideration:&lt;/p&gt;
@@ -108,7 +90,8 @@
 &lt;li&gt;A request handled by Nginx goes though a series of &lt;a href="http://wiki.nginx.org/Phases"&gt;phases&lt;/a&gt;. The request body must be manipulated before handling the request to the backend server, so the phase handler &lt;a href="http://wiki.nginx.org/HttpLuaModule#rewrite_by_lua"&gt;rewrite_by_lua&lt;/a&gt; provided by &lt;code&gt;ngx_lua&lt;/code&gt; is used.&lt;/li&gt;
 &lt;li&gt;I've implemented some sanity checks to avoid some common misuse cases (e.g. corrupted body, not gzip-compressed, huge uncompressed body). In that case, Nginx does not forward the request to the backend server, and a &lt;code&gt;HTTP_BAD_REQUEST&lt;/code&gt; status is returned instead.&lt;/li&gt;
 &lt;/ul&gt;
-&lt;p&gt;Feel free to study, fork and use the gist above :-)&lt;/p&gt;</summary><category term="nginx"></category><category term="lua"></category><category term="gzip"></category></entry><entry><title>Monitorizar una red privada desde un Nagios público con NRPE</title><link href="http://www.pataliebre.net/monitorizar-una-red-privada-desde-un-nagios-publico-con-nrpe.html" rel="alternate"></link><updated>2015-05-13T00:00:00+02:00</updated><author><name>David Castellanos</name></author><id>tag:www.pataliebre.net,2014-06-27:monitorizar-una-red-privada-desde-un-nagios-publico-con-nrpe.html</id><summary type="html">&lt;p&gt;Hace apenas un par de semanas he cambiado de trabajo, y uno de los primeros problemas que he tenido que resolver estaba relacionado con &lt;a href="http://www.nagios.org/"&gt;Nagios&lt;/a&gt;. Ocurre que tenemos unas máquinas en una red privada, y un servidor Nagios corporativo que no puede acceder a ellas.&lt;/p&gt;
+&lt;p&gt;Feel free to study, fork and use the gist above :-)&lt;/p&gt;</content><category term="sysadmin"></category><category term="nginx"></category><category term="lua"></category><category term="gzip"></category></entry><entry><title>Monitorizar una red privada desde un Nagios público con NRPE</title><link href="https://pataliebre.net/monitorizar-una-red-privada-desde-un-nagios-publico-con-nrpe.html" rel="alternate"></link><published>2014-06-27T00:00:00+02:00</published><updated>2015-05-13T00:00:00+02:00</updated><author><name>David Castellanos</name></author><id>tag:pataliebre.net,2014-06-27:/monitorizar-una-red-privada-desde-un-nagios-publico-con-nrpe.html</id><summary type="html">&lt;p&gt;Hace apenas un par de semanas he cambiado de trabajo, y uno de los primeros problemas que he tenido que resolver estaba relacionado con &lt;a href="http://www.nagios.org/"&gt;Nagios&lt;/a&gt;. Ocurre que tenemos unas máquinas en una red privada, y un servidor Nagios corporativo que no puede acceder a ellas.&lt;/p&gt;
+&lt;p&gt;Nagios es una herramienta de …&lt;/p&gt;</summary><content type="html">&lt;p&gt;Hace apenas un par de semanas he cambiado de trabajo, y uno de los primeros problemas que he tenido que resolver estaba relacionado con &lt;a href="http://www.nagios.org/"&gt;Nagios&lt;/a&gt;. Ocurre que tenemos unas máquinas en una red privada, y un servidor Nagios corporativo que no puede acceder a ellas.&lt;/p&gt;
 &lt;p&gt;Nagios es una herramienta de monitorización de redes y sistemas de código abierto. Es extremadamente popular, y desde su origen en 1999 se usa en multitud de sistemas. Por lo general se compone de un servidor que realiza tests y recopila sus resultados, &lt;a href="http://exchange.nagios.org/directory/Addons/Monitoring-Agents"&gt;agentes&lt;/a&gt; que tienen la capacidad de realizar tests, y de &lt;em&gt;plugins&lt;/em&gt;. Estos plugins son pequeños programas que se pueden utilizar para ejecutar pruebas locales, pruebas remotas, o para realizar tareas auxiliares que asistan a los dos usos anteriores.&lt;/p&gt;
 &lt;p&gt;La principal característica de Nagios es la cantidad de recursos y plugins existenes. Algunos ejemplos de repositorios de plugins son &lt;a href="http://exchange.nagios.org"&gt;Nagios Exchange&lt;/a&gt;, &lt;a href="http://nagios-plugins.org/"&gt;Nagios Plugins&lt;/a&gt;, &lt;a href="https://www.monitoring-plugins.org/"&gt;The Monitoring Plugins Project&lt;/a&gt;, etc. El blog de &lt;a href="http://www.eldespistado.com/"&gt;El Despistado&lt;/a&gt; trata casi en exclusiva sobre Nagios y tiene publicados multitud de artículos de interés.&lt;/p&gt;
 &lt;p&gt;En esta entrada voy a repasar la solución que hemos adoptado. El sistema operativo de los equipos que he utilizado es Ubuntu 12.04, aunque posiblemente la configuración del entorno sea exactamente la misma (o al menos muy parecida) en Ubuntu 14.04.&lt;/p&gt;
@@ -122,7 +105,7 @@
 &lt;h3&gt;Descripción del escenario&lt;/h3&gt;
 &lt;p&gt;Nuestro escenario consiste básicamente en que hay un host que está detrás del firewall y que tiene acceso al resto de elementos que queremos monitorizar. El servidor Nagios se conecta a él, y éste a su vez se conectará al resto de elementos de la red:&lt;/p&gt;
 &lt;div class="figure"&gt;
-    &lt;img alt="{filename}/images/indirectsvccheck2.png" src="http://www.pataliebre.net/images/indirectsvccheck2.png" /&gt;
+    &lt;img alt="multiple indirected service checks" src="https://pataliebre.net/images/indirectsvccheck2.png" /&gt;
 &lt;/div&gt;
 
 &lt;p&gt;Tendremos por tanto los siguientes elementos:&lt;/p&gt;
@@ -133,47 +116,47 @@
 &lt;/ol&gt;
 &lt;h4&gt;Configuración de los hosts&lt;/h4&gt;
 &lt;p&gt;En los hosts es necesario instalar el servidor NRPE:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;sudo apt-get install nagios-nrpe-server nagios-plugins
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;sudo apt-get install nagios-nrpe-server nagios-plugins
 &lt;/pre&gt;&lt;/div&gt;
 
 
 &lt;p&gt;Los comandos que van a ser invocados por el servidor NRPE se configuran en el archivo &lt;code&gt;/etc/nagios/nrpe.cfg&lt;/code&gt;, como por ejemplo:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;command[check_users]=/usr/lib/nagios/plugins/check_users -w 5 -c 10
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;command[check_users]=/usr/lib/nagios/plugins/check_users -w 5 -c 10
 command[check_load]=/usr/lib/nagios/plugins/check_load -w 15,10,5 -c 30,25,20
 &lt;/pre&gt;&lt;/div&gt;
 
 
 &lt;p&gt;Como medida de seguridad, se puede añadir la IP de la máquina de salto en la variable &lt;code&gt;allowed_hosts&lt;/code&gt; del archivo &lt;code&gt;/etc/nagios/nrpe.cfg&lt;/code&gt;:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;allowed_hosts=192.168.60.10
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;allowed_hosts=192.168.60.10
 &lt;/pre&gt;&lt;/div&gt;
 
 
-&lt;p&gt;La documentación de NRPE informa que esta opción se ignora si NPRE se ejecuta bajo &lt;code&gt;inetd&lt;/code&gt; o &lt;code&gt;xinetd&lt;/code&gt;, y que en los casos que se aplica las comprobaciones que realiza son bastante rudimentarias. Por estas razones es bastante común combinar esta variable con comprobaciones adicionales en los archivos &lt;code&gt;/etc/hosts.allow&lt;/code&gt; y &lt;code&gt;/etc/hosts.deny&lt;/code&gt;. &lt;/p&gt;
+&lt;p&gt;La documentación de NRPE informa que esta opción se ignora si NPRE se ejecuta bajo &lt;code&gt;inetd&lt;/code&gt; o &lt;code&gt;xinetd&lt;/code&gt;, y que en los casos que se aplica las comprobaciones que realiza son bastante rudimentarias. Por estas razones es bastante común combinar esta variable con comprobaciones adicionales en los archivos &lt;code&gt;/etc/hosts.allow&lt;/code&gt; y &lt;code&gt;/etc/hosts.deny&lt;/code&gt;.&lt;/p&gt;
 &lt;p&gt;No hay que olvidar reiniciar el servicio &lt;code&gt;nagios-nrpe-server&lt;/code&gt; después de modificar la configuración:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;sudo service nagios-nrpe-server restart
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;sudo service nagios-nrpe-server restart
 &lt;/pre&gt;&lt;/div&gt;
 
 
 &lt;h4&gt;Configuración de la máquina de salto&lt;/h4&gt;
 &lt;p&gt;En la máquina de salto se deben instalar el servidor NRPE y el plugin NRPE de Nagios:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;sudo apt-get install nagios-nrpe-server nagios-plugins
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;sudo apt-get install nagios-nrpe-server nagios-plugins
 &lt;/pre&gt;&lt;/div&gt;
 
 
 &lt;p&gt;Hay que prestar atención a la hora de instalar el paquete &lt;code&gt;nagios-nrpe-plugin&lt;/code&gt; porque "recomienda" el paquete &lt;code&gt;nagios3&lt;/code&gt;, y en Ubuntu los paquetes recomendados se instalan automáticamente. Como no necesitamos instalar Nagios en la máquina de salto, le debemos pasar el flag &lt;code&gt;--no-install-recommends&lt;/code&gt; a &lt;code&gt;apt-get&lt;/code&gt;:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;sudo apt-get install --no-install-recommends nagios-nrpe-plugin
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;sudo apt-get install --no-install-recommends nagios-nrpe-plugin
 &lt;/pre&gt;&lt;/div&gt;
 
 
 &lt;p&gt;El paquete &lt;code&gt;nagios-nrpe-plugin&lt;/code&gt; proporciona el binario &lt;code&gt;check_nrpe&lt;/code&gt; en la ruta &lt;code&gt;/usr/lib/nagios/plugins&lt;/code&gt;. Este binario es en realidad un cliente que utilizaremos para ordenar la ejecución de tests en un host remoto que tenga instalado un servidor NRPE.&lt;/p&gt;
 &lt;p&gt;Es recomendable ejecutar primero el binario &lt;code&gt;check_nrpe&lt;/code&gt; para depurar la configuración, y comprobar que la comunicación entre los hosts es correcta:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;/usr/lib/nagios/plugins/check_nrpe -H 192.168.60.11 -c check_users
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;/usr/lib/nagios/plugins/check_nrpe -H 192.168.60.11 -c check_users
 USERS OK - 1 users currently logged in |users=1;5;10;0
 &lt;/pre&gt;&lt;/div&gt;
 
 
 &lt;p&gt;Una vez se ha comprobado que la comunicación entre la máquina de salto y los hosts es correcta, se añadirá un nuevo test &lt;em&gt;dummy&lt;/em&gt; llamado &lt;code&gt;check_remote_check&lt;/code&gt; en el servidor NRPE de la máquina de salto. La misión de este test es ordenar la ejecución de un test en un host remoto y recoger el resultado. Este nuevo test se definirá al igual que antes en el archivo  &lt;code&gt;/etc/nagios/nrpe.cfg&lt;/code&gt;:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;command[check_remote_check]=/usr/lib/nagios/plugins/check_nrpe -H $ARG1$ -c $ARG2$
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;command[check_remote_check]=/usr/lib/nagios/plugins/check_nrpe -H $ARG1$ -c $ARG2$
 &lt;/pre&gt;&lt;/div&gt;
 
 
@@ -183,36 +166,36 @@ USERS OK - 1 users currently logged in |users=1;5;10;0
 &lt;li&gt;&lt;code&gt;$ARG2$&lt;/code&gt; es el test que se desea ejecutar.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;p&gt;En Ubuntu, el servidor NRPE no permite por defecto el paso de parámetros a los tests porque es un riesgo de seguridad. Para habilitar esta funcionalidad se debe modificar el fichero &lt;code&gt;/etc/nagios/nrpe.cfg&lt;/code&gt; y habilitar la opción &lt;code&gt;dont_blame_nrpe&lt;/code&gt;:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;dont_blame_nrpe=1
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;dont_blame_nrpe=1
 &lt;/pre&gt;&lt;/div&gt;
 
 
 &lt;p&gt;Una alternativa a habilitar los parámetros sería que en lugar de crear un comando genérico como &lt;code&gt;check_remote_check&lt;/code&gt;, añadir comandos específicos para cada host como:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;command[check_remote_users_host1]=/usr/lib/nagios/plugins/check_nrpe -H 192.168.60.11 -c check_users
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;command[check_remote_users_host1]=/usr/lib/nagios/plugins/check_nrpe -H 192.168.60.11 -c check_users
 &lt;/pre&gt;&lt;/div&gt;
 
 
 &lt;p&gt;Aunque posiblemente más segura, esta aproximación tiene la desventaja de que habría que crear un comando para cada uno de los tests de cada uno de los hosts que se quisieran monitorizar.&lt;/p&gt;
-&lt;p&gt;Al igual que en el caso anterior, es aconsejable configurar la variable &lt;code&gt;allowed_hosts&lt;/code&gt; para que sólo figure la IP del servidor Nagios. &lt;/p&gt;
+&lt;p&gt;Al igual que en el caso anterior, es aconsejable configurar la variable &lt;code&gt;allowed_hosts&lt;/code&gt; para que sólo figure la IP del servidor Nagios.&lt;/p&gt;
 &lt;p&gt;No hay que olvidar reiniciar el servicio &lt;code&gt;nagios-nrpe-server&lt;/code&gt; después de modificar la configuración:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;sudo service nagios-nrpe-server restart
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;sudo service nagios-nrpe-server restart
 &lt;/pre&gt;&lt;/div&gt;
 
 
 &lt;h4&gt;Configuración servidor Nagios&lt;/h4&gt;
 &lt;p&gt;Además de Nagios, en el servidor se debe instalar el plugin NRPE:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;sudo apt-get install nagios-nrpe-plugin
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;sudo apt-get install nagios-nrpe-plugin
 &lt;/pre&gt;&lt;/div&gt;
 
 
 &lt;p&gt;Si la configuración de la máquina de salto y de los hosts es correcta, el binario &lt;code&gt;check_nrpe&lt;/code&gt; debería poder ejecutar el test &lt;code&gt;check_remote_check&lt;/code&gt; en la máquina de salto:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;/usr/lib/nagios/plugins/check_nrpe -H 192.168.50.5 -c check_remote_check -a 192.168.60.11 check_users
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;/usr/lib/nagios/plugins/check_nrpe -H 192.168.50.5 -c check_remote_check -a 192.168.60.11 check_users
 USERS OK - 1 users currently logged in |users=1;5;10;0
 &lt;/pre&gt;&lt;/div&gt;
 
 
 &lt;p&gt;Por ejemplo, se pueden definir un conjunto de test que usen &lt;code&gt;check_remote_check&lt;/code&gt; de la máquina de salto de la siguiente manera:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;define host {
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;define host {
     use                 generic-host
     host_name           jumpbox
     alias               JumpBox
@@ -223,7 +206,7 @@ define host {
     use                 generic-host
     host_name           host1
     alias               Host1
-    address             192.168.50.5  
+    address             192.168.50.5
 }
 
 define service {
@@ -257,7 +240,7 @@ define service {
 &lt;li&gt;Se utilizan los comandos &lt;code&gt;check_nrpe_1arg&lt;/code&gt; y &lt;code&gt;check_nrpe_3args&lt;/code&gt; que respectivan invocan a &lt;code&gt;check_nrpe&lt;/code&gt; tomando uno y tres argumentos.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;p&gt;A diferencia de la distribución estándar de Nagios, Ubuntu (o mas bien Debian) fragmenta la definición de los comandos en múltiples ficheros que se encuentran en &lt;code&gt;/etc/nagios-plugins/config/&lt;/code&gt;. En el caso de NRPE, utiliza el archivo &lt;code&gt;check_nrpe.cfg&lt;/code&gt;. En mi caso tuve que añadir la definición del comando &lt;code&gt;check_nrpe_3args&lt;/code&gt; para invocar a &lt;code&gt;check_nrpe&lt;/code&gt; con 3 argumentos:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;# this command runs a program $ARG1$ with arguments $ARG2$
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;# this command runs a program $ARG1$ with arguments $ARG2$
 define command {
     command_name    check_nrpe
     command_line    /usr/lib/nagios/plugins/check_nrpe -H $HOSTADDRESS$ -c $ARG1$ -a $ARG2$
@@ -278,7 +261,7 @@ define command {
 
 
 &lt;p&gt;No hay que olvidar reiniciar el servicio &lt;code&gt;nagios3&lt;/code&gt; después de modificar la configuración:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;sudo service nagios3 restart
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;sudo service nagios3 restart
 &lt;/pre&gt;&lt;/div&gt;
 
 
@@ -289,4 +272,4 @@ define command {
 &lt;li&gt;La monitorización de gran parte de la infraestructura depende exclusivamente de la máquina de salto. Como esta máquina se desconecte o se caiga nos llegarán miles de alertas, aún cuando el resto de la infraestructura esté operativa.&lt;/li&gt;
 &lt;/ol&gt;
 &lt;h3&gt;Conclusiones&lt;/h3&gt;
-&lt;p&gt;Se ha presentado una posible solución para el problema de monitorizar una red privada desde un servidor Nagios que no tiene acceso directo a los elementos de red. Es posible que la solución óptima en estos casos sea que las propias máquinas envíen sus resultados al servidor Nagios, pero cuando esto no sea posible la propuesta presentada puede ser de utilidad.&lt;/p&gt;</summary><category term="nagios"></category><category term="firewall"></category><category term="ubuntu"></category></entry></feed>
+&lt;p&gt;Se ha presentado una posible solución para el problema de monitorizar una red privada desde un servidor Nagios que no tiene acceso directo a los elementos de red. Es posible que la solución óptima en estos casos sea que las propias máquinas envíen sus resultados al servidor Nagios, pero cuando esto no sea posible la propuesta presentada puede ser de utilidad.&lt;/p&gt;</content><category term="sysadmin"></category><category term="nagios"></category><category term="firewall"></category><category term="ubuntu"></category></entry></feed>
