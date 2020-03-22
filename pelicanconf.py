@@ -2,23 +2,28 @@
 # -*- coding: utf-8 -*- #
 from __future__ import unicode_literals
 
-AUTHOR = u'David Castellanos'
-SITENAME = u'pataliebre.net'
-SITEURL = ''
+AUTHOR = 'David Castellanos'
+SITENAME = 'pataliebre.net'
+SITEURL = 'https://pataliebre.net'
 
-TIMEZONE = 'Europe/Paris'
+PATH = 'content'
 
-DEFAULT_LANG = u'es'
+TIMEZONE = 'Europe/Madrid'
+
+DEFAULT_LANG = 'es'
 
 # Feed generation is usually not desired when developing
 FEED_ALL_ATOM = None
 CATEGORY_FEED_ATOM = None
 TRANSLATION_FEED_ATOM = None
+AUTHOR_FEED_ATOM = None
+AUTHOR_FEED_RSS = None
 
 # Blogroll
-#LINKS =  (('Pelican', 'http://getpelican.com/'),
+# LINKS = (('Pelican', 'http://getpelican.com/'),
 #          ('Python.org', 'http://python.org/'),
-#          ('Jinja2', 'http://jinja.pocoo.org/'),)
+#          ('Jinja2', 'http://jinja.pocoo.org/'),
+#          ('You can modify those links in your config file', '#'),)
 
 # Social widget
 SOCIAL = (('github', 'http://github.com/davidcaste'),
@@ -37,10 +42,11 @@ GITHUB_URL = 'https://github.com/davidcaste/davidcaste.github.com'
 
 # Pelican plugins
 PLUGIN_PATHS = ['pelican-plugins']
-PLUGINS = ['related_posts', 'pelican_gist']
+PLUGINS = ['related_posts', 'pelican_gist', 'i18n_subsites']
 
 # Pelican-bootstrap3 Theme Settings
-THEME = 'pelican-bootstrap3'
+THEME = 'pelican-themes/pelican-bootstrap3'
+JINJA_ENVIRONMENT = {'extensions': ['jinja2.ext.i18n']}
 BOOTSTRAP_NAVBAR_INVERSE = True
 BOOTSTRAP_THEME = "united"
 PYGMENTS_STYLE = "solarizedlight"

@@ -27,7 +27,7 @@ Como resulta que el Nagios es corporativo, y que ya tenían el plugin NRPE insta
 Nuestro escenario consiste básicamente en que hay un host que está detrás del firewall y que tiene acceso al resto de elementos que queremos monitorizar. El servidor Nagios se conecta a él, y éste a su vez se conectará al resto de elementos de la red:
 
 <div class="figure">
-    <img alt="{filename}/images/indirectsvccheck2.png" src="{filename}/images/indirectsvccheck2.png" />
+    <img alt="multiple indirected service checks" src="{static}/images/indirectsvccheck2.png" />
 </div>
 
 Tendremos por tanto los siguientes elementos:
@@ -54,7 +54,7 @@ Como medida de seguridad, se puede añadir la IP de la máquina de salto en la v
     ::text
     allowed_hosts=192.168.60.10
 
-La documentación de NRPE informa que esta opción se ignora si NPRE se ejecuta bajo `inetd` o `xinetd`, y que en los casos que se aplica las comprobaciones que realiza son bastante rudimentarias. Por estas razones es bastante común combinar esta variable con comprobaciones adicionales en los archivos `/etc/hosts.allow` y `/etc/hosts.deny`. 
+La documentación de NRPE informa que esta opción se ignora si NPRE se ejecuta bajo `inetd` o `xinetd`, y que en los casos que se aplica las comprobaciones que realiza son bastante rudimentarias. Por estas razones es bastante común combinar esta variable con comprobaciones adicionales en los archivos `/etc/hosts.allow` y `/etc/hosts.deny`.
 
 No hay que olvidar reiniciar el servicio `nagios-nrpe-server` después de modificar la configuración:
 
@@ -104,7 +104,7 @@ Una alternativa a habilitar los parámetros sería que en lugar de crear un coma
 
 Aunque posiblemente más segura, esta aproximación tiene la desventaja de que habría que crear un comando para cada uno de los tests de cada uno de los hosts que se quisieran monitorizar.
 
-Al igual que en el caso anterior, es aconsejable configurar la variable `allowed_hosts` para que sólo figure la IP del servidor Nagios. 
+Al igual que en el caso anterior, es aconsejable configurar la variable `allowed_hosts` para que sólo figure la IP del servidor Nagios.
 
 No hay que olvidar reiniciar el servicio `nagios-nrpe-server` después de modificar la configuración:
 
@@ -139,7 +139,7 @@ Por ejemplo, se pueden definir un conjunto de test que usen `check_remote_check`
         use                 generic-host
         host_name           host1
         alias               Host1
-        address             192.168.50.5  
+        address             192.168.50.5
     }
 
     define service {
